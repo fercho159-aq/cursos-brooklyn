@@ -256,7 +256,8 @@
             font-weight: 700;
             background: linear-gradient(135deg, #fc923b 0%, #feba73 100%);
             -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent
+            -webkit-text-fill-color: transparent;
+            background-clip: text
         }
 
         .stat-label {
@@ -666,6 +667,17 @@
     </div>
 
     <script src="script.js" defer></script>
+
+    <!-- Font Awesome cargado asíncronamente para no bloquear render -->
+    <script>
+        (function () {
+            var link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css';
+            link.crossOrigin = 'anonymous';
+            document.head.appendChild(link);
+        })();
+    </script>
 </body>
 
 </html>

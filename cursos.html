@@ -7,11 +7,18 @@
     <meta name="description"
         content="Cursos de Inglés con certificación Oxford y SELPIP, y Marketing Digital en Cursos Brooklyn. Conoce nuestros programas y transforma tu futuro.">
     <title>Nuestros Cursos | Cursos Brooklyn</title>
+
+    <!-- Preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Google Fonts - carga asíncrona -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap"
+        onload="this.rel='stylesheet'">
+    <noscript>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap">
+    </noscript>
+
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="pages.css">
 </head>
@@ -348,12 +355,12 @@
                     <a href="index.html">🎓 Cursos <span class="highlight">Brooklyn</span></a>
                     <p>Transformando vidas a través de la educación.</p>
                     <div class="footer-social">
-                        <a href="https://www.instagram.com/inglesbrooklyn" target="_blank"><i
-                                class="fab fa-instagram"></i></a>
-                        <a href="https://www.facebook.com/share/16Zt8RuLTy/" target="_blank"><i
-                                class="fab fa-facebook-f"></i></a>
-                        <a href="https://www.tiktok.com/@ingles_brooklyn" target="_blank"><i
-                                class="fab fa-tiktok"></i></a>
+                        <a href="https://www.instagram.com/inglesbrooklyn" target="_blank" rel="noopener noreferrer"
+                            aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="https://www.facebook.com/share/16Zt8RuLTy/" target="_blank" rel="noopener noreferrer"
+                            aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://www.tiktok.com/@ingles_brooklyn" target="_blank" rel="noopener noreferrer"
+                            aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
                     </div>
                 </div>
                 <div class="footer-links">
@@ -380,13 +387,24 @@
 
     <!-- WhatsApp Floating Button -->
     <a href="https://wa.me/5215666883406?text=Hola,%20me%20interesa%20información%20sobre%20los%20cursos%20de%20Brooklyn"
-        target="_blank" class="whatsapp-float" aria-label="Contáctanos por WhatsApp">
+        target="_blank" rel="noopener noreferrer" class="whatsapp-float" aria-label="Contáctanos por WhatsApp">
         <i class="fab fa-whatsapp"></i>
         <span class="whatsapp-tooltip">¿Necesitas ayuda?</span>
     </a>
 
     <button class="back-to-top" id="back-to-top"><i class="fas fa-arrow-up"></i></button>
-    <script src="script.js"></script>
+    <script src="script.js" defer></script>
+
+    <!-- Font Awesome cargado asíncronamente -->
+    <script>
+        (function () {
+            var link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css';
+            link.crossOrigin = 'anonymous';
+            document.head.appendChild(link);
+        })();
+    </script>
 </body>
 
 </html>
