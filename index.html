@@ -7,11 +7,313 @@
     <meta name="description"
         content="Cursos Brooklyn - Aprende Inglés con certificación Oxford y SELPIP, y Marketing Digital. Transforma tu futuro profesional.">
     <title>Cursos Brooklyn | Inglés y Marketing Digital</title>
+
+    <!-- DNS Prefetch y Preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Critical CSS inline - Above the fold + Font fallbacks para evitar CLS -->
+    <style>
+        /* Font fallback con size-adjust para evitar layout shifts */
+        @font-face {
+            font-family: 'Poppins Fallback';
+            src: local('Arial');
+            font-weight: 400;
+            font-style: normal;
+            size-adjust: 105%;
+            ascent-override: 95%;
+            descent-override: 22%;
+            line-gap-override: 0%;
+        }
+
+        @font-face {
+            font-family: 'Poppins Fallback';
+            src: local('Arial Bold'), local('Arial-BoldMT');
+            font-weight: 600;
+            font-style: normal;
+            size-adjust: 105%;
+            ascent-override: 95%;
+            descent-override: 22%;
+            line-gap-override: 0%;
+        }
+
+        @font-face {
+            font-family: 'Poppins Fallback';
+            src: local('Arial Bold'), local('Arial-BoldMT');
+            font-weight: 700;
+            font-style: normal;
+            size-adjust: 105%;
+            ascent-override: 95%;
+            descent-override: 22%;
+            line-gap-override: 0%;
+        }
+
+        /* Critical CSS */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        html {
+            scroll-behavior: smooth
+        }
+
+        body {
+            font-family: 'Poppins', 'Poppins Fallback', system-ui, -apple-system, sans-serif;
+            background: #fff;
+            color: #431407;
+            line-height: 1.6;
+            overflow-x: hidden
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, .95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, .05)
+        }
+
+        .nav-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            max-width: 1400px;
+            margin: 0 auto
+        }
+
+        .nav-logo {
+            font-size: 1.4rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: inherit
+        }
+
+        .highlight {
+            color: #c3410b
+        }
+
+        .nav-menu {
+            display: block
+        }
+
+        .nav-list {
+            display: flex;
+            gap: 30px;
+            list-style: none
+        }
+
+        .nav-link {
+            color: #64748B;
+            font-weight: 500;
+            text-decoration: none
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: .95rem;
+            cursor: pointer;
+            border: none;
+            text-decoration: none
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #fa7315 0%, #eb580b 50%, #c3410b 100%);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, .4)
+        }
+
+        .btn-nav {
+            padding: 10px 20px;
+            font-size: .9rem
+        }
+
+        .promo-banner {
+            background: linear-gradient(135deg, #fc923b 0%, #feba73 100%);
+            color: #fff;
+            padding: 12px 20px;
+            text-align: center;
+            margin-top: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap
+        }
+
+        .promo-cta {
+            background: rgba(255, 255, 255, .2);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            text-decoration: none;
+            color: inherit
+        }
+
+        .hero {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #431407 0%, #7c2d12 50%, #9b3411 100%);
+            display: flex;
+            align-items: center;
+            padding: 120px 20px 60px;
+            position: relative;
+            overflow: hidden
+        }
+
+        .hero-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            position: relative;
+            z-index: 1
+        }
+
+        .hero-content {
+            color: #fff
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, .1);
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: .9rem;
+            margin-bottom: 20px
+        }
+
+        .hero-title {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 20px
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #fa7315 0%, #eb580b 50%, #c3410b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, .8);
+            margin-bottom: 30px;
+            max-width: 500px
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 50px
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #fa7315;
+            color: #fa7315
+        }
+
+        .btn-lg {
+            padding: 16px 32px;
+            font-size: 1.05rem
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 40px
+        }
+
+        .stat-item {
+            text-align: center
+        }
+
+        .stat-number {
+            display: block;
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fc923b 0%, #feba73 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent
+        }
+
+        .stat-label {
+            font-size: .85rem;
+            color: rgba(255, 255, 255, .7)
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px
+        }
+
+        .nav-toggle {
+            display: none
+        }
+
+        @media(max-width:768px) {
+            .nav-menu {
+                display: none
+            }
+
+            .nav-toggle {
+                display: block
+            }
+
+            .hero-container {
+                grid-template-columns: 1fr
+            }
+        }
+
+        /* Icon placeholders mientras carga Font Awesome */
+        .fas,
+        .fab,
+        .fa-solid,
+        .fa-brands {
+            font-family: system-ui;
+            font-style: normal
+        }
+
+        .fa-arrow-right::before {
+            content: '→'
+        }
+
+        .fa-play-circle::before {
+            content: '▶'
+        }
+    </style>
+
+    <!-- Google Fonts - solo pesos necesarios -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap"
+        onload="this.rel='stylesheet'">
+    <noscript>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap">
+    </noscript>
+
+    <!-- Estilos principales -->
     <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -244,14 +546,16 @@
                     <p><i class="fas fa-location-dot"></i> Av Patos LT70, San Pablo, 56364 Chimalhuacán, Méx.</p>
                     <p><i class="fas fa-clock"></i> Lun - Sáb: 9:00 AM - 8:00 PM</p><a
                         href="https://maps.google.com/?q=Av+Patos+LT70+San+Pablo+Chimalhuacan" target="_blank"
-                        class="btn btn-outline">Cómo llegar <i class="fas fa-directions"></i></a>
+                        rel="noopener noreferrer" class="btn btn-outline">Cómo llegar <i
+                            class="fas fa-directions"></i></a>
                 </div>
                 <div class="location-card">
                     <div class="location-icon"><i class="fas fa-map-marker-alt"></i></div>
                     <h3>Sede Ciudad de México</h3>
                     <p><i class="fas fa-location-dot"></i> CDMX - Consulta ubicación</p>
                     <p><i class="fas fa-clock"></i> Lun - Sáb: 9:00 AM - 8:00 PM</p><a
-                        href="https://share.google/53hs6HS5qTCYL4MCw" target="_blank" class="btn btn-outline">Ver
+                        href="https://share.google/53hs6HS5qTCYL4MCw" target="_blank" rel="noopener noreferrer"
+                        class="btn btn-outline">Ver
                         ubicación <i class="fas fa-directions"></i></a>
                 </div>
             </div>
@@ -264,12 +568,12 @@
             <h2>Síguenos en <span class="gradient-text">Redes Sociales</span></h2>
             <p>Tips, promociones y contenido exclusivo</p>
             <div class="social-links">
-                <a href="https://www.instagram.com/inglesbrooklyn" target="_blank" class="social-btn instagram"><i
-                        class="fab fa-instagram"></i> Instagram</a>
-                <a href="https://www.facebook.com/share/16Zt8RuLTy/" target="_blank" class="social-btn facebook"><i
-                        class="fab fa-facebook-f"></i> Facebook</a>
-                <a href="https://www.tiktok.com/@ingles_brooklyn" target="_blank" class="social-btn tiktok"><i
-                        class="fab fa-tiktok"></i> TikTok</a>
+                <a href="https://www.instagram.com/inglesbrooklyn" target="_blank" rel="noopener noreferrer"
+                    class="social-btn instagram"><i class="fab fa-instagram"></i> Instagram</a>
+                <a href="https://www.facebook.com/share/16Zt8RuLTy/" target="_blank" rel="noopener noreferrer"
+                    class="social-btn facebook"><i class="fab fa-facebook-f"></i> Facebook</a>
+                <a href="https://www.tiktok.com/@ingles_brooklyn" target="_blank" rel="noopener noreferrer"
+                    class="social-btn tiktok"><i class="fab fa-tiktok"></i> TikTok</a>
             </div>
         </div>
     </section>
@@ -315,11 +619,12 @@
             <div class="footer-content">
                 <div class="footer-brand"><a href="#">🎓 Cursos <span class="highlight">Brooklyn</span></a>
                     <p>Transformando vidas a través de la educación.</p>
-                    <div class="footer-social"><a href="https://www.instagram.com/inglesbrooklyn" target="_blank"><i
-                                class="fab fa-instagram"></i></a><a href="https://www.facebook.com/share/16Zt8RuLTy/"
-                            target="_blank"><i class="fab fa-facebook-f"></i></a><a
-                            href="https://www.tiktok.com/@ingles_brooklyn" target="_blank"><i
-                                class="fab fa-tiktok"></i></a></div>
+                    <div class="footer-social"><a href="https://www.instagram.com/inglesbrooklyn" target="_blank"
+                            rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a><a
+                            href="https://www.facebook.com/share/16Zt8RuLTy/" target="_blank" rel="noopener noreferrer"
+                            aria-label="Facebook"><i class="fab fa-facebook-f"></i></a><a
+                            href="https://www.tiktok.com/@ingles_brooklyn" target="_blank" rel="noopener noreferrer"
+                            aria-label="TikTok"><i class="fab fa-tiktok"></i></a></div>
                 </div>
                 <div class="footer-links">
                     <h4>Cursos</h4>
@@ -345,7 +650,7 @@
 
     <!-- WhatsApp Floating Button -->
     <a href="https://wa.me/5215666883406?text=Hola,%20me%20interesa%20información%20sobre%20los%20cursos%20de%20Brooklyn"
-        target="_blank" class="whatsapp-float" aria-label="Contáctanos por WhatsApp">
+        target="_blank" rel="noopener noreferrer" class="whatsapp-float" aria-label="Contáctanos por WhatsApp">
         <i class="fab fa-whatsapp"></i>
         <span class="whatsapp-tooltip">¿Necesitas ayuda?</span>
     </a>
@@ -360,7 +665,7 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js" defer></script>
 </body>
 
 </html>
