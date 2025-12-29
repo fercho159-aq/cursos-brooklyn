@@ -730,9 +730,9 @@ section {
 
 .promos-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 30px;
-    max-width: 800px;
+    max-width: 1200px;
     margin: 0 auto;
 }
 
@@ -1315,6 +1315,15 @@ section {
     .footer-social {
         justify-content: center;
     }
+
+    .promos-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .promo-card {
+        padding: 30px 20px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1332,8 +1341,18 @@ section {
     }
 
     .hero-stats {
-        flex-direction: column;
-        gap: 20px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        width: 100%;
+    }
+
+    .stat-number {
+        font-size: 1.5rem;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
     }
 
     .social-links {
