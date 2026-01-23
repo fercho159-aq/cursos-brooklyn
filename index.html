@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Cursos Brooklyn - Aprende Inglés con certificación Oxford y SELPIP, y Marketing Digital. Transforma tu futuro profesional.">
+    <title>Cursos Brooklyn | Inglés y Marketing Digital</title>
+
+    <!-- DNS Prefetch y Preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Critical CSS inline - Above the fold + Font fallbacks para evitar CLS -->
+    <style>
+        /* Font fallback con size-adjust para evitar layout shifts */
+        @font-face {
+            font-family: 'Poppins Fallback';
+            src: local('Arial');
+            font-weight: 400;
+            font-style: normal;
+            size-adjust: 105%;
+            ascent-override: 95%;
+            descent-override: 22%;
+            line-gap-override: 0%;
+        }
+
+        @font-face {
+            font-family: 'Poppins Fallback';
+            src: local('Arial Bold'), local('Arial-BoldMT');
+            font-weight: 600;
+            font-style: normal;
+            size-adjust: 105%;
+            ascent-override: 95%;
+            descent-override: 22%;
+            line-gap-override: 0%;
+        }
+
+        @font-face {
+            font-family: 'Poppins Fallback';
+            src: local('Arial Bold'), local('Arial-BoldMT');
+            font-weight: 700;
+            font-style: normal;
+            size-adjust: 105%;
+            ascent-override: 95%;
+            descent-override: 22%;
+            line-gap-override: 0%;
+        }
+
+        /* Critical CSS */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        html {
+            scroll-behavior: smooth
+        }
+
+        body {
+            font-family: 'Poppins', 'Poppins Fallback', system-ui, -apple-system, sans-serif;
+            background: #fff;
+            color: #431407;
+            line-height: 1.6;
+            overflow-x: hidden
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, .95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, .05)
+        }
+
+        .nav-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            max-width: 1400px;
+            margin: 0 auto
+        }
+
+        .nav-logo {
+            font-size: 1.4rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: inherit
+        }
+
+        .highlight {
+            color: #c3410b
+        }
+
+        .nav-menu {
+            display: block
+        }
+
+        .nav-list {
+            display: flex;
+            gap: 30px;
+            list-style: none
+        }
+
+        .nav-link {
+            color: #64748B;
+            font-weight: 500;
+            text-decoration: none
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: .95rem;
+            cursor: pointer;
+            border: none;
+            text-decoration: none
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #fa7315 0%, #eb580b 50%, #c3410b 100%);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, .4)
+        }
+
+        .btn-nav {
+            padding: 10px 20px;
+            font-size: .9rem
+        }
+
+        .promo-banner {
+            background: linear-gradient(135deg, #fc923b 0%, #feba73 100%);
+            color: #fff;
+            padding: 12px 20px;
+            text-align: center;
+            margin-top: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap
+        }
+
+        .promo-cta {
+            background: rgba(255, 255, 255, .2);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            text-decoration: none;
+            color: inherit
+        }
+
+        .hero {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #431407 0%, #7c2d12 50%, #9b3411 100%);
+            display: flex;
+            align-items: center;
+            padding: 120px 20px 60px;
+            position: relative;
+            overflow: hidden
+        }
+
+        .hero-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            position: relative;
+            z-index: 1
+        }
+
+        .hero-content {
+            color: #fff
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, .1);
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: .9rem;
+            margin-bottom: 20px
+        }
+
+        .hero-title {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 20px
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #fa7315 0%, #eb580b 50%, #c3410b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, .8);
+            margin-bottom: 30px;
+            max-width: 500px
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 50px
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #fa7315;
+            color: #fa7315
+        }
+
+        .btn-lg {
+            padding: 16px 32px;
+            font-size: 1.05rem
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 40px
+        }
+
+        .stat-item {
+            text-align: center
+        }
+
+        .stat-number {
+            display: block;
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fc923b 0%, #feba73 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text
+        }
+
+        .stat-label {
+            font-size: .85rem;
+            color: rgba(255, 255, 255, .7)
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px
+        }
+
+        .nav-toggle {
+            display: none
+        }
+
+        @media(max-width:768px) {
+            .nav-menu {
+                display: none
+            }
+
+            .nav-toggle {
+                display: block
+            }
+
+            .hero-container {
+                grid-template-columns: 1fr
+            }
+        }
+
+        /* Icon placeholders mientras carga Font Awesome */
+        .fas,
+        .fab,
+        .fa-solid,
+        .fa-brands {
+            font-family: system-ui;
+            font-style: normal
+        }
+
+        .fa-arrow-right::before {
+            content: '→'
+        }
+
+        .fa-play-circle::before {
+            content: '▶'
+        }
+    </style>
+
+    <!-- Google Fonts - solo pesos necesarios -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap"
+        onload="this.rel='stylesheet'">
+    <noscript>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap">
+    </noscript>
+
+    <!-- Estilos principales -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-logo"><i class="fas fa-graduation-cap highlight"></i> Cursos <span
+                    class="highlight">Brooklyn</span></a>
+            <div class="nav-menu" id="nav-menu">
+                <ul class="nav-list">
+                    <li><a href="#inicio" class="nav-link">Inicio</a></li>
+                    <li><a href="cursos.html" class="nav-link">Cursos</a></li>
+                    <li><a href="porque-brooklyn.html" class="nav-link">¿Por qué Brooklyn?</a></li>
+                    <li><a href="#promociones" class="nav-link">Promociones</a></li>
+                    <li><a href="#sedes" class="nav-link">Sedes</a></li>
+                    <li><a href="#contacto" class="nav-link">Contacto</a></li>
+                </ul>
+            </div>
+            <div class="nav-actions">
+                <div class="nav-social">
+                    <a href="https://www.instagram.com/cursosbrooklynchimalhuacan?igsh=MWpwZ2drMzhnbGlqeA=="
+                        target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i
+                            class="fab fa-instagram"></i></a>
+                    <a href="https://www.facebook.com/share/1ErZWi2BwZ/" target="_blank" rel="noopener noreferrer"
+                        aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.tiktok.com/@cursosbrooklynchimal?_r=1&_t=ZS-93JYy5xstWK" target="_blank"
+                        rel="noopener noreferrer" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+                </div>
+                <a href="#contacto" class="btn btn-primary btn-nav">Inscríbete <i class="fas fa-arrow-right"></i></a>
+                <button class="nav-toggle" id="nav-toggle"><span class="hamburger"></span></button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Promo Banner -->
+    <div class="promo-banner">
+        <span><i class="fas fa-gift"></i> <strong>¡Inscripción GRATIS</strong> todo enero 2025!</span>
+        <a href="#contacto" class="promo-cta">Aprovecha ahora →</a>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero" id="inicio">
+        <div class="hero-bg"></div>
+        <div class="hero-container">
+            <div class="hero-content">
+                <div class="hero-badge"><i class="fas fa-star text-warning"></i> +500 estudiantes confían en nosotros
+                </div>
+                <h1 class="hero-title">Transforma tu <span class="gradient-text">futuro</span> con educación de calidad
+                </h1>
+                <p class="hero-subtitle">Domina el inglés con <strong>certificaciones Oxford y SELPIP</strong>, o
+                    conviértete en experto en <strong>Marketing Digital</strong>.</p>
+                <div class="hero-cta">
+                    <a href="#contacto" class="btn btn-primary btn-lg">Inscríbete con descuento <i
+                            class="fas fa-arrow-right"></i></a>
+                    <a href="#cursos" class="btn btn-outline btn-lg"><i class="fas fa-play-circle"></i> Ver cursos</a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-item"><span class="stat-number">500+</span><span
+                            class="stat-label">Estudiantes</span></div>
+                    <div class="stat-item"><span class="stat-number">95%</span><span
+                            class="stat-label">Satisfacción</span></div>
+                    <div class="stat-item"><span class="stat-number">2</span><span class="stat-label">Sedes</span></div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <img src="hero-student.png" alt="Estudiante feliz aprendiendo en Cursos Brooklyn" class="hero-image">
+            </div>
+        </div>
+    </section>
+
+    <!-- Courses Section -->
+    <section class="courses" id="cursos">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">Nuestros Programas</span>
+                <h2 class="section-title">Cursos diseñados para tu <span class="gradient-text">éxito</span></h2>
+            </div>
+            <div class="courses-grid">
+                <div class="course-card featured">
+                    <div class="course-badge">Más Popular</div>
+                    <div class="course-icon"><i class="fas fa-language"></i></div>
+                    <h3>Curso de Inglés</h3>
+                    <p>Domina el idioma más importante del mundo con nuestra metodología probada.</p>
+                    <div class="course-features">
+                        <div class="feature"><i class="fas fa-check-circle"></i> Certificación Oxford</div>
+                        <div class="feature"><i class="fas fa-check-circle"></i> Preparación SELPIP</div>
+                        <div class="feature"><i class="fas fa-check-circle"></i> Todos los niveles</div>
+                        <div class="feature"><i class="fas fa-check-circle"></i> Material incluido</div>
+                    </div>
+                    <div class="course-meta"><i class="fas fa-clock"></i> 2 años | <i class="fas fa-users"></i> Grupos
+                        reducidos</div>
+                    <div class="course-pricing"><span class="price-label">Desde</span><span
+                            class="price-amount">$1,500<small>/mes</small></span></div>
+                    <a href="#contacto" class="btn btn-primary btn-block">Más información <i
+                            class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="course-card">
+                    <div class="course-badge new">Nuevo</div>
+                    <div class="course-icon"><i class="fas fa-bullhorn"></i></div>
+                    <h3>Marketing Digital</h3>
+                    <p>Aprende las estrategias más efectivas del marketing digital.</p>
+                    <div class="course-features">
+                        <div class="feature"><i class="fas fa-check-circle"></i> Redes Sociales</div>
+                        <div class="feature"><i class="fas fa-check-circle"></i> Publicidad Digital</div>
+                        <div class="feature"><i class="fas fa-check-circle"></i> SEO & SEM</div>
+                        <div class="feature"><i class="fas fa-check-circle"></i> Proyectos reales</div>
+                    </div>
+                    <div class="course-meta"><i class="fas fa-clock"></i> Módulos de 2 meses | <i
+                            class="fas fa-laptop-house"></i> Presencial u Online</div>
+                    <div class="course-pricing"><span class="price-label">Planes</span><span
+                            class="price-amount flexible">Flexibles</span></div>
+                    <a href="#contacto" class="btn btn-secondary btn-block">Más información <i
+                            class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="benefits" id="beneficios">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">Nuestras Ventajas</span>
+                <h2 class="section-title">¿Por qué elegir <span class="gradient-text">Brooklyn</span>?</h2>
+            </div>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon"><i class="fas fa-certificate"></i></div>
+                    <h3>Certificaciones Internacionales</h3>
+                    <p>Obtén certificaciones Oxford y SELPIP reconocidas mundialmente.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon"><i class="fas fa-calendar-alt"></i></div>
+                    <h3>Horarios Flexibles</h3>
+                    <p>Clases matutinas, vespertinas y sabatinas disponibles.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+                    <h3>Profesores Certificados</h3>
+                    <p>Equipo docente con certificaciones internacionales.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon"><i class="fas fa-laptop-code"></i></div>
+                    <h3>Metodología Práctica</h3>
+                    <p>Aprende haciendo con práctica real y efectiva.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Promotions Section -->
+    <section class="promotions" id="promociones">
+        <div class="container">
+            <div class="section-header light">
+                <span class="section-badge">Ofertas Especiales</span>
+                <h2 class="section-title">Promociones <span class="gradient-text">Exclusivas</span></h2>
+            </div>
+            <div class="promos-grid">
+                <div class="promo-card main-promo">
+                    <div class="promo-ribbon">¡HOT!</div>
+                    <div class="promo-icon"><i class="fas fa-gift"></i></div>
+                    <h3>Inscripción GRATIS</h3>
+                    <p class="promo-period">Todo enero 2025</p>
+                    <p>¡No pagues inscripción! Inicia tu camino hacia el éxito sin costo.</p>
+                    <div class="promo-value"><span class="original">$500</span><span class="current">$0</span></div>
+                    <a href="#contacto" class="btn btn-light btn-block">¡Lo quiero! <i
+                            class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="promo-card">
+                    <div class="promo-ribbon">50% OFF</div>
+                    <div class="promo-icon"><i class="fas fa-bullseye"></i></div>
+                    <h3>Segundo a Mitad de Precio</h3>
+                    <p class="promo-period">Promoción permanente</p>
+                    <p>Inscribe a un familiar o amigo y el segundo paga solo la mitad.</p>
+                    <div class="promo-benefit"><i class="fas fa-percent"></i> 50% de descuento en segunda inscripción
+                    </div>
+                    <a href="#contacto" class="btn btn-primary btn-block">Aprovechar oferta <i
+                            class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="testimonials">
+        <div class="container">
+            <div class="section-header"><span class="section-badge">Testimonios</span>
+                <h2 class="section-title">Lo que dicen nuestros <span class="gradient-text">estudiantes</span></h2>
+            </div>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                            class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <p>"Gracias a Brooklyn logré mi certificación Oxford. ¡100% recomendado!"</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">MG</div>
+                        <div>
+                            <h4>María García</h4><span>Estudiante de Inglés</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                            class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <p>"El curso de Marketing Digital me abrió las puertas a mi primer trabajo."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">CR</div>
+                        <div>
+                            <h4>Carlos Rodríguez</h4><span>Egresado Marketing</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                            class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <p>"Los horarios flexibles me permitieron estudiar mientras trabajaba."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">AL</div>
+                        <div>
+                            <h4>Ana López</h4><span>Estudiante de Inglés</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Locations -->
+    <section class="locations" id="sedes">
+        <div class="container">
+            <div class="section-header"><span class="section-badge">Encuéntranos</span>
+                <h2 class="section-title">Nuestras <span class="gradient-text">Sedes</span></h2>
+            </div>
+            <div class="locations-grid">
+                <div class="location-card">
+                    <div class="location-icon"><i class="fas fa-map-marker-alt"></i></div>
+                    <h3>Sede Chimalhuacán</h3>
+                    <p><i class="fas fa-location-dot"></i> Av Patos Manzana 019 Lote 70, San Pablo, 56364 Chimalhuacán,
+                        Méx.</p>
+                    <p><i class="fas fa-clock"></i> Lun - Sáb: 9:00 AM - 8:00 PM</p>
+                    <div class="map-container"
+                        style="margin-top: 15px; width: 100%; height: 250px; border-radius: 8px; overflow: hidden; margin-bottom: 20px;">
+                        <iframe width="100%" height="100%" frameborder="0" style="border:0"
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3762.6809767472732!2d-98.9488782!3d19.426185299999997!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x85d1e328445acaef%3A0xda605a5c250e97df!2sCursos%20Brooklyn!5e0!3m2!1ses!2smx!4v1769184749635!5m2!1ses!2smx"
+                            allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </div>
+                    <a href="https://share.google/qmY8IFP0B3EIlB0Ns" target="_blank" rel="noopener noreferrer"
+                        class="btn btn-outline btn-block text-center"
+                        style="display: flex; justify-content: center; align-items: center; gap: 8px;">
+                        <i class="fab fa-google"></i> Dejar una recomendación
+                    </a>
+                </div>
+                <div class="location-card">
+                    <div class="location-icon"><i class="fas fa-map-marker-alt"></i></div>
+                    <h3>Sede Ciudad de México</h3>
+                    <p><i class="fas fa-location-dot"></i> Av. Popocatépetl 415, Sta Cruz Atoyac, Benito Juárez, 03310
+                        Ciudad de México, CDMX</p>
+                    <p><i class="fas fa-clock"></i> Lun - Sáb: 9:00 AM - 8:00 PM</p>
+                    <div class="map-container"
+                        style="margin-top: 15px; width: 100%; height: 250px; border-radius: 8px; overflow: hidden; margin-bottom: 20px;">
+                        <iframe width="100%" height="100%" frameborder="0" style="border:0"
+                            src="https://maps.google.com/maps?q=Av.+Popocatépetl+415,+Sta+Cruz+Atoyac,+Benito+Juárez,+03310+Ciudad+de+México,+CDMX&z=15&output=embed"
+                            allowfullscreen></iframe>
+                    </div>
+                    <a href="https://maps.app.goo.gl/6GuuK8ULLNijYZqW6" target="_blank" rel="noopener noreferrer"
+                        class="btn btn-outline btn-block text-center"
+                        style="display: flex; justify-content: center; align-items: center; gap: 8px;">
+                        <i class="fab fa-google"></i> Dejar una recomendación
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Social Media -->
+    <section class="social-section">
+        <div class="container">
+            <h2>Síguenos en <span class="gradient-text">Redes Sociales</span></h2>
+            <p>Tips, promociones y contenido exclusivo</p>
+            <div class="social-links">
+                <a href="https://www.instagram.com/cursosbrooklynchimalhuacan?igsh=MWpwZ2drMzhnbGlqeA==" target="_blank"
+                    rel="noopener noreferrer" class="social-btn instagram"><i class="fab fa-instagram"></i>
+                    Instagram</a>
+                <a href="https://www.facebook.com/share/1ErZWi2BwZ/" target="_blank" rel="noopener noreferrer"
+                    class="social-btn facebook"><i class="fab fa-facebook-f"></i> Facebook</a>
+                <a href="https://www.tiktok.com/@cursosbrooklynchimal?_r=1&_t=ZS-93JYy5xstWK" target="_blank"
+                    rel="noopener noreferrer" class="social-btn tiktok"><i class="fab fa-tiktok"></i> TikTok</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact -->
+    <section class="contact" id="contacto">
+        <div class="container">
+            <div class="contact-wrapper">
+                <div class="contact-info">
+                    <span class="section-badge">Contáctanos</span>
+                    <h2>¿Listo para <span class="gradient-text">transformar</span> tu futuro?</h2>
+                    <p>Envíanos un mensaje y te asesoraremos personalmente.</p>
+                    <div class="contact-benefits">
+                        <div><i class="fas fa-check-circle"></i> Asesoría sin compromiso</div>
+                        <div><i class="fas fa-check-circle"></i> Respuesta en 24 horas</div>
+                        <div><i class="fas fa-check-circle"></i> Clase de prueba gratuita</div>
+                    </div>
+                </div>
+                <div class="contact-action" style="text-align: center; width: 100%;">
+                    <a href="https://wa.me/5215625813428?text=Hola,%20quisiera%20m%C3%A1s%20informaci%C3%B3n%20sobre%20los%20cursos"
+                        target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-lg"
+                        style="font-size: 1.5rem; padding: 20px 40px; box-shadow: 0 10px 30px rgba(37, 211, 102, 0.4);">
+                        <i class="fab fa-whatsapp" style="font-size: 2rem;"></i> Enviar WhatsApp
+                    </a>
+                    <p style="margin-top: 15px; font-size: 0.9rem; opacity: 0.8;">Respuesta inmediata</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand"><a href="#"> <i class="fas fa-graduation-cap highlight"></i> Cursos <span
+                            class="highlight">Brooklyn</span></a>
+                    <p>Transformando vidas a través de la educación.</p>
+                    <div class="footer-social"><a
+                            href="https://www.instagram.com/cursosbrooklynchimalhuacan?igsh=MWpwZ2drMzhnbGlqeA=="
+                            target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i
+                                class="fab fa-instagram"></i></a><a href="https://www.facebook.com/share/1ErZWi2BwZ/"
+                            target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i
+                                class="fab fa-facebook-f"></i></a><a
+                            href="https://www.tiktok.com/@cursosbrooklynchimal?_r=1&_t=ZS-93JYy5xstWK" target="_blank"
+                            rel="noopener noreferrer" aria-label="TikTok"><i class="fab fa-tiktok"></i></a></div>
+                </div>
+                <div class="footer-links">
+                    <h4>Cursos</h4>
+                    <ul>
+                        <li><a href="cursos.html#ingles">Inglés</a></li>
+                        <li><a href="cursos.html#marketing">Marketing Digital</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Info</h4>
+                    <ul>
+                        <li><a href="porque-brooklyn.html">¿Por qué Brooklyn?</a></li>
+                        <li><a href="#sedes">Sedes</a></li>
+                        <li><a href="#contacto">Contacto</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2025 Cursos Brooklyn. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/5215625813428?text=Hola,%20me%20interesa%20información%20sobre%20los%20cursos%20de%20Brooklyn"
+        target="_blank" rel="noopener noreferrer" class="whatsapp-float" aria-label="Contáctanos por WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+        <span class="whatsapp-tooltip">¿Necesitas ayuda?</span>
+    </a>
+
+    <button class="back-to-top" id="back-to-top"><i class="fas fa-arrow-up"></i></button>
+    <div class="modal" id="success-modal">
+        <div class="modal-content">
+            <div class="modal-icon"><i class="fas fa-check"></i></div>
+            <h3>¡Mensaje enviado!</h3>
+            <p>Un asesor te contactará pronto.</p><button class="btn btn-primary"
+                onclick="closeModal()">Entendido</button>
+        </div>
+    </div>
+
+    <script src="script.js" defer></script>
+
+    <!-- Font Awesome cargado asíncronamente para no bloquear render -->
+    <script>
+        (function () {
+            var link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css';
+            link.crossOrigin = 'anonymous';
+            document.head.appendChild(link);
+        })();
+    </script>
+</body>
+
+</html>
