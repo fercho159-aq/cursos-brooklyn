@@ -261,11 +261,14 @@
     <script>
         let usuario = null;
 
+        // Helper para fetch con credenciales
+        const api = (url, options = {}) => fetch(url, { ...options, credentials: 'include' });
+
         // Inicialización
         document.addEventListener('DOMContentLoaded', async function () {
             try {
                 // Verificar sesión
-                const response = await fetch('/api/me');
+                const response = await api('/api/me');
                 if (!response.ok) {
                     window.location.href = 'login.html';
                     return;
@@ -304,7 +307,7 @@
         // Cargar inscripciones
         async function cargarInscripciones() {
             try {
-                const response = await fetch('/api/alumno/inscripciones');
+                const response = await api('/api/alumno/inscripciones');
                 const inscripciones = await response.json();
 
                 const container = document.getElementById('inscripciones-container');
@@ -398,7 +401,7 @@
         // Cargar historial de pagos
         async function cargarPagos() {
             try {
-                const response = await fetch('/api/alumno/pagos');
+                const response = await api('/api/alumno/pagos');
                 const pagos = await response.json();
 
                 const container = document.getElementById('pagos-container');
@@ -447,7 +450,7 @@
         // Cargar contenido/lecciones
         async function cargarContenido() {
             try {
-                const response = await fetch('/api/alumno/lecciones');
+                const response = await api('/api/alumno/lecciones');
                 const data = await response.json();
 
                 const container = document.getElementById('contenido-container');
@@ -505,7 +508,7 @@
         async function toggleLeccion(id, estaCompletada) {
             try {
                 const endpoint = estaCompletada ? 'desmarcar' : 'completar';
-                await fetch(`/api/alumno/lecciones/${id}/${endpoint}`, { method: 'POST' });
+                await api(`/api/alumno/lecciones/${id}/${endpoint}`, { method: 'POST' });
                 await cargarContenido();
             } catch (error) {
                 console.error('Error:', error);
@@ -513,7 +516,7 @@
         }
 
         async function logout() {
-            await fetch('/api/logout', { method: 'POST' });
+            await api('/api/logout', { method: 'POST' });
             window.location.href = 'login.html';
         }
     </script>

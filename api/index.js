@@ -28,9 +28,10 @@ const parseCookies = (req) => {
 
 // Helper para setear cookie
 const setCookie = (res, token) => {
+    const isProduction = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
     res.setHeader('Set-Cookie', cookie.serialize('token', token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: isProduction,
         sameSite: 'lax',
         maxAge: 60 * 60 * 24, // 24 horas
         path: '/'
@@ -39,9 +40,10 @@ const setCookie = (res, token) => {
 
 // Helper para limpiar cookie
 const clearCookie = (res) => {
+    const isProduction = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
     res.setHeader('Set-Cookie', cookie.serialize('token', '', {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: isProduction,
         sameSite: 'lax',
         maxAge: 0,
         path: '/'

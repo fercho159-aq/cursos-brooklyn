@@ -508,11 +508,14 @@
         let horarios = [];
         let debounceTimer = null;
 
+        // Helper para fetch con credenciales
+        const api = (url, options = {}) => fetch(url, { ...options, credentials: 'include' });
+
         // Inicialización
         document.addEventListener('DOMContentLoaded', async function () {
             try {
                 // Verificar sesión
-                const response = await fetch('/api/me');
+                const response = await api('/api/me');
                 if (!response.ok) {
                     window.location.href = 'login.html';
                     return;
@@ -544,7 +547,7 @@
 
         async function cargarStats() {
             try {
-                const response = await fetch('/api/admin/stats');
+                const response = await api('/api/admin/stats');
                 const stats = await response.json();
 
                 document.getElementById('stat-alumnos').textContent = stats.totalAlumnos;
@@ -558,7 +561,7 @@
 
         async function cargarAlumnos() {
             try {
-                const response = await fetch('/api/admin/alumnos');
+                const response = await api('/api/admin/alumnos');
                 const alumnos = await response.json();
 
                 const tbody = document.getElementById('alumnos-tbody');
@@ -588,7 +591,7 @@
         async function cargarCursosYHorarios() {
             try {
                 // Cargar cursos
-                const cursosRes = await fetch('/api/cursos');
+                const cursosRes = await api('/api/cursos');
                 cursos = await cursosRes.json();
 
                 const selectCurso = document.getElementById('inscripcion-curso');
@@ -609,7 +612,7 @@
                 });
 
                 // Cargar horarios
-                const horariosRes = await fetch('/api/horarios');
+                const horariosRes = await api('/api/horarios');
                 horarios = await horariosRes.json();
 
                 const selectHorario = document.getElementById('inscripcion-horario');
@@ -648,7 +651,7 @@
                 }
 
                 try {
-                    const response = await fetch(`/api/admin/buscar/${encodeURIComponent(query)}`);
+                    const response = await api(`/api/admin/buscar/${encodeURIComponent(query)}`);
                     const alumnos = await response.json();
 
                     if (alumnos.length === 0) {
@@ -679,7 +682,7 @@
             document.getElementById('modal-alumno-content').innerHTML = '<div class="loading"><div class="spinner"></div></div>';
 
             try {
-                const response = await fetch(`/api/admin/alumno/${id}`);
+                const response = await api(`/api/admin/alumno/${id}`);
                 const data = await response.json();
 
                 document.getElementById('modal-alumno-nombre').textContent = data.alumno.nombre;
@@ -843,7 +846,7 @@
                 if (celular.length < 10) return;
 
                 try {
-                    const response = await fetch(`/api/admin/buscar-alumno/${celular}`);
+                    const response = await api(`/api/admin/buscar-alumno/${celular}`);
                     const alumnos = await response.json();
 
                     if (alumnos.length > 0) {
@@ -870,7 +873,7 @@
                 if (celular.length < 10) return;
 
                 try {
-                    const response = await fetch(`/api/admin/buscar-alumno/${celular}`);
+                    const response = await api(`/api/admin/buscar-alumno/${celular}`);
                     const alumnos = await response.json();
 
                     if (alumnos.length > 0 && alumnos[0].inscripciones) {
@@ -918,7 +921,7 @@
             }
 
             try {
-                const response = await fetch('/api/admin/inscripcion', {
+                const response = await api('/api/admin/inscripcion', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -960,7 +963,7 @@
             }
 
             try {
-                const response = await fetch('/api/admin/pago', {
+                const response = await api('/api/admin/pago', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -1000,7 +1003,7 @@
             e.preventDefault();
 
             try {
-                const response = await fetch('/api/admin/gasto', {
+                const response = await api('/api/admin/gasto', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -1041,7 +1044,7 @@
                     url += `?desde=${desde}&hasta=${hasta}`;
                 }
 
-                const response = await fetch(url);
+                const response = await api(url);
                 const data = await response.json();
 
                 // Actualizar resumen
@@ -1090,7 +1093,7 @@
                     url += `?desde=${desde}&hasta=${hasta}`;
                 }
 
-                const response = await fetch(url);
+                const response = await api(url);
                 const gastos = await response.json();
 
                 const container = document.getElementById('lista-gastos');
@@ -1129,7 +1132,7 @@
         }
 
         async function logout() {
-            await fetch('/api/logout', { method: 'POST' });
+            await api('/api/logout', { method: 'POST' });
             window.location.href = 'login.html';
         }
     </script>
