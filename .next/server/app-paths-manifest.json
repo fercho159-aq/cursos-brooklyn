@@ -1,0 +1,22 @@
+{
+  "/login/page": "app/login/page.js",
+  "/page": "app/page.js",
+  "/api/me/route": "app/api/me/route.js",
+  "/api/login/route": "app/api/login/route.js",
+  "/api/admin/cursos/route": "app/api/admin/cursos/route.js",
+  "/api/admin/stats/route": "app/api/admin/stats/route.js",
+  "/api/admin/horarios/route": "app/api/admin/horarios/route.js",
+  "/api/admin/inscripciones/route": "app/api/admin/inscripciones/route.js",
+  "/api/admin/pagos/route": "app/api/admin/pagos/route.js",
+  "/api/admin/gastos/route": "app/api/admin/gastos/route.js",
+  "/api/admin/lecciones/route": "app/api/admin/lecciones/route.js",
+  "/api/admin/usuarios/route": "app/api/admin/usuarios/route.js",
+  "/admin/page": "app/admin/page.js",
+  "/admin/usuarios/page": "app/admin/usuarios/page.js",
+  "/admin/horarios/page": "app/admin/horarios/page.js",
+  "/admin/lecciones/page": "app/admin/lecciones/page.js",
+  "/admin/cursos/page": "app/admin/cursos/page.js",
+  "/admin/pagos/page": "app/admin/pagos/page.js",
+  "/admin/gastos/page": "app/admin/gastos/page.js",
+  "/admin/inscripciones/page": "app/admin/inscripciones/page.js"
+}
