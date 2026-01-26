@@ -1,14 +1,5 @@
 {
   "version": 2,
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api" },
-    { "source": "/portal", "destination": "/sistema-admin/public/index.html" },
-    { "source": "/admin.html", "destination": "/sistema-admin/public/admin.html" },
-    { "source": "/alumno.html", "destination": "/sistema-admin/public/alumno.html" },
-    { "source": "/login.html", "destination": "/sistema-admin/public/login.html" },
-    { "source": "/registro.html", "destination": "/sistema-admin/public/registro.html" },
-    { "source": "/exito.html", "destination": "/sistema-admin/public/exito.html" }
-  ],
   "headers": [
     {
       "source": "/api/(.*)",
