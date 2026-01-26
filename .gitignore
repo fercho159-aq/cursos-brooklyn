@@ -2,6 +2,10 @@
 node_modules/
 sistema-admin/node_modules/
 
+# Next.js build output
+.next/
+out/
+
 # Environment files
 .env
 .env.local
