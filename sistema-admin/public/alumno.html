@@ -261,15 +261,31 @@
     <script>
         let usuario = null;
 
-        // Helper para fetch con credenciales
-        const api = (url, options = {}) => fetch(url, { ...options, credentials: 'include' });
+        // Helper para fetch con token de localStorage
+        const api = (url, options = {}) => {
+            const token = localStorage.getItem('token');
+            const headers = { ...options.headers };
+            if (token) {
+                headers['Authorization'] = 'Bearer ' + token;
+            }
+            return fetch(url, { ...options, headers, credentials: 'include' });
+        };
 
         // Inicialización
         document.addEventListener('DOMContentLoaded', async function () {
             try {
-                // Verificar sesión
+                // Verificar si hay token guardado
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Verificar sesión con el servidor
                 const response = await api('/api/me');
                 if (!response.ok) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('usuario');
                     window.location.href = 'login.html';
                     return;
                 }
@@ -516,6 +532,8 @@
         }
 
         async function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('usuario');
             await api('/api/logout', { method: 'POST' });
             window.location.href = 'login.html';
         }

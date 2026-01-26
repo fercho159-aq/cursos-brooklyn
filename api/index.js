@@ -52,14 +52,30 @@ const clearCookie = (res) => {
 
 // Middleware para verificar JWT
 const verifyToken = (req) => {
-    const cookies = parseCookies(req);
-    const token = cookies.token;
+    // Intentar obtener token del header Authorization primero
+    let token = null;
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+    }
 
-    if (!token) return null;
+    // Si no hay token en header, intentar cookie
+    if (!token) {
+        const cookies = parseCookies(req);
+        token = cookies.token;
+    }
+
+    if (!token) {
+        console.log('No se encontró token');
+        return null;
+    }
 
     try {
-        return jwt.verify(token, JWT_SECRET);
+        const decoded = jwt.verify(token, JWT_SECRET);
+        console.log('Token válido, usuario:', decoded.nombre);
+        return decoded;
     } catch (e) {
+        console.log('Token inválido:', e.message);
         return null;
     }
 };
@@ -71,6 +87,7 @@ const requireAuth = (req, res, next) => {
         req.usuario = usuario;
         next();
     } else {
+        console.log('requireAuth: No autorizado');
         res.status(401).json({ error: 'No autorizado' });
     }
 };
@@ -243,10 +260,14 @@ app.post('/api/login', async (req, res) => {
             rol: usuario.rol
         }, JWT_SECRET, { expiresIn: '24h' });
 
+        console.log('Login exitoso para:', usuario.nombre, '- Rol:', usuario.rol);
+
+        // También setear cookie como backup
         setCookie(res, token);
 
         res.json({
             success: true,
+            token: token, // Enviar token para localStorage
             usuario: {
                 id: usuario.id,
                 nombre: usuario.nombre,
