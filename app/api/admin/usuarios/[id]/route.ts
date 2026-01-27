@@ -46,15 +46,39 @@ export async function PATCH(
     const { id } = await params;
     const body = await request.json();
 
-    const allowedFields = ['nombre', 'celular', 'email', 'edad', 'fecha_cumpleanos', 'rol', 'activo'];
+    const allowedFields = [
+      'nombre', 'celular', 'email', 'edad', 'fecha_cumpleanos', 'rol', 'activo',
+      'genero', 'tipo_curso', 'turno', 'dia', 'abono', 'total', 'estado_pago', 'estado',
+      'lunes', 'martes', 'miercoles', 'jueves', 'sabado', 'horario'
+    ];
     const updates: string[] = [];
     const values: (string | number | boolean | null)[] = [];
     let paramIndex = 1;
 
+    // Campos que necesitan conversión especial
+    const numericFields = ['edad', 'abono', 'total'];
+    const dateFields = ['fecha_cumpleanos'];
+
     for (const field of allowedFields) {
       if (body[field] !== undefined) {
         updates.push(`${field} = $${paramIndex}`);
-        values.push(body[field]);
+
+        let value = body[field];
+
+        // Convertir campos numéricos vacíos a null
+        if (numericFields.includes(field)) {
+          value = value && value !== '' ? parseFloat(value) : null;
+        }
+        // Convertir campos de fecha vacíos a null
+        else if (dateFields.includes(field)) {
+          value = value && value !== '' ? value : null;
+        }
+        // Convertir strings vacíos a null para otros campos de texto
+        else if (typeof value === 'string' && value === '') {
+          value = null;
+        }
+
+        values.push(value);
         paramIndex++;
       }
     }
@@ -71,7 +95,9 @@ export async function PATCH(
 
     values.push(id);
     const query = `UPDATE usuarios SET ${updates.join(', ')} WHERE id = $${paramIndex}
-                   RETURNING id, nombre, celular, email, edad, fecha_cumpleanos, rol, activo, created_at`;
+                   RETURNING id, nombre, celular, email, edad, fecha_cumpleanos, rol, activo, created_at,
+                   genero, tipo_curso, turno, dia, abono, total, estado_pago, estado,
+                   lunes, martes, miercoles, jueves, sabado, horario`;
 
     const result = await pool.query(query, values);
 

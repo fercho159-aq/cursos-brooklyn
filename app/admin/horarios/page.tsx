@@ -2,31 +2,58 @@
 
 import { useEffect, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus, faEdit, faTrash, faSave, faTimes } from '@fortawesome/free-solid-svg-icons'
+import { faUsers, faCalendarAlt, faSun, faMoon, faChevronDown, faChevronUp, faClock } from '@fortawesome/free-solid-svg-icons'
 
-interface Horario {
+interface Usuario {
   id: number
   nombre: string
-  dias: string
-  hora_inicio: string | null
-  hora_fin: string | null
-  activo: boolean
+  celular: string
+  turno: string | null
+  horario: string | null
+  lunes: boolean
+  martes: boolean
+  miercoles: boolean
+  jueves: boolean
+  sabado: boolean
+  estado: string | null
 }
 
-export default function HorariosPage() {
-  const [horarios, setHorarios] = useState<Horario[]>([])
-  const [loading, setLoading] = useState(true)
-  const [modalOpen, setModalOpen] = useState(false)
-  const [editing, setEditing] = useState<Horario | null>(null)
-  const [saving, setSaving] = useState(false)
-  const [formData, setFormData] = useState({
-    nombre: '', dias: '', hora_inicio: '', hora_fin: '', activo: true
-  })
+interface GrupoDias {
+  nombre: string
+  color: string
+  checkDias: (u: Usuario) => boolean
+}
 
-  const fetchHorarios = async () => {
+const GRUPOS_DIAS: GrupoDias[] = [
+  {
+    nombre: 'Lunes y Miércoles',
+    color: '#3b82f6',
+    checkDias: (u) => u.lunes && u.miercoles && !u.martes && !u.jueves && !u.sabado
+  },
+  {
+    nombre: 'Martes y Jueves',
+    color: '#8b5cf6',
+    checkDias: (u) => u.martes && u.jueves && !u.lunes && !u.miercoles && !u.sabado
+  },
+  {
+    nombre: 'Sábado',
+    color: '#10b981',
+    checkDias: (u) => u.sabado && !u.lunes && !u.martes && !u.miercoles && !u.jueves
+  }
+]
+
+export default function HorariosPage() {
+  const [usuarios, setUsuarios] = useState<Usuario[]>([])
+  const [loading, setLoading] = useState(true)
+  const [gruposAbiertos, setGruposAbiertos] = useState<string[]>([])
+
+  const fetchUsuarios = async () => {
     try {
-      const res = await fetch('/api/admin/horarios', { credentials: 'include' })
-      if (res.ok) setHorarios(await res.json())
+      const res = await fetch('/api/admin/usuarios?rol=alumno', { credentials: 'include' })
+      if (res.ok) {
+        const data = await res.json()
+        setUsuarios(data)
+      }
     } catch (error) {
       console.error('Error:', error)
     } finally {
@@ -34,150 +61,311 @@ export default function HorariosPage() {
     }
   }
 
-  useEffect(() => { fetchHorarios() }, [])
+  useEffect(() => { fetchUsuarios() }, [])
 
-  const openCreate = () => {
-    setEditing(null)
-    setFormData({ nombre: '', dias: '', hora_inicio: '', hora_fin: '', activo: true })
-    setModalOpen(true)
+  const toggleGrupo = (nombre: string) => {
+    setGruposAbiertos(prev =>
+      prev.includes(nombre)
+        ? prev.filter(g => g !== nombre)
+        : [...prev, nombre]
+    )
   }
 
-  const openEdit = (h: Horario) => {
-    setEditing(h)
-    setFormData({
-      nombre: h.nombre, dias: h.dias || '',
-      hora_inicio: h.hora_inicio || '', hora_fin: h.hora_fin || '', activo: h.activo
+  const getUsuariosPorGrupo = (grupo: GrupoDias) => {
+    return usuarios.filter(grupo.checkDias)
+  }
+
+  const getUsuariosSinGrupo = () => {
+    return usuarios.filter(u => !GRUPOS_DIAS.some(g => g.checkDias(u)))
+  }
+
+  const agruparPorHorario = (usuariosGrupo: Usuario[]) => {
+    const porHorario: { [key: string]: Usuario[] } = {}
+
+    usuariosGrupo.forEach(u => {
+      const horarioKey = u.horario || 'Sin horario definido'
+      const turnoKey = u.turno || 'Sin turno'
+      const key = `${turnoKey} - ${horarioKey}`
+
+      if (!porHorario[key]) porHorario[key] = []
+      porHorario[key].push(u)
     })
-    setModalOpen(true)
+
+    // Ordenar por turno (Matutino primero)
+    const ordenado = Object.entries(porHorario).sort((a, b) => {
+      const aMatutino = a[0].toLowerCase().includes('matutino')
+      const bMatutino = b[0].toLowerCase().includes('matutino')
+      if (aMatutino && !bMatutino) return -1
+      if (!aMatutino && bMatutino) return 1
+      return a[0].localeCompare(b[0])
+    })
+
+    return ordenado
   }
 
-  const handleSave = async () => {
-    if (!formData.nombre.trim()) { alert('El nombre es requerido'); return }
-    setSaving(true)
-    try {
-      const payload = { ...formData, hora_inicio: formData.hora_inicio || null, hora_fin: formData.hora_fin || null }
-      const url = editing ? `/api/admin/horarios/${editing.id}` : '/api/admin/horarios'
-      const res = await fetch(url, {
-        method: editing ? 'PATCH' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', body: JSON.stringify(payload)
-      })
-      if (res.ok) { setModalOpen(false); fetchHorarios() }
-      else alert((await res.json()).error || 'Error al guardar')
-    } catch { alert('Error al guardar') }
-    finally { setSaving(false) }
-  }
+  const totalInscritos = usuarios.length
+  const sinGrupo = getUsuariosSinGrupo()
 
-  const handleDelete = async (h: Horario) => {
-    if (!confirm(`¿Eliminar el horario "${h.nombre}"?`)) return
-    try {
-      const res = await fetch(`/api/admin/horarios/${h.id}`, { method: 'DELETE', credentials: 'include' })
-      if (res.ok) fetchHorarios()
-      else alert('Error al eliminar')
-    } catch { alert('Error al eliminar') }
+  if (loading) {
+    return (
+      <div style={{ padding: '30px', textAlign: 'center' }}>
+        <p>Cargando...</p>
+      </div>
+    )
   }
 
   return (
     <div style={{ padding: '30px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h1 style={{ margin: 0 }}>Horarios</h1>
-        <button onClick={openCreate} style={{
-          padding: '10px 20px', background: 'var(--primary)', color: 'white', border: 'none',
-          borderRadius: 'var(--radius)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600
-        }}>
-          <FontAwesomeIcon icon={faPlus} /> Nuevo Horario
-        </button>
+      <div style={{ marginBottom: '25px' }}>
+        <h1 style={{ margin: '0 0 10px 0' }}>Horarios e Inscripciones</h1>
+        <p style={{ margin: 0, color: 'var(--gray)' }}>
+          <FontAwesomeIcon icon={faUsers} style={{ marginRight: '8px' }} />
+          Total de alumnos inscritos: <strong>{totalInscritos}</strong>
+        </p>
       </div>
 
-      <div style={{ background: 'var(--white)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow)', overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ background: '#f8f9fa' }}>
-              <th style={{ padding: '15px', textAlign: 'left', borderBottom: '2px solid #eee' }}>Nombre</th>
-              <th style={{ padding: '15px', textAlign: 'left', borderBottom: '2px solid #eee' }}>Días</th>
-              <th style={{ padding: '15px', textAlign: 'center', borderBottom: '2px solid #eee' }}>Hora Inicio</th>
-              <th style={{ padding: '15px', textAlign: 'center', borderBottom: '2px solid #eee' }}>Hora Fin</th>
-              <th style={{ padding: '15px', textAlign: 'center', borderBottom: '2px solid #eee' }}>Activo</th>
-              <th style={{ padding: '15px', textAlign: 'center', borderBottom: '2px solid #eee' }}>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr><td colSpan={6} style={{ padding: '40px', textAlign: 'center' }}>Cargando...</td></tr>
-            ) : horarios.length === 0 ? (
-              <tr><td colSpan={6} style={{ padding: '40px', textAlign: 'center', color: 'var(--gray)' }}>No hay horarios</td></tr>
-            ) : horarios.map(h => (
-              <tr key={h.id} style={{ borderBottom: '1px solid #eee' }}>
-                <td style={{ padding: '12px 15px' }}><strong>{h.nombre}</strong></td>
-                <td style={{ padding: '12px 15px' }}>{h.dias || <span style={{ color: 'var(--gray)' }}>-</span>}</td>
-                <td style={{ padding: '12px 15px', textAlign: 'center' }}>{h.hora_inicio || '-'}</td>
-                <td style={{ padding: '12px 15px', textAlign: 'center' }}>{h.hora_fin || '-'}</td>
-                <td style={{ padding: '12px 15px', textAlign: 'center' }}>
-                  <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: h.activo ? '#16a34a' : '#dc2626', display: 'inline-block' }} />
-                </td>
-                <td style={{ padding: '12px 15px', textAlign: 'center' }}>
-                  <button onClick={() => openEdit(h)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)', marginRight: '10px', padding: '5px' }}>
-                    <FontAwesomeIcon icon={faEdit} />
-                  </button>
-                  <button onClick={() => handleDelete(h)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#dc2626', padding: '5px' }}>
-                    <FontAwesomeIcon icon={faTrash} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {/* Acordeones por grupo de días */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+        {GRUPOS_DIAS.map(grupo => {
+          const usuariosGrupo = getUsuariosPorGrupo(grupo)
+          const count = usuariosGrupo.length
+          const isOpen = gruposAbiertos.includes(grupo.nombre)
+          const horarios = agruparPorHorario(usuariosGrupo)
 
-      {modalOpen && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
-          <div style={{ background: 'var(--white)', borderRadius: 'var(--radius)', width: '100%', maxWidth: '500px' }}>
-            <div style={{ padding: '20px', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h2 style={{ margin: 0 }}>{editing ? 'Editar Horario' : 'Nuevo Horario'}</h2>
-              <button onClick={() => setModalOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}><FontAwesomeIcon icon={faTimes} /></button>
-            </div>
-            <div style={{ padding: '20px' }}>
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Nombre *</label>
-                <input type="text" value={formData.nombre} onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-                  placeholder="Ej: Lunes y Miércoles"
-                  style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }} />
-              </div>
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Días</label>
-                <input type="text" value={formData.dias} onChange={(e) => setFormData({ ...formData, dias: e.target.value })}
-                  placeholder="Ej: Lunes, Miércoles"
-                  style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }} />
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Hora Inicio</label>
-                  <input type="time" value={formData.hora_inicio} onChange={(e) => setFormData({ ...formData, hora_inicio: e.target.value })}
-                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }} />
+          return (
+            <div key={grupo.nombre} style={{
+              background: 'var(--white)',
+              borderRadius: 'var(--radius)',
+              boxShadow: 'var(--shadow)',
+              overflow: 'hidden'
+            }}>
+              {/* Header del acordeón */}
+              <div
+                onClick={() => toggleGrupo(grupo.nombre)}
+                style={{
+                  padding: '20px',
+                  background: grupo.color,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                  <FontAwesomeIcon icon={faCalendarAlt} style={{ color: 'white', fontSize: '1.3rem' }} />
+                  <div>
+                    <div style={{ color: 'white', fontWeight: 700, fontSize: '1.2rem' }}>{grupo.nombre}</div>
+                    <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+                      {count} alumno{count !== 1 ? 's' : ''}
+                    </div>
+                  </div>
                 </div>
+                <FontAwesomeIcon
+                  icon={isOpen ? faChevronUp : faChevronDown}
+                  style={{ color: 'white', fontSize: '1.2rem' }}
+                />
+              </div>
+
+              {/* Contenido desplegable */}
+              {isOpen && (
+                <div style={{ padding: '0' }}>
+                  {horarios.length === 0 ? (
+                    <div style={{ padding: '30px', textAlign: 'center', color: 'var(--gray)' }}>
+                      No hay alumnos en este grupo
+                    </div>
+                  ) : (
+                    horarios.map(([horarioKey, alumnos]) => {
+                      const isMatutino = horarioKey.toLowerCase().includes('matutino')
+                      return (
+                        <div key={horarioKey} style={{ borderBottom: '1px solid #eee' }}>
+                          {/* Header del horario */}
+                          <div style={{
+                            padding: '15px 20px',
+                            background: isMatutino ? '#fef3c7' : '#e0e7ff',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px'
+                          }}>
+                            <FontAwesomeIcon
+                              icon={isMatutino ? faSun : faMoon}
+                              style={{ color: isMatutino ? '#f59e0b' : '#6366f1' }}
+                            />
+                            <FontAwesomeIcon icon={faClock} style={{ color: isMatutino ? '#92400e' : '#3730a3', marginLeft: '5px' }} />
+                            <span style={{
+                              fontWeight: 600,
+                              color: isMatutino ? '#92400e' : '#3730a3'
+                            }}>
+                              {horarioKey}
+                            </span>
+                            <span style={{
+                              marginLeft: 'auto',
+                              background: isMatutino ? '#fbbf24' : '#818cf8',
+                              color: 'white',
+                              padding: '3px 10px',
+                              borderRadius: '12px',
+                              fontSize: '0.85rem',
+                              fontWeight: 600
+                            }}>
+                              {alumnos.length}
+                            </span>
+                          </div>
+
+                          {/* Lista de alumnos */}
+                          <div style={{ padding: '0' }}>
+                            {alumnos.map((u, idx) => (
+                              <div
+                                key={u.id}
+                                style={{
+                                  padding: '12px 20px 12px 50px',
+                                  borderBottom: idx < alumnos.length - 1 ? '1px solid #f3f4f6' : 'none',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                  gap: '15px'
+                                }}
+                              >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                  <div style={{
+                                    width: '8px',
+                                    height: '8px',
+                                    borderRadius: '50%',
+                                    background: grupo.color
+                                  }} />
+                                  <span style={{ fontWeight: 500 }}>{u.nombre}</span>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                  <span style={{ color: 'var(--gray)', fontSize: '0.9rem' }}>{u.celular}</span>
+                                  {u.estado && (
+                                    <span style={{
+                                      padding: '3px 10px',
+                                      borderRadius: '10px',
+                                      fontSize: '0.75rem',
+                                      background: u.estado.toLowerCase().includes('confirmado') ? '#d1fae5' : '#fef3c7',
+                                      color: u.estado.toLowerCase().includes('confirmado') ? '#065f46' : '#92400e'
+                                    }}>
+                                      {u.estado}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )
+                    })
+                  )}
+                </div>
+              )}
+            </div>
+          )
+        })}
+
+        {/* Grupo sin horario asignado */}
+        {sinGrupo.length > 0 && (
+          <div style={{
+            background: 'var(--white)',
+            borderRadius: 'var(--radius)',
+            boxShadow: 'var(--shadow)',
+            overflow: 'hidden'
+          }}>
+            <div
+              onClick={() => toggleGrupo('sin-grupo')}
+              style={{
+                padding: '20px',
+                background: '#6b7280',
+                cursor: 'pointer',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                <FontAwesomeIcon icon={faCalendarAlt} style={{ color: 'white', fontSize: '1.3rem' }} />
                 <div>
-                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Hora Fin</label>
-                  <input type="time" value={formData.hora_fin} onChange={(e) => setFormData({ ...formData, hora_fin: e.target.value })}
-                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }} />
+                  <div style={{ color: 'white', fontWeight: 700, fontSize: '1.2rem' }}>Sin horario asignado</div>
+                  <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+                    {sinGrupo.length} alumno{sinGrupo.length !== 1 ? 's' : ''} pendiente{sinGrupo.length !== 1 ? 's' : ''}
+                  </div>
                 </div>
               </div>
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                  <input type="checkbox" checked={formData.activo} onChange={(e) => setFormData({ ...formData, activo: e.target.checked })}
-                    style={{ marginRight: '8px', width: '18px', height: '18px' }} />
-                  Horario activo
-                </label>
-              </div>
-              <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-                <button onClick={() => setModalOpen(false)} style={{ padding: '10px 20px', background: '#f5f5f5', border: 'none', borderRadius: 'var(--radius)', cursor: 'pointer' }}>Cancelar</button>
-                <button onClick={handleSave} disabled={saving} style={{ padding: '10px 20px', background: 'var(--primary)', color: 'white', border: 'none', borderRadius: 'var(--radius)', cursor: saving ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: '8px', opacity: saving ? 0.7 : 1 }}>
-                  <FontAwesomeIcon icon={faSave} /> {saving ? 'Guardando...' : 'Guardar'}
-                </button>
-              </div>
+              <FontAwesomeIcon
+                icon={gruposAbiertos.includes('sin-grupo') ? faChevronUp : faChevronDown}
+                style={{ color: 'white', fontSize: '1.2rem' }}
+              />
             </div>
+
+            {gruposAbiertos.includes('sin-grupo') && (
+              <div>
+                {sinGrupo.map((u, idx) => (
+                  <div
+                    key={u.id}
+                    style={{
+                      padding: '15px 20px',
+                      borderBottom: idx < sinGrupo.length - 1 ? '1px solid #eee' : 'none',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        background: '#6b7280'
+                      }} />
+                      <span style={{ fontWeight: 500 }}>{u.nombre}</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                      <span style={{ color: 'var(--gray)', fontSize: '0.9rem' }}>{u.celular}</span>
+                      {u.estado && (
+                        <span style={{
+                          padding: '3px 10px',
+                          borderRadius: '10px',
+                          fontSize: '0.75rem',
+                          background: '#fef3c7',
+                          color: '#92400e'
+                        }}>
+                          {u.estado}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
+        )}
+      </div>
+
+      {/* Resumen rápido */}
+      <div style={{
+        marginTop: '30px',
+        padding: '20px',
+        background: 'var(--white)',
+        borderRadius: 'var(--radius)',
+        boxShadow: 'var(--shadow)'
+      }}>
+        <h3 style={{ margin: '0 0 15px 0', fontSize: '1rem', color: 'var(--gray)' }}>Resumen</h3>
+        <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+          {GRUPOS_DIAS.map(grupo => {
+            const count = getUsuariosPorGrupo(grupo).length
+            return (
+              <div key={grupo.nombre} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: grupo.color }} />
+                <span>{grupo.nombre}: <strong>{count}</strong></span>
+              </div>
+            )
+          })}
+          {sinGrupo.length > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#6b7280' }} />
+              <span>Pendientes: <strong>{sinGrupo.length}</strong></span>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   )
 }

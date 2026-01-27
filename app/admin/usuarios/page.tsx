@@ -16,6 +16,20 @@ interface Usuario {
   rol: string
   activo: boolean
   created_at: string
+  genero: string | null
+  tipo_curso: string | null
+  turno: string | null
+  dia: string | null
+  abono: number | null
+  total: number | null
+  estado_pago: string | null
+  estado: string | null
+  lunes: boolean
+  martes: boolean
+  miercoles: boolean
+  jueves: boolean
+  sabado: boolean
+  horario: string | null
 }
 
 export default function UsuariosPage() {
@@ -34,7 +48,21 @@ export default function UsuariosPage() {
     fecha_cumpleanos: '',
     password: '',
     rol: 'alumno',
-    activo: true
+    activo: true,
+    genero: '',
+    tipo_curso: '',
+    turno: '',
+    dia: '',
+    abono: '',
+    total: '',
+    estado_pago: '',
+    estado: '',
+    lunes: false,
+    martes: false,
+    miercoles: false,
+    jueves: false,
+    sabado: false,
+    horario: ''
   })
 
   const fetchUsuarios = async () => {
@@ -68,7 +96,10 @@ export default function UsuariosPage() {
     setEditing(null)
     setFormData({
       nombre: '', celular: '', email: '', edad: '', fecha_cumpleanos: '',
-      password: '', rol: 'alumno', activo: true
+      password: '', rol: 'alumno', activo: true,
+      genero: '', tipo_curso: '', turno: '', dia: '', abono: '', total: '',
+      estado_pago: '', estado: '', lunes: false, martes: false, miercoles: false,
+      jueves: false, sabado: false, horario: ''
     })
     setModalOpen(true)
   }
@@ -83,7 +114,21 @@ export default function UsuariosPage() {
       fecha_cumpleanos: u.fecha_cumpleanos?.split('T')[0] || '',
       password: '',
       rol: u.rol,
-      activo: u.activo
+      activo: u.activo,
+      genero: u.genero || '',
+      tipo_curso: u.tipo_curso || '',
+      turno: u.turno || '',
+      dia: u.dia || '',
+      abono: u.abono?.toString() || '',
+      total: u.total?.toString() || '',
+      estado_pago: u.estado_pago || '',
+      estado: u.estado || '',
+      lunes: u.lunes || false,
+      martes: u.martes || false,
+      miercoles: u.miercoles || false,
+      jueves: u.jueves || false,
+      sabado: u.sabado || false,
+      horario: u.horario || ''
     })
     setModalOpen(true)
   }
@@ -94,21 +139,69 @@ export default function UsuariosPage() {
       return
     }
 
+    // Validar campos numéricos
+    if (formData.abono && parseFloat(formData.abono) > 99999999) {
+      alert('El abono no puede ser mayor a $99,999,999')
+      return
+    }
+    if (formData.total && parseFloat(formData.total) > 99999999) {
+      alert('El total no puede ser mayor a $99,999,999')
+      return
+    }
+    if (formData.edad && parseInt(formData.edad) > 150) {
+      alert('La edad no parece ser válida')
+      return
+    }
+
     setSaving(true)
     try {
+      // Funciones helper para limpiar datos
+      const cleanInt = (val: string) => {
+        if (!val || val.trim() === '') return null
+        const num = parseInt(val)
+        return isNaN(num) ? null : num
+      }
+
+      const cleanFloat = (val: string) => {
+        if (!val || val.trim() === '') return null
+        const num = parseFloat(val)
+        return isNaN(num) ? null : num
+      }
+
+      const cleanString = (val: string) => {
+        if (!val || val.trim() === '') return null
+        return val.trim()
+      }
+
       const payload: Record<string, unknown> = {
-        nombre: formData.nombre,
-        celular: formData.celular,
-        email: formData.email || null,
-        edad: formData.edad ? parseInt(formData.edad) : null,
-        fecha_cumpleanos: formData.fecha_cumpleanos || null,
+        nombre: formData.nombre.trim(),
+        celular: formData.celular.trim(),
+        email: cleanString(formData.email),
+        edad: cleanInt(formData.edad),
+        fecha_cumpleanos: cleanString(formData.fecha_cumpleanos),
         rol: formData.rol,
-        activo: formData.activo
+        activo: formData.activo,
+        genero: cleanString(formData.genero),
+        tipo_curso: cleanString(formData.tipo_curso),
+        turno: cleanString(formData.turno),
+        dia: cleanString(formData.dia),
+        abono: cleanFloat(formData.abono),
+        total: cleanFloat(formData.total),
+        estado_pago: cleanString(formData.estado_pago),
+        estado: cleanString(formData.estado),
+        lunes: formData.lunes,
+        martes: formData.martes,
+        miercoles: formData.miercoles,
+        jueves: formData.jueves,
+        sabado: formData.sabado,
+        horario: cleanString(formData.horario)
       }
 
       if (formData.password) {
         payload.password = formData.password
       }
+
+      console.log('Enviando payload:', payload)
 
       const url = editing ? `/api/admin/usuarios/${editing.id}` : '/api/admin/usuarios'
       const res = await fetch(url, {
@@ -122,11 +215,13 @@ export default function UsuariosPage() {
         setModalOpen(false)
         fetchUsuarios()
       } else {
-        const error = await res.json()
-        alert(error.error || 'Error al guardar')
+        const errorData = await res.json()
+        console.error('Error del servidor:', errorData)
+        alert(`Error: ${errorData.error || 'Error desconocido'}`)
       }
-    } catch {
-      alert('Error al guardar')
+    } catch (err) {
+      console.error('Error completo:', err)
+      alert('Error de conexión al guardar')
     } finally {
       setSaving(false)
     }
@@ -145,6 +240,16 @@ export default function UsuariosPage() {
     } catch {
       alert('Error al eliminar')
     }
+  }
+
+  const getDias = (u: Usuario) => {
+    const dias = []
+    if (u.lunes) dias.push('L')
+    if (u.martes) dias.push('Ma')
+    if (u.miercoles) dias.push('Mi')
+    if (u.jueves) dias.push('J')
+    if (u.sabado) dias.push('S')
+    return dias.length > 0 ? dias.join(', ') : '-'
   }
 
   return (
@@ -200,7 +305,7 @@ export default function UsuariosPage() {
       </div>
 
       {/* Stats */}
-      <div style={{ display: 'flex', gap: '15px', marginBottom: '20px' }}>
+      <div style={{ display: 'flex', gap: '15px', marginBottom: '20px', flexWrap: 'wrap' }}>
         <div style={{ background: 'var(--white)', padding: '10px 20px', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow)' }}>
           <span style={{ color: 'var(--gray)' }}>Total: </span><strong>{usuarios.length}</strong>
         </div>
@@ -219,48 +324,75 @@ export default function UsuariosPage() {
       {/* Table */}
       <div style={{ background: 'var(--white)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow)', overflow: 'hidden' }}>
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
             <thead>
               <tr style={{ background: '#f8f9fa' }}>
-                <th style={{ padding: '15px', textAlign: 'left', borderBottom: '2px solid #eee' }}>Nombre</th>
-                <th style={{ padding: '15px', textAlign: 'left', borderBottom: '2px solid #eee' }}>Celular</th>
-                <th style={{ padding: '15px', textAlign: 'left', borderBottom: '2px solid #eee' }}>Email</th>
-                <th style={{ padding: '15px', textAlign: 'center', borderBottom: '2px solid #eee' }}>Rol</th>
-                <th style={{ padding: '15px', textAlign: 'center', borderBottom: '2px solid #eee' }}>Activo</th>
-                <th style={{ padding: '15px', textAlign: 'center', borderBottom: '2px solid #eee' }}>Acciones</th>
+                <th style={{ padding: '12px 10px', textAlign: 'left', borderBottom: '2px solid #eee', whiteSpace: 'nowrap' }}>Nombre</th>
+                <th style={{ padding: '12px 10px', textAlign: 'left', borderBottom: '2px solid #eee', whiteSpace: 'nowrap' }}>Celular</th>
+                <th style={{ padding: '12px 10px', textAlign: 'center', borderBottom: '2px solid #eee', whiteSpace: 'nowrap' }}>Edad</th>
+                <th style={{ padding: '12px 10px', textAlign: 'center', borderBottom: '2px solid #eee', whiteSpace: 'nowrap' }}>Género</th>
+                <th style={{ padding: '12px 10px', textAlign: 'center', borderBottom: '2px solid #eee', whiteSpace: 'nowrap' }}>Turno</th>
+                <th style={{ padding: '12px 10px', textAlign: 'center', borderBottom: '2px solid #eee', whiteSpace: 'nowrap' }}>Días</th>
+                <th style={{ padding: '12px 10px', textAlign: 'center', borderBottom: '2px solid #eee', whiteSpace: 'nowrap' }}>Horario</th>
+                <th style={{ padding: '12px 10px', textAlign: 'right', borderBottom: '2px solid #eee', whiteSpace: 'nowrap' }}>Abono</th>
+                <th style={{ padding: '12px 10px', textAlign: 'right', borderBottom: '2px solid #eee', whiteSpace: 'nowrap' }}>Total</th>
+                <th style={{ padding: '12px 10px', textAlign: 'center', borderBottom: '2px solid #eee', whiteSpace: 'nowrap' }}>Estado Pago</th>
+                <th style={{ padding: '12px 10px', textAlign: 'center', borderBottom: '2px solid #eee', whiteSpace: 'nowrap' }}>Estado</th>
+                <th style={{ padding: '12px 10px', textAlign: 'center', borderBottom: '2px solid #eee', whiteSpace: 'nowrap' }}>Activo</th>
+                <th style={{ padding: '12px 10px', textAlign: 'center', borderBottom: '2px solid #eee', whiteSpace: 'nowrap' }}>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={6} style={{ padding: '40px', textAlign: 'center' }}>Cargando...</td></tr>
+                <tr><td colSpan={13} style={{ padding: '40px', textAlign: 'center' }}>Cargando...</td></tr>
               ) : usuarios.length === 0 ? (
-                <tr><td colSpan={6} style={{ padding: '40px', textAlign: 'center', color: 'var(--gray)' }}>No se encontraron usuarios</td></tr>
+                <tr><td colSpan={13} style={{ padding: '40px', textAlign: 'center', color: 'var(--gray)' }}>No se encontraron usuarios</td></tr>
               ) : usuarios.map(u => (
                 <tr key={u.id} style={{ borderBottom: '1px solid #eee' }}>
-                  <td style={{ padding: '12px 15px' }}><strong>{u.nombre}</strong></td>
-                  <td style={{ padding: '12px 15px' }}>{u.celular}</td>
-                  <td style={{ padding: '12px 15px', color: u.email ? 'inherit' : 'var(--gray)' }}>{u.email || '-'}</td>
-                  <td style={{ padding: '12px 15px', textAlign: 'center' }}>
-                    <span style={{
-                      padding: '4px 10px',
-                      borderRadius: '12px',
-                      fontSize: '0.8rem',
-                      fontWeight: 500,
-                      background: u.rol === 'admin' ? '#ede9fe' : '#dbeafe',
-                      color: u.rol === 'admin' ? '#7c3aed' : '#2563eb'
-                    }}>
-                      {u.rol}
-                    </span>
+                  <td style={{ padding: '10px', whiteSpace: 'nowrap' }}><strong>{u.nombre}</strong></td>
+                  <td style={{ padding: '10px', whiteSpace: 'nowrap' }}>{u.celular}</td>
+                  <td style={{ padding: '10px', textAlign: 'center' }}>{u.edad || '-'}</td>
+                  <td style={{ padding: '10px', textAlign: 'center' }}>{u.genero || '-'}</td>
+                  <td style={{ padding: '10px', textAlign: 'center' }}>{u.turno || '-'}</td>
+                  <td style={{ padding: '10px', textAlign: 'center', whiteSpace: 'nowrap' }}>{getDias(u)}</td>
+                  <td style={{ padding: '10px', textAlign: 'center', whiteSpace: 'nowrap' }}>{u.horario || '-'}</td>
+                  <td style={{ padding: '10px', textAlign: 'right' }}>{u.abono ? `$${u.abono}` : '-'}</td>
+                  <td style={{ padding: '10px', textAlign: 'right' }}>{u.total ? `$${u.total}` : '-'}</td>
+                  <td style={{ padding: '10px', textAlign: 'center' }}>
+                    {u.estado_pago ? (
+                      <span style={{
+                        padding: '3px 8px',
+                        borderRadius: '10px',
+                        fontSize: '0.75rem',
+                        background: u.estado_pago.toLowerCase().includes('pendiente') ? '#fef3c7' : '#d1fae5',
+                        color: u.estado_pago.toLowerCase().includes('pendiente') ? '#92400e' : '#065f46'
+                      }}>
+                        {u.estado_pago}
+                      </span>
+                    ) : '-'}
                   </td>
-                  <td style={{ padding: '12px 15px', textAlign: 'center' }}>
+                  <td style={{ padding: '10px', textAlign: 'center' }}>
+                    {u.estado ? (
+                      <span style={{
+                        padding: '3px 8px',
+                        borderRadius: '10px',
+                        fontSize: '0.75rem',
+                        background: u.estado.toLowerCase().includes('confirmado') ? '#d1fae5' : '#fef3c7',
+                        color: u.estado.toLowerCase().includes('confirmado') ? '#065f46' : '#92400e'
+                      }}>
+                        {u.estado}
+                      </span>
+                    ) : '-'}
+                  </td>
+                  <td style={{ padding: '10px', textAlign: 'center' }}>
                     <span style={{
                       width: '10px', height: '10px', borderRadius: '50%',
                       background: u.activo ? '#16a34a' : '#dc2626',
                       display: 'inline-block'
                     }} />
                   </td>
-                  <td style={{ padding: '12px 15px', textAlign: 'center' }}>
-                    <button onClick={() => openEdit(u)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)', marginRight: '10px', padding: '5px' }} title="Editar">
+                  <td style={{ padding: '10px', textAlign: 'center', whiteSpace: 'nowrap' }}>
+                    <button onClick={() => openEdit(u)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)', marginRight: '8px', padding: '5px' }} title="Editar">
                       <FontAwesomeIcon icon={faEdit} />
                     </button>
                     <button onClick={() => handleDelete(u)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#dc2626', padding: '5px' }} title="Eliminar">
@@ -281,7 +413,7 @@ export default function UsuariosPage() {
           background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center',
           zIndex: 1000, padding: '20px'
         }}>
-          <div style={{ background: 'var(--white)', borderRadius: 'var(--radius)', width: '100%', maxWidth: '500px', maxHeight: '90vh', overflow: 'auto' }}>
+          <div style={{ background: 'var(--white)', borderRadius: 'var(--radius)', width: '100%', maxWidth: '700px', maxHeight: '90vh', overflow: 'auto' }}>
             <div style={{ padding: '20px', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h2 style={{ margin: 0 }}>{editing ? 'Editar Usuario' : 'Nuevo Usuario'}</h2>
               <button onClick={() => setModalOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}>
@@ -290,25 +422,33 @@ export default function UsuariosPage() {
             </div>
 
             <div style={{ padding: '20px' }}>
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Nombre *</label>
-                <input type="text" value={formData.nombre} onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-                  style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }} />
-              </div>
-
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Celular *</label>
-                <input type="tel" value={formData.celular} onChange={(e) => setFormData({ ...formData, celular: e.target.value })}
-                  style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }} />
-              </div>
-
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Email</label>
-                <input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }} />
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
+              {/* Datos básicos */}
+              <h3 style={{ margin: '0 0 15px 0', fontSize: '1rem', color: 'var(--gray)' }}>Datos Básicos</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Nombre *</label>
+                  <input type="text" value={formData.nombre} onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Celular *</label>
+                  <input type="tel" value={formData.celular} onChange={(e) => setFormData({ ...formData, celular: e.target.value })}
+                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Email</label>
+                  <input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Género</label>
+                  <select value={formData.genero} onChange={(e) => setFormData({ ...formData, genero: e.target.value })}
+                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }}>
+                    <option value="">Seleccionar</option>
+                    <option value="Hombre">Hombre</option>
+                    <option value="Mujer">Mujer</option>
+                  </select>
+                </div>
                 <div>
                   <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Edad</label>
                   <input type="number" value={formData.edad} onChange={(e) => setFormData({ ...formData, edad: e.target.value })}
@@ -321,16 +461,102 @@ export default function UsuariosPage() {
                 </div>
               </div>
 
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>
-                  {editing ? 'Nueva Contraseña (dejar vacío para no cambiar)' : 'Contraseña'}
-                </label>
-                <input type="password" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  placeholder={editing ? 'Dejar vacío para mantener actual' : 'Si no se especifica, será el celular'}
-                  style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }} />
+              {/* Curso y horarios */}
+              <h3 style={{ margin: '0 0 15px 0', fontSize: '1rem', color: 'var(--gray)' }}>Curso y Horarios</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Tipo de Curso</label>
+                  <input type="text" value={formData.tipo_curso} onChange={(e) => setFormData({ ...formData, tipo_curso: e.target.value })}
+                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Turno</label>
+                  <select value={formData.turno} onChange={(e) => setFormData({ ...formData, turno: e.target.value })}
+                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }}>
+                    <option value="">Seleccionar</option>
+                    <option value="Matutino">Matutino</option>
+                    <option value="Vespertino">Vespertino</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Día(s)</label>
+                  <input type="text" value={formData.dia} onChange={(e) => setFormData({ ...formData, dia: e.target.value })}
+                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Horario</label>
+                  <input type="text" value={formData.horario} onChange={(e) => setFormData({ ...formData, horario: e.target.value })}
+                    placeholder="Ej: 3:30 a 5:00"
+                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }} />
+                </div>
               </div>
 
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>Días de clase</label>
+                <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+                  {[
+                    { key: 'lunes', label: 'Lunes' },
+                    { key: 'martes', label: 'Martes' },
+                    { key: 'miercoles', label: 'Miércoles' },
+                    { key: 'jueves', label: 'Jueves' },
+                    { key: 'sabado', label: 'Sábado' }
+                  ].map(d => (
+                    <label key={d.key} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                      <input type="checkbox" checked={formData[d.key as keyof typeof formData] as boolean}
+                        onChange={(e) => setFormData({ ...formData, [d.key]: e.target.checked })}
+                        style={{ marginRight: '5px' }} />
+                      {d.label}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Pagos */}
+              <h3 style={{ margin: '0 0 15px 0', fontSize: '1rem', color: 'var(--gray)' }}>Pagos</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '15px', marginBottom: '20px' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Abono</label>
+                  <input type="number" value={formData.abono} onChange={(e) => setFormData({ ...formData, abono: e.target.value })}
+                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Total</label>
+                  <input type="number" value={formData.total} onChange={(e) => setFormData({ ...formData, total: e.target.value })}
+                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Estado de Pago</label>
+                  <select value={formData.estado_pago} onChange={(e) => setFormData({ ...formData, estado_pago: e.target.value })}
+                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }}>
+                    <option value="">Seleccionar</option>
+                    <option value="Pendiente de pago">Pendiente de pago</option>
+                    <option value="Pagado">Pagado</option>
+                    <option value="Parcial">Parcial</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Estado</label>
+                  <select value={formData.estado} onChange={(e) => setFormData({ ...formData, estado: e.target.value })}
+                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }}>
+                    <option value="">Seleccionar</option>
+                    <option value="Confirmado">Confirmado</option>
+                    <option value="Pendiente Horario">Pendiente Horario</option>
+                    <option value="Cancelado">Cancelado</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Sistema */}
+              <h3 style={{ margin: '0 0 15px 0', fontSize: '1rem', color: 'var(--gray)' }}>Sistema</h3>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>
+                    {editing ? 'Nueva Contraseña' : 'Contraseña'}
+                  </label>
+                  <input type="password" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    placeholder={editing ? 'Dejar vacío para mantener actual' : 'Si no se especifica, será el celular'}
+                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }} />
+                </div>
                 <div>
                   <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Rol</label>
                   <select value={formData.rol} onChange={(e) => setFormData({ ...formData, rol: e.target.value })}
@@ -339,13 +565,14 @@ export default function UsuariosPage() {
                     <option value="admin">Administrador</option>
                   </select>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', paddingTop: '25px' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                    <input type="checkbox" checked={formData.activo} onChange={(e) => setFormData({ ...formData, activo: e.target.checked })}
-                      style={{ marginRight: '8px', width: '18px', height: '18px' }} />
-                    Usuario activo
-                  </label>
-                </div>
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                  <input type="checkbox" checked={formData.activo} onChange={(e) => setFormData({ ...formData, activo: e.target.checked })}
+                    style={{ marginRight: '8px', width: '18px', height: '18px' }} />
+                  Usuario activo
+                </label>
               </div>
 
               <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
