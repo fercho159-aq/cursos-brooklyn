@@ -16,23 +16,25 @@ export async function GET(request: Request) {
     const rol = searchParams.get('rol');
 
     let query = `
-      SELECT id, nombre, celular, email, edad, fecha_cumpleanos, rol, activo, created_at,
-             genero, tipo_curso, turno, dia, abono, total, estado_pago, estado,
-             lunes, martes, miercoles, jueves, sabado, horario
-      FROM usuarios
+      SELECT u.id, u.nombre, u.celular, u.email, u.edad, u.fecha_cumpleanos, u.rol, u.activo, u.created_at,
+             u.genero, u.tipo_curso, u.turno, u.dia, u.abono, u.total, u.estado_pago, u.estado,
+             u.lunes, u.martes, u.miercoles, u.jueves, u.sabado, u.horario, u.grupo_id,
+             g.nombre as grupo_nombre, g.color as grupo_color
+      FROM usuarios u
+      LEFT JOIN grupos g ON u.grupo_id = g.id
       WHERE 1=1
     `;
     const params: string[] = [];
     let paramIndex = 1;
 
     if (search) {
-      query += ` AND (nombre ILIKE $${paramIndex} OR celular ILIKE $${paramIndex} OR email ILIKE $${paramIndex})`;
+      query += ` AND (u.nombre ILIKE $${paramIndex} OR u.celular ILIKE $${paramIndex} OR u.email ILIKE $${paramIndex})`;
       params.push(`%${search}%`);
       paramIndex++;
     }
 
     if (rol) {
-      query += ` AND rol = $${paramIndex}`;
+      query += ` AND u.rol = $${paramIndex}`;
       params.push(rol);
       paramIndex++;
     }
@@ -110,7 +112,8 @@ export async function POST(request: Request) {
       cleanBoolean(body.miercoles),
       cleanBoolean(body.jueves),
       cleanBoolean(body.sabado),
-      cleanString(body.horario)
+      cleanString(body.horario),
+      cleanNumber(body.grupo_id)
     ];
 
     console.log('Valores a insertar:', values);
@@ -119,12 +122,12 @@ export async function POST(request: Request) {
       `INSERT INTO usuarios (
         nombre, celular, email, edad, fecha_cumpleanos, password, rol, activo,
         genero, tipo_curso, turno, dia, abono, total, estado_pago, estado,
-        lunes, martes, miercoles, jueves, sabado, horario
+        lunes, martes, miercoles, jueves, sabado, horario, grupo_id
       )
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
        RETURNING id, nombre, celular, email, edad, fecha_cumpleanos, rol, activo, created_at,
                  genero, tipo_curso, turno, dia, abono, total, estado_pago, estado,
-                 lunes, martes, miercoles, jueves, sabado, horario`,
+                 lunes, martes, miercoles, jueves, sabado, horario, grupo_id`,
       values
     );
 

@@ -30,10 +30,24 @@ interface Usuario {
   jueves: boolean
   sabado: boolean
   horario: string | null
+  grupo_id: number | null
+  grupo_nombre: string | null
+  grupo_color: string | null
+}
+
+interface Grupo {
+  id: number
+  nombre: string
+  dias: string
+  turno: string | null
+  horario: string | null
+  color: string
+  activo: boolean
 }
 
 export default function UsuariosPage() {
   const [usuarios, setUsuarios] = useState<Usuario[]>([])
+  const [grupos, setGrupos] = useState<Grupo[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [filtroRol, setFiltroRol] = useState('')
@@ -62,7 +76,8 @@ export default function UsuariosPage() {
     miercoles: false,
     jueves: false,
     sabado: false,
-    horario: ''
+    horario: '',
+    grupo_id: ''
   })
 
   const fetchUsuarios = async () => {
@@ -83,8 +98,21 @@ export default function UsuariosPage() {
     }
   }
 
+  const fetchGrupos = async () => {
+    try {
+      const res = await fetch('/api/admin/grupos', { credentials: 'include' })
+      if (res.ok) {
+        const data = await res.json()
+        setGrupos(data)
+      }
+    } catch (error) {
+      console.error('Error al cargar grupos:', error)
+    }
+  }
+
   useEffect(() => {
     fetchUsuarios()
+    fetchGrupos()
   }, [filtroRol])
 
   const handleSearch = (e: React.FormEvent) => {
@@ -99,7 +127,7 @@ export default function UsuariosPage() {
       password: '', rol: 'alumno', activo: true,
       genero: '', tipo_curso: '', turno: '', dia: '', abono: '', total: '',
       estado_pago: '', estado: '', lunes: false, martes: false, miercoles: false,
-      jueves: false, sabado: false, horario: ''
+      jueves: false, sabado: false, horario: '', grupo_id: ''
     })
     setModalOpen(true)
   }
@@ -128,7 +156,8 @@ export default function UsuariosPage() {
       miercoles: u.miercoles || false,
       jueves: u.jueves || false,
       sabado: u.sabado || false,
-      horario: u.horario || ''
+      horario: u.horario || '',
+      grupo_id: u.grupo_id?.toString() || ''
     })
     setModalOpen(true)
   }
@@ -194,7 +223,8 @@ export default function UsuariosPage() {
         miercoles: formData.miercoles,
         jueves: formData.jueves,
         sabado: formData.sabado,
-        horario: cleanString(formData.horario)
+        horario: cleanString(formData.horario),
+        grupo_id: cleanInt(formData.grupo_id)
       }
 
       if (formData.password) {
@@ -240,16 +270,6 @@ export default function UsuariosPage() {
     } catch {
       alert('Error al eliminar')
     }
-  }
-
-  const getDias = (u: Usuario) => {
-    const dias = []
-    if (u.lunes) dias.push('L')
-    if (u.martes) dias.push('Ma')
-    if (u.miercoles) dias.push('Mi')
-    if (u.jueves) dias.push('J')
-    if (u.sabado) dias.push('S')
-    return dias.length > 0 ? dias.join(', ') : '-'
   }
 
   return (
@@ -331,9 +351,8 @@ export default function UsuariosPage() {
                 <th style={{ padding: '12px 10px', textAlign: 'left', borderBottom: '2px solid #eee', whiteSpace: 'nowrap' }}>Celular</th>
                 <th style={{ padding: '12px 10px', textAlign: 'center', borderBottom: '2px solid #eee', whiteSpace: 'nowrap' }}>Edad</th>
                 <th style={{ padding: '12px 10px', textAlign: 'center', borderBottom: '2px solid #eee', whiteSpace: 'nowrap' }}>Género</th>
+                <th style={{ padding: '12px 10px', textAlign: 'center', borderBottom: '2px solid #eee', whiteSpace: 'nowrap' }}>Grupo</th>
                 <th style={{ padding: '12px 10px', textAlign: 'center', borderBottom: '2px solid #eee', whiteSpace: 'nowrap' }}>Turno</th>
-                <th style={{ padding: '12px 10px', textAlign: 'center', borderBottom: '2px solid #eee', whiteSpace: 'nowrap' }}>Días</th>
-                <th style={{ padding: '12px 10px', textAlign: 'center', borderBottom: '2px solid #eee', whiteSpace: 'nowrap' }}>Horario</th>
                 <th style={{ padding: '12px 10px', textAlign: 'right', borderBottom: '2px solid #eee', whiteSpace: 'nowrap' }}>Abono</th>
                 <th style={{ padding: '12px 10px', textAlign: 'right', borderBottom: '2px solid #eee', whiteSpace: 'nowrap' }}>Total</th>
                 <th style={{ padding: '12px 10px', textAlign: 'center', borderBottom: '2px solid #eee', whiteSpace: 'nowrap' }}>Estado Pago</th>
@@ -344,18 +363,42 @@ export default function UsuariosPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={13} style={{ padding: '40px', textAlign: 'center' }}>Cargando...</td></tr>
+                <tr><td colSpan={12} style={{ padding: '40px', textAlign: 'center' }}>Cargando...</td></tr>
               ) : usuarios.length === 0 ? (
-                <tr><td colSpan={13} style={{ padding: '40px', textAlign: 'center', color: 'var(--gray)' }}>No se encontraron usuarios</td></tr>
+                <tr><td colSpan={12} style={{ padding: '40px', textAlign: 'center', color: 'var(--gray)' }}>No se encontraron usuarios</td></tr>
               ) : usuarios.map(u => (
                 <tr key={u.id} style={{ borderBottom: '1px solid #eee' }}>
                   <td style={{ padding: '10px', whiteSpace: 'nowrap' }}><strong>{u.nombre}</strong></td>
                   <td style={{ padding: '10px', whiteSpace: 'nowrap' }}>{u.celular}</td>
                   <td style={{ padding: '10px', textAlign: 'center' }}>{u.edad || '-'}</td>
                   <td style={{ padding: '10px', textAlign: 'center' }}>{u.genero || '-'}</td>
-                  <td style={{ padding: '10px', textAlign: 'center' }}>{u.turno || '-'}</td>
-                  <td style={{ padding: '10px', textAlign: 'center', whiteSpace: 'nowrap' }}>{getDias(u)}</td>
-                  <td style={{ padding: '10px', textAlign: 'center', whiteSpace: 'nowrap' }}>{u.horario || '-'}</td>
+                  <td style={{ padding: '10px', textAlign: 'center', whiteSpace: 'nowrap' }}>
+                    {u.grupo_nombre ? (
+                      <span style={{
+                        padding: '3px 8px',
+                        borderRadius: '10px',
+                        fontSize: '0.75rem',
+                        background: u.grupo_color || '#3b82f6',
+                        color: 'white'
+                      }}>
+                        {u.grupo_nombre}
+                      </span>
+                    ) : '-'}
+                  </td>
+                  <td style={{ padding: '10px', textAlign: 'center' }}>
+                    {u.turno ? (
+                      <span style={{
+                        padding: '3px 8px',
+                        borderRadius: '10px',
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        background: u.turno === 'Matutino' ? '#dbeafe' : '#fef3c7',
+                        color: u.turno === 'Matutino' ? '#1e40af' : '#92400e'
+                      }}>
+                        {u.turno === 'Matutino' ? 'A' : u.turno === 'Vespertino' ? 'B' : u.turno}
+                      </span>
+                    ) : '-'}
+                  </td>
                   <td style={{ padding: '10px', textAlign: 'right' }}>{u.abono ? `$${u.abono}` : '-'}</td>
                   <td style={{ padding: '10px', textAlign: 'right' }}>{u.total ? `$${u.total}` : '-'}</td>
                   <td style={{ padding: '10px', textAlign: 'center' }}>
@@ -463,51 +506,41 @@ export default function UsuariosPage() {
 
               {/* Curso y horarios */}
               <h3 style={{ margin: '0 0 15px 0', fontSize: '1rem', color: 'var(--gray)' }}>Curso y Horarios</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Tipo de Curso</label>
-                  <input type="text" value={formData.tipo_curso} onChange={(e) => setFormData({ ...formData, tipo_curso: e.target.value })}
-                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }} />
-                </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Turno</label>
-                  <select value={formData.turno} onChange={(e) => setFormData({ ...formData, turno: e.target.value })}
+                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Grupo</label>
+                  <select value={formData.grupo_id} onChange={(e) => setFormData({ ...formData, grupo_id: e.target.value })}
                     style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }}>
-                    <option value="">Seleccionar</option>
-                    <option value="Matutino">Matutino</option>
-                    <option value="Vespertino">Vespertino</option>
+                    <option value="">Sin grupo asignado</option>
+                    {grupos.filter(g => g.activo).map(g => (
+                      <option key={g.id} value={g.id}>{g.nombre}</option>
+                    ))}
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Día(s)</label>
-                  <input type="text" value={formData.dia} onChange={(e) => setFormData({ ...formData, dia: e.target.value })}
-                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }} />
-                </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Horario</label>
-                  <input type="text" value={formData.horario} onChange={(e) => setFormData({ ...formData, horario: e.target.value })}
-                    placeholder="Ej: 3:30 a 5:00"
-                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }} />
-                </div>
-              </div>
-
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>Días de clase</label>
-                <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
-                  {[
-                    { key: 'lunes', label: 'Lunes' },
-                    { key: 'martes', label: 'Martes' },
-                    { key: 'miercoles', label: 'Miércoles' },
-                    { key: 'jueves', label: 'Jueves' },
-                    { key: 'sabado', label: 'Sábado' }
-                  ].map(d => (
-                    <label key={d.key} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                      <input type="checkbox" checked={formData[d.key as keyof typeof formData] as boolean}
-                        onChange={(e) => setFormData({ ...formData, [d.key]: e.target.checked })}
-                        style={{ marginRight: '5px' }} />
-                      {d.label}
-                    </label>
-                  ))}
+                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Turno</label>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <button type="button" onClick={() => setFormData({ ...formData, turno: 'Matutino' })}
+                      style={{
+                        flex: 1, padding: '10px', borderRadius: 'var(--radius)', cursor: 'pointer',
+                        border: formData.turno === 'Matutino' ? '2px solid var(--primary)' : '1px solid #ddd',
+                        background: formData.turno === 'Matutino' ? 'var(--primary)' : 'white',
+                        color: formData.turno === 'Matutino' ? 'white' : '#333',
+                        fontWeight: 600
+                      }}>
+                      A (Matutino)
+                    </button>
+                    <button type="button" onClick={() => setFormData({ ...formData, turno: 'Vespertino' })}
+                      style={{
+                        flex: 1, padding: '10px', borderRadius: 'var(--radius)', cursor: 'pointer',
+                        border: formData.turno === 'Vespertino' ? '2px solid var(--primary)' : '1px solid #ddd',
+                        background: formData.turno === 'Vespertino' ? 'var(--primary)' : 'white',
+                        color: formData.turno === 'Vespertino' ? 'white' : '#333',
+                        fontWeight: 600
+                      }}>
+                      B (Vespertino)
+                    </button>
+                  </div>
                 </div>
               </div>
 
