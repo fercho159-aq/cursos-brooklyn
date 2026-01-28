@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus, faEdit, faTrash, faSave, faTimes, faChevronLeft, faChevronRight, faCheck, faXmark } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faEdit, faTrash, faSave, faTimes, faChevronLeft, faChevronRight, faCheck, faXmark, faFilePdf, faHistory, faFileInvoiceDollar } from '@fortawesome/free-solid-svg-icons'
 
 interface Pago {
   id: number
@@ -176,6 +176,64 @@ export default function PagosPage() {
 
   const totalPagos = pagos.reduce((sum, p) => sum + p.monto, 0)
 
+  const descargarRecibo = async (pagoId: number) => {
+    try {
+      const response = await fetch(`/api/admin/pdf/recibo/${pagoId}`, { credentials: 'include' })
+      if (response.ok) {
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `recibo-${pagoId}.pdf`
+        a.click()
+        window.URL.revokeObjectURL(url)
+      } else {
+        alert('Error al descargar el recibo')
+      }
+    } catch {
+      alert('Error al descargar el recibo')
+    }
+  }
+
+  const descargarHistorial = async (usuarioId: number) => {
+    try {
+      const response = await fetch(`/api/admin/pdf/historial/${usuarioId}`, { credentials: 'include' })
+      if (response.ok) {
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `historial-${usuarioId}.pdf`
+        a.click()
+        window.URL.revokeObjectURL(url)
+      } else {
+        alert('Error al descargar el historial')
+      }
+    } catch {
+      alert('Error al descargar el historial')
+    }
+  }
+
+  const descargarAdeudo = async (inscripcionId: number) => {
+    try {
+      const response = await fetch(`/api/admin/pdf/adeudo/${inscripcionId}`, { credentials: 'include' })
+      if (response.ok) {
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `adeudo-${inscripcionId}.pdf`
+        a.click()
+        window.URL.revokeObjectURL(url)
+      } else {
+        const data = await response.json()
+        alert(data.error || 'Error al descargar la nota de adeudo')
+      }
+    } catch {
+      alert('Error al descargar la nota de adeudo')
+    }
+  }
+
   const cambiarMes = (delta: number) => {
     let nuevoMes = mesSeleccionado + delta
     let nuevoAño = añoSeleccionado
@@ -266,10 +324,13 @@ export default function PagosPage() {
                       </td>
                       <td style={{ padding: '12px 15px', fontSize: '0.9rem' }}>{p.registrado_por_nombre}</td>
                       <td style={{ padding: '12px 15px', textAlign: 'center' }}>
-                        <button onClick={() => openEdit(p)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)', marginRight: '10px', padding: '5px' }}>
+                        <button onClick={() => descargarRecibo(p.id)} title="Descargar recibo PDF" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#dc2626', marginRight: '10px', padding: '5px' }}>
+                          <FontAwesomeIcon icon={faFilePdf} />
+                        </button>
+                        <button onClick={() => openEdit(p)} title="Editar pago" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)', marginRight: '10px', padding: '5px' }}>
                           <FontAwesomeIcon icon={faEdit} />
                         </button>
-                        <button onClick={() => handleDelete(p)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#dc2626', padding: '5px' }}>
+                        <button onClick={() => handleDelete(p)} title="Eliminar pago" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#dc2626', padding: '5px' }}>
                           <FontAwesomeIcon icon={faTrash} />
                         </button>
                       </td>
@@ -357,13 +418,14 @@ export default function PagosPage() {
                     <th style={{ padding: '15px', textAlign: 'left', borderBottom: '2px solid #eee' }}>Curso</th>
                     <th style={{ padding: '15px', textAlign: 'right', borderBottom: '2px solid #eee' }}>Pago este mes</th>
                     <th style={{ padding: '15px', textAlign: 'right', borderBottom: '2px solid #eee' }}>Saldo Pendiente</th>
+                    <th style={{ padding: '15px', textAlign: 'center', borderBottom: '2px solid #eee' }}>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
                   {seguimientoLoading ? (
-                    <tr><td colSpan={5} style={{ padding: '40px', textAlign: 'center' }}>Cargando...</td></tr>
+                    <tr><td colSpan={6} style={{ padding: '40px', textAlign: 'center' }}>Cargando...</td></tr>
                   ) : !seguimientoData || seguimientoData.alumnos.length === 0 ? (
-                    <tr><td colSpan={5} style={{ padding: '40px', textAlign: 'center', color: 'var(--gray)' }}>No hay inscripciones activas</td></tr>
+                    <tr><td colSpan={6} style={{ padding: '40px', textAlign: 'center', color: 'var(--gray)' }}>No hay inscripciones activas</td></tr>
                   ) : seguimientoData.alumnos.map(alumno => (
                     <tr key={alumno.inscripcion_id} style={{ borderBottom: '1px solid #eee' }}>
                       <td style={{ padding: '12px 15px', textAlign: 'center' }}>
@@ -413,6 +475,25 @@ export default function PagosPage() {
                         ) : (
                           <span style={{ fontWeight: 600, color: '#16a34a' }}>$0</span>
                         )}
+                      </td>
+                      <td style={{ padding: '12px 15px', textAlign: 'center' }}>
+                        <button onClick={() => descargarHistorial(alumno.usuario_id)} title="Historial de pagos" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)', marginRight: '8px', padding: '5px' }}>
+                          <FontAwesomeIcon icon={faHistory} />
+                        </button>
+                        <button
+                          onClick={() => alumno.saldo_pendiente > 0 && descargarAdeudo(alumno.inscripcion_id)}
+                          title={alumno.saldo_pendiente > 0 ? "Nota de adeudo" : "Sin saldo pendiente"}
+                          disabled={alumno.saldo_pendiente <= 0}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            cursor: alumno.saldo_pendiente > 0 ? 'pointer' : 'not-allowed',
+                            color: alumno.saldo_pendiente > 0 ? '#dc2626' : '#ccc',
+                            padding: '5px'
+                          }}
+                        >
+                          <FontAwesomeIcon icon={faFileInvoiceDollar} />
+                        </button>
                       </td>
                     </tr>
                   ))}
