@@ -37,7 +37,7 @@ export default function HomePage() {
               conviertete en experto en <strong>Marketing Digital</strong>.
             </p>
             <div className="hero-cta">
-              <Link href="#contacto" className="btn btn-primary btn-lg">
+              <Link href="/inscripcion" className="btn btn-primary btn-lg">
                 Inscribete con descuento <FontAwesomeIcon icon={faArrowRight} />
               </Link>
               <Link href="#cursos" className="btn btn-outline btn-lg">
