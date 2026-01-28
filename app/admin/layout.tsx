@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faGraduationCap, faHome, faSignOutAlt, faTachometerAlt,
   faUsers, faBook, faCalendarAlt, faClipboardList,
-  faMoneyBill, faReceipt, faBars, faTimes, faChevronRight,
+  faBalanceScale, faBars, faTimes, faChevronRight,
   faListCheck
 } from '@fortawesome/free-solid-svg-icons'
 
@@ -23,8 +23,7 @@ const menuItems = [
   { href: '/admin/cursos', icon: faGraduationCap, label: 'Cursos' },
   { href: '/admin/horarios', icon: faCalendarAlt, label: 'Horarios' },
   { href: '/admin/inscripciones', icon: faClipboardList, label: 'Inscripciones' },
-  { href: '/admin/pagos', icon: faMoneyBill, label: 'Pagos' },
-  { href: '/admin/gastos', icon: faReceipt, label: 'Gastos' },
+  { href: '/admin/finanzas', icon: faBalanceScale, label: 'Finanzas' },
   { href: '/admin/lecciones', icon: faBook, label: 'Lecciones' },
   { href: '/admin/pendientes', icon: faListCheck, label: 'Pendientes' },
 ]
