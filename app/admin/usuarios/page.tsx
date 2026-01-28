@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
-  faPlus, faEdit, faTrash, faSave, faTimes, faSearch, faUser, faUserShield
+  faPlus, faEdit, faTrash, faSave, faTimes, faSearch, faUser, faUserShield, faEye, faEyeSlash
 } from '@fortawesome/free-solid-svg-icons'
 
 interface Usuario {
@@ -54,6 +54,7 @@ export default function UsuariosPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<Usuario | null>(null)
   const [saving, setSaving] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
     nombre: '',
     celular: '',
@@ -122,6 +123,7 @@ export default function UsuariosPage() {
 
   const openCreate = () => {
     setEditing(null)
+    setShowPassword(false)
     setFormData({
       nombre: '', celular: '', email: '', edad: '', fecha_cumpleanos: '',
       password: '', rol: 'alumno', activo: true,
@@ -134,6 +136,7 @@ export default function UsuariosPage() {
 
   const openEdit = (u: Usuario) => {
     setEditing(u)
+    setShowPassword(false)
     setFormData({
       nombre: u.nombre,
       celular: u.celular,
@@ -586,9 +589,29 @@ export default function UsuariosPage() {
                   <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>
                     {editing ? 'Nueva Contraseña' : 'Contraseña'}
                   </label>
-                  <input type="password" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    placeholder={editing ? 'Dejar vacío para mantener actual' : 'Si no se especifica, será el celular'}
-                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }} />
+                  <div style={{ position: 'relative' }}>
+                    <input type={showPassword ? 'text' : 'password'} value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      placeholder={editing ? 'Dejar vacío para mantener actual' : 'Si no se especifica, será el celular'}
+                      style={{ width: '100%', padding: '10px', paddingRight: '45px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }} />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      style={{
+                        position: 'absolute',
+                        right: '10px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        color: '#666',
+                        padding: '5px'
+                      }}
+                      title={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                    >
+                      <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                    </button>
+                  </div>
                 </div>
                 <div>
                   <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Rol</label>
