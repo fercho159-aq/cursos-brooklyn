@@ -40,7 +40,12 @@ export async function GET(request: Request) {
     query += ` ORDER BY p.fecha_pago DESC, p.id DESC`;
 
     const result = await pool.query(query, params);
-    return NextResponse.json(result.rows);
+    // Convertir montos a números
+    const pagos = result.rows.map(row => ({
+      ...row,
+      monto: parseFloat(row.monto)
+    }));
+    return NextResponse.json(pagos);
   } catch (error) {
     console.error('Error al obtener pagos:', error);
     return NextResponse.json({ error: 'Error al obtener pagos' }, { status: 500 });

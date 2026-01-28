@@ -121,6 +121,30 @@ export default function UsuariosPage() {
     fetchUsuarios()
   }
 
+  // Obtener horarios únicos del grupo seleccionado
+  const getHorariosDelGrupo = (grupoId: string) => {
+    if (!grupoId) return []
+    const usuariosDelGrupo = usuarios.filter(u => u.grupo_id === parseInt(grupoId))
+    const horariosUnicos = new Map<string, { turno: string, horario: string }>()
+
+    usuariosDelGrupo.forEach(u => {
+      if (u.turno && u.horario) {
+        const key = `${u.turno}-${u.horario}`
+        if (!horariosUnicos.has(key)) {
+          horariosUnicos.set(key, { turno: u.turno, horario: u.horario })
+        }
+      }
+    })
+
+    return Array.from(horariosUnicos.values()).sort((a, b) => {
+      if (a.turno === 'Matutino' && b.turno !== 'Matutino') return -1
+      if (a.turno !== 'Matutino' && b.turno === 'Matutino') return 1
+      return a.horario.localeCompare(b.horario)
+    })
+  }
+
+  const horariosDisponibles = getHorariosDelGrupo(formData.grupo_id)
+
   const openCreate = () => {
     setEditing(null)
     setShowPassword(false)
@@ -509,43 +533,87 @@ export default function UsuariosPage() {
 
               {/* Curso y horarios */}
               <h3 style={{ margin: '0 0 15px 0', fontSize: '1rem', color: 'var(--gray)' }}>Curso y Horarios</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Grupo</label>
-                  <select value={formData.grupo_id} onChange={(e) => setFormData({ ...formData, grupo_id: e.target.value })}
-                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }}>
-                    <option value="">Sin grupo asignado</option>
-                    {grupos.filter(g => g.activo).map(g => (
-                      <option key={g.id} value={g.id}>{g.nombre}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Turno</label>
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <button type="button" onClick={() => setFormData({ ...formData, turno: 'Matutino' })}
-                      style={{
-                        flex: 1, padding: '10px', borderRadius: 'var(--radius)', cursor: 'pointer',
-                        border: formData.turno === 'Matutino' ? '2px solid var(--primary)' : '1px solid #ddd',
-                        background: formData.turno === 'Matutino' ? 'var(--primary)' : 'white',
-                        color: formData.turno === 'Matutino' ? 'white' : '#333',
-                        fontWeight: 600
-                      }}>
-                      A (Matutino)
-                    </button>
-                    <button type="button" onClick={() => setFormData({ ...formData, turno: 'Vespertino' })}
-                      style={{
-                        flex: 1, padding: '10px', borderRadius: 'var(--radius)', cursor: 'pointer',
-                        border: formData.turno === 'Vespertino' ? '2px solid var(--primary)' : '1px solid #ddd',
-                        background: formData.turno === 'Vespertino' ? 'var(--primary)' : 'white',
-                        color: formData.turno === 'Vespertino' ? 'white' : '#333',
-                        fontWeight: 600
-                      }}>
-                      B (Vespertino)
-                    </button>
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Grupo</label>
+                <select value={formData.grupo_id} onChange={(e) => setFormData({ ...formData, grupo_id: e.target.value, turno: '', horario: '' })}
+                  style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }}>
+                  <option value="">Sin grupo asignado</option>
+                  {grupos.filter(g => g.activo).map(g => (
+                    <option key={g.id} value={g.id}>{g.nombre}</option>
+                  ))}
+                </select>
+              </div>
+
+              {formData.grupo_id && horariosDisponibles.length > 0 ? (
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Turno y Horario</label>
+                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                    {horariosDisponibles.map((h, idx) => {
+                      const isSelected = formData.turno === h.turno && formData.horario === h.horario
+                      const isMatutino = h.turno === 'Matutino'
+                      return (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => setFormData({ ...formData, turno: h.turno, horario: h.horario })}
+                          style={{
+                            flex: '1 1 calc(50% - 5px)',
+                            minWidth: '200px',
+                            padding: '12px',
+                            borderRadius: 'var(--radius)',
+                            cursor: 'pointer',
+                            border: isSelected ? '2px solid var(--primary)' : '1px solid #ddd',
+                            background: isSelected ? 'var(--primary)' : (isMatutino ? '#fef3c7' : '#e0e7ff'),
+                            color: isSelected ? 'white' : (isMatutino ? '#92400e' : '#3730a3'),
+                            fontWeight: 600,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}
+                        >
+                          <span>{isMatutino ? 'A (Matutino)' : 'B (Vespertino)'}</span>
+                          <span style={{ fontSize: '0.85rem', fontWeight: 500 }}>{h.horario}</span>
+                        </button>
+                      )
+                    })}
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Turno</label>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <button type="button" onClick={() => setFormData({ ...formData, turno: 'Matutino' })}
+                        style={{
+                          flex: 1, padding: '12px', borderRadius: 'var(--radius)', cursor: 'pointer',
+                          border: formData.turno === 'Matutino' ? '2px solid var(--primary)' : '1px solid #ddd',
+                          background: formData.turno === 'Matutino' ? 'var(--primary)' : 'white',
+                          color: formData.turno === 'Matutino' ? 'white' : '#333',
+                          fontWeight: 600
+                        }}>
+                        A (Matutino)
+                      </button>
+                      <button type="button" onClick={() => setFormData({ ...formData, turno: 'Vespertino' })}
+                        style={{
+                          flex: 1, padding: '12px', borderRadius: 'var(--radius)', cursor: 'pointer',
+                          border: formData.turno === 'Vespertino' ? '2px solid var(--primary)' : '1px solid #ddd',
+                          background: formData.turno === 'Vespertino' ? 'var(--primary)' : 'white',
+                          color: formData.turno === 'Vespertino' ? 'white' : '#333',
+                          fontWeight: 600
+                        }}>
+                        B (Vespertino)
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Horario</label>
+                    <input type="text" value={formData.horario} onChange={(e) => setFormData({ ...formData, horario: e.target.value })}
+                      placeholder="Ej: 10:00 a 11:30"
+                      style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }} />
+                  </div>
+                </div>
+              )}
 
               {/* Pagos */}
               <h3 style={{ margin: '0 0 15px 0', fontSize: '1rem', color: 'var(--gray)' }}>Pagos</h3>
