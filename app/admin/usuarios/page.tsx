@@ -20,8 +20,6 @@ interface Usuario {
   tipo_curso: string | null
   turno: string | null
   dia: string | null
-  abono: number | null
-  total: number | null
   estado_pago: string | null
   estado: string | null
   lunes: boolean
@@ -68,8 +66,6 @@ export default function UsuariosPage() {
     tipo_curso: '',
     turno: '',
     dia: '',
-    abono: '',
-    total: '',
     estado_pago: '',
     estado: '',
     lunes: false,
@@ -151,7 +147,7 @@ export default function UsuariosPage() {
     setFormData({
       nombre: '', celular: '', email: '', edad: '', fecha_cumpleanos: '',
       password: '', rol: 'alumno', activo: true,
-      genero: '', tipo_curso: '', turno: '', dia: '', abono: '', total: '',
+      genero: '', tipo_curso: '', turno: '', dia: '',
       estado_pago: '', estado: '', lunes: false, martes: false, miercoles: false,
       jueves: false, sabado: false, horario: '', grupo_id: ''
     })
@@ -174,9 +170,7 @@ export default function UsuariosPage() {
       tipo_curso: u.tipo_curso || '',
       turno: u.turno || '',
       dia: u.dia || '',
-      abono: u.abono?.toString() || '',
-      total: u.total?.toString() || '',
-      estado_pago: u.estado_pago || '',
+            estado_pago: u.estado_pago || '',
       estado: u.estado || '',
       lunes: u.lunes || false,
       martes: u.martes || false,
@@ -196,14 +190,6 @@ export default function UsuariosPage() {
     }
 
     // Validar campos numéricos
-    if (formData.abono && parseFloat(formData.abono) > 99999999) {
-      alert('El abono no puede ser mayor a $99,999,999')
-      return
-    }
-    if (formData.total && parseFloat(formData.total) > 99999999) {
-      alert('El total no puede ser mayor a $99,999,999')
-      return
-    }
     if (formData.edad && parseInt(formData.edad) > 150) {
       alert('La edad no parece ser válida')
       return
@@ -241,9 +227,7 @@ export default function UsuariosPage() {
         tipo_curso: cleanString(formData.tipo_curso),
         turno: cleanString(formData.turno),
         dia: cleanString(formData.dia),
-        abono: cleanFloat(formData.abono),
-        total: cleanFloat(formData.total),
-        estado_pago: cleanString(formData.estado_pago),
+                estado_pago: cleanString(formData.estado_pago),
         estado: cleanString(formData.estado),
         lunes: formData.lunes,
         martes: formData.martes,
@@ -380,8 +364,6 @@ export default function UsuariosPage() {
                 <th style={{ padding: '12px 10px', textAlign: 'center', borderBottom: '2px solid #eee', whiteSpace: 'nowrap' }}>Género</th>
                 <th style={{ padding: '12px 10px', textAlign: 'center', borderBottom: '2px solid #eee', whiteSpace: 'nowrap' }}>Grupo</th>
                 <th style={{ padding: '12px 10px', textAlign: 'center', borderBottom: '2px solid #eee', whiteSpace: 'nowrap' }}>Turno</th>
-                <th style={{ padding: '12px 10px', textAlign: 'right', borderBottom: '2px solid #eee', whiteSpace: 'nowrap' }}>Abono</th>
-                <th style={{ padding: '12px 10px', textAlign: 'right', borderBottom: '2px solid #eee', whiteSpace: 'nowrap' }}>Total</th>
                 <th style={{ padding: '12px 10px', textAlign: 'center', borderBottom: '2px solid #eee', whiteSpace: 'nowrap' }}>Estado Pago</th>
                 <th style={{ padding: '12px 10px', textAlign: 'center', borderBottom: '2px solid #eee', whiteSpace: 'nowrap' }}>Estado</th>
                 <th style={{ padding: '12px 10px', textAlign: 'center', borderBottom: '2px solid #eee', whiteSpace: 'nowrap' }}>Activo</th>
@@ -390,9 +372,9 @@ export default function UsuariosPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={12} style={{ padding: '40px', textAlign: 'center' }}>Cargando...</td></tr>
+                <tr><td colSpan={10} style={{ padding: '40px', textAlign: 'center' }}>Cargando...</td></tr>
               ) : usuarios.length === 0 ? (
-                <tr><td colSpan={12} style={{ padding: '40px', textAlign: 'center', color: 'var(--gray)' }}>No se encontraron usuarios</td></tr>
+                <tr><td colSpan={10} style={{ padding: '40px', textAlign: 'center', color: 'var(--gray)' }}>No se encontraron usuarios</td></tr>
               ) : usuarios.map(u => (
                 <tr key={u.id} style={{ borderBottom: '1px solid #eee' }}>
                   <td style={{ padding: '10px', whiteSpace: 'nowrap' }}><strong>{u.nombre}</strong></td>
@@ -426,8 +408,6 @@ export default function UsuariosPage() {
                       </span>
                     ) : '-'}
                   </td>
-                  <td style={{ padding: '10px', textAlign: 'right' }}>{u.abono ? `$${u.abono}` : '-'}</td>
-                  <td style={{ padding: '10px', textAlign: 'right' }}>{u.total ? `$${u.total}` : '-'}</td>
                   <td style={{ padding: '10px', textAlign: 'center' }}>
                     {u.estado_pago ? (
                       <span style={{
@@ -615,19 +595,9 @@ export default function UsuariosPage() {
                 </div>
               )}
 
-              {/* Pagos */}
-              <h3 style={{ margin: '0 0 15px 0', fontSize: '1rem', color: 'var(--gray)' }}>Pagos</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '15px', marginBottom: '20px' }}>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Abono</label>
-                  <input type="number" value={formData.abono} onChange={(e) => setFormData({ ...formData, abono: e.target.value })}
-                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }} />
-                </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Total</label>
-                  <input type="number" value={formData.total} onChange={(e) => setFormData({ ...formData, total: e.target.value })}
-                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }} />
-                </div>
+              {/* Estado */}
+              <h3 style={{ margin: '0 0 15px 0', fontSize: '1rem', color: 'var(--gray)' }}>Estado</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
                 <div>
                   <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Estado de Pago</label>
                   <select value={formData.estado_pago} onChange={(e) => setFormData({ ...formData, estado_pago: e.target.value })}

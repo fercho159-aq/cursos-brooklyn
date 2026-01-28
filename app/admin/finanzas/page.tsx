@@ -43,7 +43,7 @@ const MESES = [
   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
 ]
 
-const TIPOS_GASTO = ['Renta', 'Servicios', 'Materiales', 'Sueldos', 'Marketing', 'Mantenimiento', 'Otro']
+const TIPOS_GASTO = ['Renta', 'Servicios', 'Materiales', 'Sueldos', 'Marketing', 'Mantenimiento', 'Aldo', 'Daniel', 'Julio', 'Otro']
 
 export default function FinanzasPage() {
   const [pagos, setPagos] = useState<Pago[]>([])
@@ -200,18 +200,18 @@ export default function FinanzasPage() {
           <FontAwesomeIcon icon={faBalanceScale} style={{ color: 'var(--primary)' }} />
           Finanzas
         </h1>
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div style={{ display: 'flex', gap: '15px' }}>
           <button onClick={openPago} style={{
-            padding: '10px 20px', background: '#16a34a', color: 'white', border: 'none',
-            borderRadius: 'var(--radius)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600
+            padding: '15px 30px', background: '#16a34a', color: 'white', border: 'none',
+            borderRadius: 'var(--radius)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', fontWeight: 700, fontSize: '1.1rem'
           }}>
-            <FontAwesomeIcon icon={faArrowUp} /> Ingreso
+            <FontAwesomeIcon icon={faArrowUp} size="lg" /> Ingreso
           </button>
           <button onClick={openGasto} style={{
-            padding: '10px 20px', background: '#dc2626', color: 'white', border: 'none',
-            borderRadius: 'var(--radius)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600
+            padding: '15px 30px', background: '#dc2626', color: 'white', border: 'none',
+            borderRadius: 'var(--radius)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', fontWeight: 700, fontSize: '1.1rem'
           }}>
-            <FontAwesomeIcon icon={faArrowDown} /> Egreso
+            <FontAwesomeIcon icon={faArrowDown} size="lg" /> Egreso
           </button>
         </div>
       </div>
