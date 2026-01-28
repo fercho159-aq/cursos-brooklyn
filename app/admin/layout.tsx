@@ -7,7 +7,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faGraduationCap, faHome, faSignOutAlt, faTachometerAlt,
   faUsers, faBook, faCalendarAlt, faClipboardList,
-  faMoneyBill, faReceipt, faBars, faTimes, faChevronRight
+  faMoneyBill, faReceipt, faBars, faTimes, faChevronRight,
+  faListCheck
 } from '@fortawesome/free-solid-svg-icons'
 
 interface Usuario {
@@ -25,6 +26,7 @@ const menuItems = [
   { href: '/admin/pagos', icon: faMoneyBill, label: 'Pagos' },
   { href: '/admin/gastos', icon: faReceipt, label: 'Gastos' },
   { href: '/admin/lecciones', icon: faBook, label: 'Lecciones' },
+  { href: '/admin/pendientes', icon: faListCheck, label: 'Pendientes' },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
