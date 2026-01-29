@@ -97,7 +97,7 @@ export default function LeccionesPage() {
         duracion_minutos: formData.duracion_minutos ? parseInt(formData.duracion_minutos) : null,
         video_url: formData.video_url.trim() || null
       }
-      const url = editingLeccion ? `/api/admin/lecciones/${editingLeccion.id}` : '/api/admin/lecciones'
+      const url = editingLeccion ? `/api/admin/lecciones?id=${editingLeccion.id}` : '/api/admin/lecciones'
       const res = await fetch(url, {
         method: editingLeccion ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -112,7 +112,7 @@ export default function LeccionesPage() {
   const handleDelete = async (leccion: Leccion) => {
     if (!confirm(`¿Eliminar la leccion "${leccion.titulo}"?`)) return
     try {
-      const res = await fetch(`/api/admin/lecciones/${leccion.id}`, { method: 'DELETE', credentials: 'include' })
+      const res = await fetch(`/api/admin/lecciones?id=${leccion.id}`, { method: 'DELETE', credentials: 'include' })
       if (res.ok) fetchLecciones()
       else alert('Error al eliminar')
     } catch { alert('Error al eliminar') }

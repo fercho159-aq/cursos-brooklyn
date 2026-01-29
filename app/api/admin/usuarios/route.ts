@@ -138,3 +138,108 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: `Error al crear usuario: ${errorMessage}` }, { status: 500 });
   }
 }
+
+export async function PATCH(request: Request) {
+  const usuario = await getUsuarioFromRequest(request);
+
+  if (!usuario || usuario.rol !== 'admin') {
+    return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
+  }
+
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ error: 'ID es requerido' }, { status: 400 });
+    }
+
+    const body = await request.json();
+
+    const allowedFields = [
+      'nombre', 'celular', 'email', 'edad', 'fecha_cumpleanos', 'rol', 'activo',
+      'genero', 'tipo_curso', 'turno', 'dia', 'abono', 'total', 'estado_pago', 'estado',
+      'lunes', 'martes', 'miercoles', 'jueves', 'sabado', 'horario', 'grupo_id'
+    ];
+    const updates: string[] = [];
+    const values: (string | number | boolean | null)[] = [];
+    let paramIndex = 1;
+
+    const numericFields = ['edad', 'abono', 'total', 'grupo_id'];
+    const dateFields = ['fecha_cumpleanos'];
+
+    for (const field of allowedFields) {
+      if (body[field] !== undefined) {
+        updates.push(`${field} = $${paramIndex}`);
+
+        let value = body[field];
+
+        if (numericFields.includes(field)) {
+          value = value && value !== '' ? parseFloat(value) : null;
+        } else if (dateFields.includes(field)) {
+          value = value && value !== '' ? value : null;
+        } else if (typeof value === 'string' && value === '') {
+          value = null;
+        }
+
+        values.push(value);
+        paramIndex++;
+      }
+    }
+
+    if (body.password) {
+      updates.push(`password = $${paramIndex}`);
+      values.push(await bcrypt.hash(body.password, 10));
+      paramIndex++;
+    }
+
+    if (updates.length === 0) {
+      return NextResponse.json({ error: 'No hay campos para actualizar' }, { status: 400 });
+    }
+
+    values.push(id);
+    const query = `UPDATE usuarios SET ${updates.join(', ')} WHERE id = $${paramIndex}
+                   RETURNING id, nombre, celular, email, edad, fecha_cumpleanos, rol, activo, created_at,
+                   genero, tipo_curso, turno, dia, abono, total, estado_pago, estado,
+                   lunes, martes, miercoles, jueves, sabado, horario`;
+
+    const result = await pool.query(query, values);
+
+    if (result.rows.length === 0) {
+      return NextResponse.json({ error: 'Usuario no encontrado' }, { status: 404 });
+    }
+
+    return NextResponse.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error al actualizar usuario:', error);
+    return NextResponse.json({ error: 'Error al actualizar usuario' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request) {
+  const usuario = await getUsuarioFromRequest(request);
+
+  if (!usuario || usuario.rol !== 'admin') {
+    return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
+  }
+
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ error: 'ID es requerido' }, { status: 400 });
+    }
+
+    const result = await pool.query('DELETE FROM usuarios WHERE id = $1 RETURNING id', [id]);
+
+    if (result.rows.length === 0) {
+      return NextResponse.json({ error: 'Usuario no encontrado' }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: 'Usuario eliminado correctamente' });
+  } catch (error) {
+    console.error('Error al eliminar usuario:', error);
+    return NextResponse.json({ error: 'Error al eliminar usuario' }, { status: 500 });
+  }
+}

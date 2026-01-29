@@ -61,7 +61,7 @@ export default function CursosPage() {
         costo: parseFloat(formData.costo) || 1700,
         duracion_semanas: parseInt(formData.duracion_semanas) || 4, activo: formData.activo
       }
-      const url = editing ? `/api/admin/cursos/${editing.id}` : '/api/admin/cursos'
+      const url = editing ? `/api/admin/cursos?id=${editing.id}` : '/api/admin/cursos'
       const res = await fetch(url, {
         method: editing ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -76,7 +76,7 @@ export default function CursosPage() {
   const handleDelete = async (c: Curso) => {
     if (!confirm(`¿Eliminar el curso "${c.nombre}"?`)) return
     try {
-      const res = await fetch(`/api/admin/cursos/${c.id}`, { method: 'DELETE', credentials: 'include' })
+      const res = await fetch(`/api/admin/cursos?id=${c.id}`, { method: 'DELETE', credentials: 'include' })
       if (res.ok) fetchCursos()
       else alert('Error al eliminar')
     } catch { alert('Error al eliminar') }

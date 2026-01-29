@@ -98,3 +98,79 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Error al crear leccion' }, { status: 500 });
   }
 }
+
+export async function PATCH(request: Request) {
+  const usuario = await getUsuarioFromRequest(request);
+
+  if (!usuario || usuario.rol !== 'admin') {
+    return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
+  }
+
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ error: 'ID es requerido' }, { status: 400 });
+    }
+
+    const body = await request.json();
+    const allowedFields = ['tipo_curso', 'curso_nombre', 'modulo', 'numero_leccion', 'titulo', 'descripcion', 'video_url', 'duracion_minutos', 'orden', 'activo'];
+    const updates: string[] = [];
+    const values: (string | number | boolean | null)[] = [];
+    let paramIndex = 1;
+
+    for (const field of allowedFields) {
+      if (body[field] !== undefined) {
+        updates.push(`${field} = $${paramIndex}`);
+        values.push(body[field] === '' ? null : body[field]);
+        paramIndex++;
+      }
+    }
+
+    if (updates.length === 0) {
+      return NextResponse.json({ error: 'No hay campos para actualizar' }, { status: 400 });
+    }
+
+    values.push(id);
+    const query = `UPDATE lecciones SET ${updates.join(', ')} WHERE id = $${paramIndex} RETURNING *`;
+    const result = await pool.query(query, values);
+
+    if (result.rows.length === 0) {
+      return NextResponse.json({ error: 'Lección no encontrada' }, { status: 404 });
+    }
+
+    return NextResponse.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error al actualizar lección:', error);
+    return NextResponse.json({ error: 'Error al actualizar lección' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request) {
+  const usuario = await getUsuarioFromRequest(request);
+
+  if (!usuario || usuario.rol !== 'admin') {
+    return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
+  }
+
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ error: 'ID es requerido' }, { status: 400 });
+    }
+
+    const result = await pool.query('DELETE FROM lecciones WHERE id = $1 RETURNING *', [id]);
+
+    if (result.rows.length === 0) {
+      return NextResponse.json({ error: 'Lección no encontrada' }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: 'Lección eliminada correctamente' });
+  } catch (error) {
+    console.error('Error al eliminar lección:', error);
+    return NextResponse.json({ error: 'Error al eliminar lección' }, { status: 500 });
+  }
+}

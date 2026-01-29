@@ -106,7 +106,7 @@ export default function InscripcionesPage() {
         horario_otro: formData.horario_otro || null, modulo_numero: parseInt(formData.modulo_numero),
         promocion: formData.promocion || null
       }
-      const url = editing ? `/api/admin/inscripciones/${editing.id}` : '/api/admin/inscripciones'
+      const url = editing ? `/api/admin/inscripciones?id=${editing.id}` : '/api/admin/inscripciones'
       const res = await fetch(url, {
         method: editing ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -121,7 +121,7 @@ export default function InscripcionesPage() {
   const handleDelete = async (i: Inscripcion) => {
     if (!confirm(`¿Eliminar la inscripción de ${i.usuario_nombre}?`)) return
     try {
-      const res = await fetch(`/api/admin/inscripciones/${i.id}`, { method: 'DELETE', credentials: 'include' })
+      const res = await fetch(`/api/admin/inscripciones?id=${i.id}`, { method: 'DELETE', credentials: 'include' })
       if (res.ok) fetchData()
       else alert('Error al eliminar')
     } catch { alert('Error al eliminar') }

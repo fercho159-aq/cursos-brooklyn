@@ -127,7 +127,7 @@ export default function HorariosPage() {
 
     setSavingGrupo(true)
     try {
-      const url = editingGrupo ? `/api/admin/grupos/${editingGrupo.id}` : '/api/admin/grupos'
+      const url = editingGrupo ? `/api/admin/grupos?id=${editingGrupo.id}` : '/api/admin/grupos'
       const res = await fetch(url, {
         method: editingGrupo ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -154,7 +154,7 @@ export default function HorariosPage() {
     if (!confirm(`¿Eliminar el grupo "${grupo.nombre}"? Los alumnos quedarán sin grupo asignado.`)) return
 
     try {
-      const res = await fetch(`/api/admin/grupos/${grupo.id}`, {
+      const res = await fetch(`/api/admin/grupos?id=${grupo.id}`, {
         method: 'DELETE',
         credentials: 'include'
       })

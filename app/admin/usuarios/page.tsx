@@ -244,7 +244,7 @@ export default function UsuariosPage() {
 
       console.log('Enviando payload:', payload)
 
-      const url = editing ? `/api/admin/usuarios/${editing.id}` : '/api/admin/usuarios'
+      const url = editing ? `/api/admin/usuarios?id=${editing.id}` : '/api/admin/usuarios'
       const res = await fetch(url, {
         method: editing ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -272,7 +272,7 @@ export default function UsuariosPage() {
     if (!confirm(`¿Eliminar a "${u.nombre}"?`)) return
 
     try {
-      const res = await fetch(`/api/admin/usuarios/${u.id}`, {
+      const res = await fetch(`/api/admin/usuarios?id=${u.id}`, {
         method: 'DELETE',
         credentials: 'include'
       })

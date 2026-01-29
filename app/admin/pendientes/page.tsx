@@ -106,7 +106,7 @@ export default function PendientesPage() {
         prioridad: formData.prioridad,
         fecha_limite: formData.fecha_limite || null
       }
-      const url = editing ? `/api/admin/pendientes/${editing.id}` : '/api/admin/pendientes'
+      const url = editing ? `/api/admin/pendientes?id=${editing.id}` : '/api/admin/pendientes'
       const res = await fetch(url, {
         method: editing ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -128,7 +128,7 @@ export default function PendientesPage() {
 
   const handleToggleCompletado = async (p: Pendiente) => {
     try {
-      const res = await fetch(`/api/admin/pendientes/${p.id}`, {
+      const res = await fetch(`/api/admin/pendientes?id=${p.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -144,7 +144,7 @@ export default function PendientesPage() {
   const handleDelete = async (p: Pendiente) => {
     if (!confirm(`¿Eliminar "${p.titulo}"?`)) return
     try {
-      const res = await fetch(`/api/admin/pendientes/${p.id}`, { method: 'DELETE', credentials: 'include' })
+      const res = await fetch(`/api/admin/pendientes?id=${p.id}`, { method: 'DELETE', credentials: 'include' })
       if (res.ok) fetchPendientes()
       else alert('Error al eliminar')
     } catch {
@@ -170,7 +170,7 @@ export default function PendientesPage() {
     }
 
     try {
-      const res = await fetch(`/api/admin/pendientes/${draggedItem.id}`, {
+      const res = await fetch(`/api/admin/pendientes?id=${draggedItem.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
