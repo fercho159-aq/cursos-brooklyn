@@ -89,3 +89,42 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Error al crear pago' }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request) {
+  const usuario = await getUsuarioFromRequest(request);
+
+  if (!usuario || usuario.rol !== 'admin') {
+    return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
+  }
+
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ error: 'ID es requerido' }, { status: 400 });
+    }
+
+    // Obtener el pago antes de eliminarlo para actualizar el saldo
+    const pagoResult = await pool.query('SELECT * FROM pagos WHERE id = $1', [id]);
+    if (pagoResult.rows.length === 0) {
+      return NextResponse.json({ error: 'Pago no encontrado' }, { status: 404 });
+    }
+
+    const pago = pagoResult.rows[0];
+
+    // Eliminar el pago
+    await pool.query('DELETE FROM pagos WHERE id = $1', [id]);
+
+    // Revertir el saldo pendiente
+    await pool.query(
+      `UPDATE inscripciones SET saldo_pendiente = saldo_pendiente + $1 WHERE id = $2`,
+      [pago.monto, pago.inscripcion_id]
+    );
+
+    return NextResponse.json({ message: 'Pago eliminado correctamente' });
+  } catch (error) {
+    console.error('Error al eliminar pago:', error);
+    return NextResponse.json({ error: 'Error al eliminar pago' }, { status: 500 });
+  }
+}

@@ -148,8 +148,9 @@ export default function FinanzasPage() {
   const deletePago = async (p: Pago) => {
     if (!confirm(`¿Eliminar ingreso de $${parseFloat(String(p.monto)).toLocaleString()}?`)) return
     try {
-      const res = await fetch(`/api/admin/pagos/${p.id}`, { method: 'DELETE', credentials: 'include' })
+      const res = await fetch(`/api/admin/pagos?id=${p.id}`, { method: 'DELETE', credentials: 'include' })
       if (res.ok) fetchData()
+      else alert('Error al eliminar')
     } catch { alert('Error al eliminar') }
   }
 
@@ -186,8 +187,9 @@ export default function FinanzasPage() {
   const deleteGasto = async (g: Gasto) => {
     if (!confirm(`¿Eliminar egreso de $${parseFloat(String(g.monto)).toLocaleString()}?`)) return
     try {
-      const res = await fetch(`/api/admin/gastos/${g.id}`, { method: 'DELETE', credentials: 'include' })
+      const res = await fetch(`/api/admin/gastos?id=${g.id}`, { method: 'DELETE', credentials: 'include' })
       if (res.ok) fetchData()
+      else alert('Error al eliminar')
     } catch { alert('Error al eliminar') }
   }
 
