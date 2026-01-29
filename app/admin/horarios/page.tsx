@@ -46,6 +46,18 @@ export default function HorariosPage() {
     color: '#3b82f6'
   })
 
+  // Modal de edición de horario
+  const [modalHorarioOpen, setModalHorarioOpen] = useState(false)
+  const [savingHorario, setSavingHorario] = useState(false)
+  const [horarioEditData, setHorarioEditData] = useState<{
+    grupoId: number
+    oldTurno: string
+    oldHorario: string
+    newTurno: string
+    newHorario: string
+    usuarios: Usuario[]
+  } | null>(null)
+
   const fetchData = async () => {
     try {
       const [usuariosRes, gruposRes] = await Promise.all([
@@ -165,6 +177,50 @@ export default function HorariosPage() {
     }
   }
 
+  // Funciones para editar horarios
+  const openEditHorario = (grupoId: number, turno: string, horario: string, usuariosHorario: Usuario[]) => {
+    const turnoLimpio = turno === 'Sin turno' ? '' : turno
+    const horarioLimpio = horario === 'Sin horario definido' ? '' : horario
+    setHorarioEditData({
+      grupoId,
+      oldTurno: turnoLimpio,
+      oldHorario: horarioLimpio,
+      newTurno: turnoLimpio,
+      newHorario: horarioLimpio,
+      usuarios: usuariosHorario
+    })
+    setModalHorarioOpen(true)
+  }
+
+  const handleSaveHorario = async () => {
+    if (!horarioEditData) return
+
+    setSavingHorario(true)
+    try {
+      // Actualizar todos los usuarios del sub-grupo
+      const promises = horarioEditData.usuarios.map(u =>
+        fetch(`/api/admin/usuarios?id=${u.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            turno: horarioEditData.newTurno || null,
+            horario: horarioEditData.newHorario || null
+          })
+        })
+      )
+
+      await Promise.all(promises)
+      setModalHorarioOpen(false)
+      setHorarioEditData(null)
+      fetchData()
+    } catch {
+      alert('Error al actualizar horarios')
+    } finally {
+      setSavingHorario(false)
+    }
+  }
+
   const totalInscritos = usuarios.length
   const sinGrupo = getUsuariosSinGrupo()
 
@@ -275,6 +331,7 @@ export default function HorariosPage() {
                   ) : (
                     horarios.map(([horarioKey, alumnos]) => {
                       const isMatutino = horarioKey.toLowerCase().includes('matutino')
+                      const [turnoDisplay, horarioDisplay] = horarioKey.split(' - ')
                       return (
                         <div key={horarioKey} style={{ borderBottom: '1px solid #eee' }}>
                           <div style={{
@@ -289,6 +346,20 @@ export default function HorariosPage() {
                             <span style={{ fontWeight: 600, color: isMatutino ? '#92400e' : '#3730a3' }}>
                               {horarioKey}
                             </span>
+                            <button
+                              onClick={() => openEditHorario(grupo.id, turnoDisplay, horarioDisplay, alumnos)}
+                              style={{
+                                background: 'rgba(0,0,0,0.1)',
+                                border: 'none',
+                                borderRadius: '5px',
+                                padding: '5px 8px',
+                                cursor: 'pointer',
+                                color: isMatutino ? '#92400e' : '#3730a3'
+                              }}
+                              title="Editar horario"
+                            >
+                              <FontAwesomeIcon icon={faEdit} size="sm" />
+                            </button>
                             <span style={{
                               marginLeft: 'auto',
                               background: isMatutino ? '#fbbf24' : '#818cf8',
@@ -552,6 +623,83 @@ export default function HorariosPage() {
                 >
                   <FontAwesomeIcon icon={faSave} />
                   {savingGrupo ? 'Guardando...' : 'Guardar'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Edición de Horario */}
+      {modalHorarioOpen && horarioEditData && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 1000, padding: '20px'
+        }}>
+          <div style={{ background: 'var(--white)', borderRadius: 'var(--radius)', width: '100%', maxWidth: '450px' }}>
+            <div style={{ padding: '20px', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h2 style={{ margin: 0 }}>Editar Horario</h2>
+              <button onClick={() => { setModalHorarioOpen(false); setHorarioEditData(null) }} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}>
+                <FontAwesomeIcon icon={faTimes} />
+              </button>
+            </div>
+
+            <div style={{ padding: '20px' }}>
+              <div style={{ marginBottom: '15px', padding: '12px', background: '#f0f9ff', borderRadius: 'var(--radius)', fontSize: '0.9rem' }}>
+                <strong>{horarioEditData.usuarios.length}</strong> alumno{horarioEditData.usuarios.length !== 1 ? 's' : ''} serán actualizados
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Turno</label>
+                  <select
+                    value={horarioEditData.newTurno}
+                    onChange={(e) => setHorarioEditData({ ...horarioEditData, newTurno: e.target.value })}
+                    style={{ width: '100%', padding: '12px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }}
+                  >
+                    <option value="">Sin especificar</option>
+                    <option value="Matutino">Matutino</option>
+                    <option value="Vespertino">Vespertino</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Horario</label>
+                  <input
+                    type="text"
+                    value={horarioEditData.newHorario}
+                    onChange={(e) => setHorarioEditData({ ...horarioEditData, newHorario: e.target.value })}
+                    placeholder="Ej: 9:00 a 12:00"
+                    style={{ width: '100%', padding: '12px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                <button
+                  onClick={() => { setModalHorarioOpen(false); setHorarioEditData(null) }}
+                  style={{ padding: '12px 24px', background: '#f5f5f5', border: 'none', borderRadius: 'var(--radius)', cursor: 'pointer' }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleSaveHorario}
+                  disabled={savingHorario}
+                  style={{
+                    padding: '12px 24px',
+                    background: 'var(--primary)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 'var(--radius)',
+                    cursor: savingHorario ? 'wait' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    opacity: savingHorario ? 0.7 : 1
+                  }}
+                >
+                  <FontAwesomeIcon icon={faSave} />
+                  {savingHorario ? 'Guardando...' : 'Guardar'}
                 </button>
               </div>
             </div>
