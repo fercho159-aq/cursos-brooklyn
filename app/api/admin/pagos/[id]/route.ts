@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
 import { getUsuarioFromRequest } from '@/lib/auth';
 
+// Route handler for /api/admin/pagos/[id]
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
