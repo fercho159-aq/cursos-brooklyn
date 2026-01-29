@@ -11,11 +11,14 @@ export async function GET(request: Request) {
 
   try {
     const result = await pool.query(`
-      SELECT i.*, c.nombre as curso_nombre, h.nombre as horario_nombre
+      SELECT i.*,
+             c.nombre as curso_nombre,
+             h.nombre as horario_nombre,
+             COALESCE(i.nombre_curso_especifico, c.nombre) as curso_display
       FROM inscripciones i
-      JOIN cursos c ON i.curso_id = c.id
-      JOIN horarios h ON i.horario_id = h.id
-      WHERE i.usuario_id = $1
+      LEFT JOIN cursos c ON i.curso_id = c.id
+      LEFT JOIN horarios h ON i.horario_id = h.id
+      WHERE i.usuario_id = $1 AND i.estado = 'activo'
       ORDER BY i.created_at DESC
     `, [usuario.id]);
 

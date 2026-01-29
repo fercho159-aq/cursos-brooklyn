@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
-  faGraduationCap, faBook, faMoneyBill, faSignOutAlt, faHome
+  faGraduationCap, faBook, faSignOutAlt, faHome, faPlayCircle, faChevronDown, faChevronUp
 } from '@fortawesome/free-solid-svg-icons'
 
 interface Usuario {
@@ -19,18 +19,37 @@ interface Usuario {
 interface Inscripcion {
   id: number
   curso_nombre: string
-  horario_nombre: string
-  fecha_inicio: string
-  fecha_fin: string
+  curso_display: string
+  horario_nombre: string | null
+  horario_otro: string | null
+  fecha_inicio: string | null
+  fecha_fin: string | null
+  costo_total: number
   saldo_pendiente: number
   estado: string
+  modulo_numero: number | null
+}
+
+interface Leccion {
+  id: number
+  tipo_curso: string
+  curso_nombre: string
+  modulo: string
+  numero_leccion: number
+  titulo: string
+  descripcion: string
+  video_url: string | null
+  duracion_minutos: number | null
+  orden: number
 }
 
 export default function AlumnoPage() {
   const router = useRouter()
   const [usuario, setUsuario] = useState<Usuario | null>(null)
   const [inscripciones, setInscripciones] = useState<Inscripcion[]>([])
+  const [lecciones, setLecciones] = useState<Leccion[]>([])
   const [loading, setLoading] = useState(true)
+  const [modulosAbiertos, setModulosAbiertos] = useState<string[]>([])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -50,6 +69,12 @@ export default function AlumnoPage() {
           const inscData = await inscRes.json()
           setInscripciones(inscData)
         }
+
+        const lecRes = await fetch('/api/alumno/lecciones', { credentials: 'include' })
+        if (lecRes.ok) {
+          const lecData = await lecRes.json()
+          setLecciones(lecData)
+        }
       } catch (error) {
         router.push('/login')
       } finally {
@@ -64,6 +89,29 @@ export default function AlumnoPage() {
     await fetch('/api/logout', { method: 'POST', credentials: 'include' })
     router.push('/login')
   }
+
+  const toggleModulo = (modulo: string) => {
+    setModulosAbiertos(prev =>
+      prev.includes(modulo)
+        ? prev.filter(m => m !== modulo)
+        : [...prev, modulo]
+    )
+  }
+
+  // Agrupar lecciones por tipo_curso y modulo
+  const leccionesAgrupadas = lecciones.reduce((acc, leccion) => {
+    const key = `${leccion.tipo_curso}-${leccion.modulo}`
+    if (!acc[key]) {
+      acc[key] = {
+        tipo_curso: leccion.tipo_curso,
+        curso_nombre: leccion.curso_nombre,
+        modulo: leccion.modulo,
+        lecciones: []
+      }
+    }
+    acc[key].lecciones.push(leccion)
+    return acc
+  }, {} as Record<string, { tipo_curso: string; curso_nombre: string; modulo: string; lecciones: Leccion[] }>)
 
   if (loading) {
     return (
@@ -146,16 +194,30 @@ export default function AlumnoPage() {
                     background: 'var(--white)',
                     padding: '25px',
                     borderRadius: 'var(--radius)',
-                    boxShadow: 'var(--shadow)'
+                    boxShadow: 'var(--shadow)',
+                    borderLeft: '4px solid var(--primary)'
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', flexWrap: 'wrap', gap: '15px' }}>
                     <div>
-                      <h3 style={{ marginBottom: '5px' }}>{insc.curso_nombre}</h3>
-                      <p style={{ color: 'var(--gray)', fontSize: '0.9rem' }}>Horario: {insc.horario_nombre}</p>
-                      <p style={{ color: 'var(--gray)', fontSize: '0.9rem' }}>
-                        {new Date(insc.fecha_inicio).toLocaleDateString('es-MX')} - {new Date(insc.fecha_fin).toLocaleDateString('es-MX')}
-                      </p>
+                      <h3 style={{ marginBottom: '10px', color: 'var(--dark)' }}>
+                        {insc.curso_display || insc.curso_nombre}
+                      </h3>
+                      {insc.modulo_numero && (
+                        <p style={{ color: 'var(--primary)', fontSize: '0.9rem', fontWeight: 600, marginBottom: '5px' }}>
+                          Módulo {insc.modulo_numero}
+                        </p>
+                      )}
+                      {(insc.horario_nombre || insc.horario_otro) && (
+                        <p style={{ color: 'var(--gray)', fontSize: '0.9rem' }}>
+                          Horario: {insc.horario_nombre || insc.horario_otro}
+                        </p>
+                      )}
+                      {insc.fecha_inicio && insc.fecha_fin && (
+                        <p style={{ color: 'var(--gray)', fontSize: '0.9rem' }}>
+                          {new Date(insc.fecha_inicio).toLocaleDateString('es-MX')} - {new Date(insc.fecha_fin).toLocaleDateString('es-MX')}
+                        </p>
+                      )}
                     </div>
                     <div style={{ textAlign: 'right' }}>
                       <span style={{
@@ -164,15 +226,27 @@ export default function AlumnoPage() {
                         borderRadius: '20px',
                         fontSize: '0.8rem',
                         fontWeight: 600,
-                        background: insc.estado === 'activo' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(100, 116, 139, 0.1)',
-                        color: insc.estado === 'activo' ? 'var(--accent)' : 'var(--gray)'
+                        background: insc.estado === 'activo' ? '#dcfce7' : 'rgba(100, 116, 139, 0.1)',
+                        color: insc.estado === 'activo' ? '#16a34a' : 'var(--gray)'
                       }}>
-                        {insc.estado}
+                        {insc.estado === 'activo' ? 'Activo' : insc.estado}
                       </span>
-                      {insc.saldo_pendiente > 0 && (
-                        <p style={{ marginTop: '10px', color: 'var(--secondary)', fontWeight: 600 }}>
-                          Saldo: ${insc.saldo_pendiente.toLocaleString()}
-                        </p>
+                      <div style={{ marginTop: '15px' }}>
+                        <p style={{ fontSize: '0.85rem', color: 'var(--gray)' }}>Costo del curso</p>
+                        <p style={{ fontWeight: 600, fontSize: '1.1rem' }}>${parseFloat(String(insc.costo_total || 0)).toLocaleString()}</p>
+                      </div>
+                      {parseFloat(String(insc.saldo_pendiente)) > 0 && (
+                        <div style={{ marginTop: '10px', padding: '10px', background: '#fef3c7', borderRadius: 'var(--radius)' }}>
+                          <p style={{ fontSize: '0.85rem', color: '#92400e' }}>Saldo pendiente</p>
+                          <p style={{ fontWeight: 700, fontSize: '1.1rem', color: '#dc2626' }}>
+                            ${parseFloat(String(insc.saldo_pendiente)).toLocaleString()}
+                          </p>
+                        </div>
+                      )}
+                      {parseFloat(String(insc.saldo_pendiente)) <= 0 && (
+                        <div style={{ marginTop: '10px', padding: '10px', background: '#dcfce7', borderRadius: 'var(--radius)' }}>
+                          <p style={{ fontWeight: 600, color: '#16a34a' }}>Pagado</p>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -181,6 +255,134 @@ export default function AlumnoPage() {
             </div>
           )}
         </section>
+
+        {/* Lecciones */}
+        {lecciones.length > 0 && (
+          <section style={{ marginBottom: '30px' }}>
+            <h2 style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <FontAwesomeIcon icon={faPlayCircle} style={{ color: 'var(--primary)' }} />
+              Mis Lecciones
+            </h2>
+
+            <div style={{ display: 'grid', gap: '15px' }}>
+              {Object.values(leccionesAgrupadas).map((grupo) => {
+                const moduloKey = `${grupo.tipo_curso}-${grupo.modulo}`
+                const isOpen = modulosAbiertos.includes(moduloKey)
+
+                return (
+                  <div
+                    key={moduloKey}
+                    style={{
+                      background: 'var(--white)',
+                      borderRadius: 'var(--radius)',
+                      boxShadow: 'var(--shadow)',
+                      overflow: 'hidden'
+                    }}
+                  >
+                    <button
+                      onClick={() => toggleModulo(moduloKey)}
+                      style={{
+                        width: '100%',
+                        padding: '20px',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        textAlign: 'left'
+                      }}
+                    >
+                      <div>
+                        <h3 style={{ marginBottom: '5px', color: 'var(--dark)' }}>
+                          {grupo.curso_nombre}
+                        </h3>
+                        <p style={{ color: 'var(--primary)', fontSize: '0.9rem', fontWeight: 600 }}>
+                          {grupo.modulo} • {grupo.lecciones.length} lecciones
+                        </p>
+                      </div>
+                      <FontAwesomeIcon
+                        icon={isOpen ? faChevronUp : faChevronDown}
+                        style={{ color: 'var(--gray)' }}
+                      />
+                    </button>
+
+                    {isOpen && (
+                      <div style={{ borderTop: '1px solid var(--light)', padding: '15px' }}>
+                        {grupo.lecciones.map((leccion) => (
+                          <div
+                            key={leccion.id}
+                            style={{
+                              padding: '15px',
+                              borderRadius: 'var(--radius)',
+                              background: 'var(--light)',
+                              marginBottom: '10px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '15px'
+                            }}
+                          >
+                            <div style={{
+                              width: '40px',
+                              height: '40px',
+                              borderRadius: '50%',
+                              background: 'var(--primary)',
+                              color: 'var(--white)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontWeight: 700,
+                              flexShrink: 0
+                            }}>
+                              {leccion.numero_leccion}
+                            </div>
+                            <div style={{ flex: 1 }}>
+                              <h4 style={{ marginBottom: '5px', color: 'var(--dark)' }}>
+                                {leccion.titulo}
+                              </h4>
+                              {leccion.descripcion && (
+                                <p style={{ fontSize: '0.85rem', color: 'var(--gray)', marginBottom: '5px' }}>
+                                  {leccion.descripcion}
+                                </p>
+                              )}
+                              {leccion.duracion_minutos && (
+                                <span style={{ fontSize: '0.8rem', color: 'var(--gray)' }}>
+                                  {leccion.duracion_minutos} min
+                                </span>
+                              )}
+                            </div>
+                            {leccion.video_url && (
+                              <a
+                                href={leccion.video_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{
+                                  padding: '10px 15px',
+                                  background: 'var(--primary)',
+                                  color: 'var(--white)',
+                                  borderRadius: 'var(--radius)',
+                                  textDecoration: 'none',
+                                  fontSize: '0.85rem',
+                                  fontWeight: 600,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '8px'
+                                }}
+                              >
+                                <FontAwesomeIcon icon={faPlayCircle} />
+                                Ver
+                              </a>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </section>
+        )}
 
         {/* Info */}
         <div style={{
