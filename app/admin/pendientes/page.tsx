@@ -36,7 +36,6 @@ const COLORES_CATEGORIA: Record<string, { bg: string; color: string }> = {
 export default function PendientesPage() {
   const [pendientes, setPendientes] = useState<Pendiente[]>([])
   const [loading, setLoading] = useState(true)
-  const [filtroCategoria, setFiltroCategoria] = useState('')
   const [mostrarCompletados, setMostrarCompletados] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<Pendiente | null>(null)
@@ -53,7 +52,6 @@ export default function PendientesPage() {
   const fetchPendientes = async () => {
     try {
       const params = new URLSearchParams()
-      if (filtroCategoria) params.append('categoria', filtroCategoria)
       if (!mostrarCompletados) params.append('completado', 'false')
 
       const queryString = params.toString()
@@ -66,15 +64,15 @@ export default function PendientesPage() {
     }
   }
 
-  useEffect(() => { fetchPendientes() }, [filtroCategoria, mostrarCompletados])
+  useEffect(() => { fetchPendientes() }, [mostrarCompletados])
 
-  const openCreate = (prioridad?: string) => {
+  const openCreate = (categoria?: string) => {
     setEditing(null)
     setFormData({
       titulo: '',
       descripcion: '',
-      categoria: 'Operaciones',
-      prioridad: prioridad || 'Moderado',
+      categoria: categoria || 'Operaciones',
+      prioridad: 'Moderado',
       fecha_limite: ''
     })
     setModalOpen(true)
@@ -152,6 +150,14 @@ export default function PendientesPage() {
     }
   }
 
+  const ORDEN_PRIORIDAD: Record<string, number> = { 'Urgente': 0, 'Moderado': 1, 'No urge': 2 }
+
+  const getPendientesPorCategoria = (categoria: string) => {
+    return pendientes
+      .filter(p => p.categoria === categoria)
+      .sort((a, b) => (ORDEN_PRIORIDAD[a.prioridad] ?? 3) - (ORDEN_PRIORIDAD[b.prioridad] ?? 3))
+  }
+
   const handleDragStart = (e: React.DragEvent, p: Pendiente) => {
     setDraggedItem(p)
     e.dataTransfer.effectAllowed = 'move'
@@ -162,29 +168,24 @@ export default function PendientesPage() {
     e.dataTransfer.dropEffect = 'move'
   }
 
-  const handleDrop = async (e: React.DragEvent, nuevaPrioridad: string) => {
+  const handleDrop = async (e: React.DragEvent, nuevaCategoria: string) => {
     e.preventDefault()
-    if (!draggedItem || draggedItem.prioridad === nuevaPrioridad) {
+    if (!draggedItem || draggedItem.categoria === nuevaCategoria) {
       setDraggedItem(null)
       return
     }
-
     try {
       const res = await fetch(`/api/admin/pendientes?id=${draggedItem.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ prioridad: nuevaPrioridad })
+        body: JSON.stringify({ categoria: nuevaCategoria })
       })
       if (res.ok) fetchPendientes()
     } catch {
       alert('Error al mover')
     }
     setDraggedItem(null)
-  }
-
-  const getPendientesPorPrioridad = (prioridad: string) => {
-    return pendientes.filter(p => p.prioridad === prioridad)
   }
 
   const totalPendientes = pendientes.filter(p => !p.completado).length
@@ -216,11 +217,6 @@ export default function PendientesPage() {
 
       {/* Filtros */}
       <div style={{ display: 'flex', gap: '15px', marginBottom: '20px', flexWrap: 'wrap', alignItems: 'center' }}>
-        <select value={filtroCategoria} onChange={(e) => setFiltroCategoria(e.target.value)}
-          style={{ padding: '10px 15px', borderRadius: 'var(--radius)', border: '1px solid #ddd', background: 'var(--white)' }}>
-          <option value="">Todas las categorías</option>
-          {CATEGORIAS.map(c => <option key={c} value={c}>{c}</option>)}
-        </select>
         <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
           <input
             type="checkbox"
@@ -232,7 +228,7 @@ export default function PendientesPage() {
         </label>
       </div>
 
-      {/* Tablero Kanban */}
+      {/* Tablero Kanban por categoría */}
       {loading ? (
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <p>Cargando...</p>
@@ -241,64 +237,63 @@ export default function PendientesPage() {
         <div style={{
           flex: 1,
           display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: '20px',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: '16px',
           overflow: 'hidden'
         }}>
-          {PRIORIDADES.map(prioridad => {
-            const colores = COLORES_COLUMNA[prioridad]
-            const items = getPendientesPorPrioridad(prioridad)
+          {CATEGORIAS.map(categoria => {
+            const colores = COLORES_CATEGORIA[categoria]
+            const items = getPendientesPorCategoria(categoria)
 
             return (
               <div
-                key={prioridad}
+                key={categoria}
                 onDragOver={handleDragOver}
-                onDrop={(e) => handleDrop(e, prioridad)}
+                onDrop={(e) => handleDrop(e, categoria)}
                 style={{
-                  background: colores.bg,
+                  background: '#fafafa',
                   borderRadius: '12px',
                   display: 'flex',
                   flexDirection: 'column',
                   overflow: 'hidden',
-                  border: `2px solid ${colores.border}`,
-                  transition: 'border-color 0.2s'
+                  border: '2px solid #e5e7eb'
                 }}
               >
                 {/* Column Header */}
                 <div style={{
-                  padding: '15px 20px',
-                  background: colores.header,
+                  padding: '12px 16px',
+                  background: colores.color,
                   color: 'white',
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center'
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span style={{ fontWeight: 700, fontSize: '1rem' }}>{prioridad}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{categoria}</span>
                     <span style={{
                       background: 'rgba(255,255,255,0.3)',
-                      padding: '2px 10px',
-                      borderRadius: '12px',
-                      fontSize: '0.85rem'
+                      padding: '1px 8px',
+                      borderRadius: '10px',
+                      fontSize: '0.8rem'
                     }}>
                       {items.length}
                     </span>
                   </div>
                   <button
-                    onClick={() => openCreate(prioridad)}
+                    onClick={() => openCreate(categoria)}
                     style={{
                       background: 'rgba(255,255,255,0.2)',
                       border: 'none',
                       borderRadius: '6px',
-                      width: '28px',
-                      height: '28px',
+                      width: '26px',
+                      height: '26px',
                       cursor: 'pointer',
                       color: 'white',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center'
                     }}
-                    title={`Agregar a ${prioridad}`}
+                    title={`Agregar a ${categoria}`}
                   >
                     <FontAwesomeIcon icon={faPlus} />
                   </button>
@@ -307,24 +302,23 @@ export default function PendientesPage() {
                 {/* Cards Container */}
                 <div style={{
                   flex: 1,
-                  padding: '15px',
+                  padding: '12px',
                   overflowY: 'auto',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '12px'
+                  gap: '10px'
                 }}>
                   {items.length === 0 ? (
                     <div style={{
-                      padding: '30px 20px',
+                      padding: '30px 15px',
                       textAlign: 'center',
-                      color: colores.text,
-                      opacity: 0.6,
-                      fontSize: '0.9rem'
+                      color: '#999',
+                      fontSize: '0.85rem'
                     }}>
                       Sin pendientes
                     </div>
                   ) : items.map(p => {
-                    const categoriaColor = COLORES_CATEGORIA[p.categoria] || COLORES_CATEGORIA['Operaciones']
+                    const prioridadColor = COLORES_COLUMNA[p.prioridad] || COLORES_COLUMNA['Moderado']
                     return (
                       <div
                         key={p.id}
@@ -333,74 +327,70 @@ export default function PendientesPage() {
                         style={{
                           background: 'white',
                           borderRadius: '8px',
-                          padding: '15px',
+                          padding: '12px',
                           boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
                           cursor: 'grab',
                           opacity: p.completado ? 0.6 : 1,
                           border: draggedItem?.id === p.id ? '2px dashed #999' : '1px solid #eee',
+                          borderLeft: `3px solid ${prioridadColor.header}`,
                           transition: 'box-shadow 0.2s, transform 0.2s'
                         }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
-                          e.currentTarget.style.transform = 'translateY(-2px)'
+                          e.currentTarget.style.transform = 'translateY(-1px)'
                         }}
                         onMouseLeave={(e) => {
                           e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
                           e.currentTarget.style.transform = 'translateY(0)'
                         }}
                       >
-                        {/* Card Header */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
-                          <span style={{
-                            padding: '3px 8px',
-                            borderRadius: '4px',
-                            fontSize: '0.7rem',
-                            fontWeight: 600,
-                            background: categoriaColor.bg,
-                            color: categoriaColor.color
-                          }}>
-                            {p.categoria}
-                          </span>
+                        {/* Card Header: prioridad indicator + drag handle */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span style={{
+                              width: '8px',
+                              height: '8px',
+                              borderRadius: '50%',
+                              background: prioridadColor.header,
+                              display: 'inline-block'
+                            }} />
+                            <span style={{
+                              fontSize: '0.65rem',
+                              fontWeight: 600,
+                              color: prioridadColor.header
+                            }}>
+                              {p.prioridad}
+                            </span>
+                          </div>
                           <FontAwesomeIcon
                             icon={faGripVertical}
-                            style={{ color: '#ccc', fontSize: '0.8rem' }}
+                            style={{ color: '#ccc', fontSize: '0.75rem' }}
                           />
                         </div>
 
                         {/* Title */}
                         <h4 style={{
-                          margin: '0 0 8px 0',
-                          fontSize: '0.95rem',
+                          margin: '0 0 6px 0',
+                          fontSize: '0.85rem',
                           fontWeight: 600,
                           textDecoration: p.completado ? 'line-through' : 'none',
-                          color: p.completado ? '#999' : '#333'
+                          color: p.completado ? '#999' : '#333',
+                          lineHeight: 1.3
                         }}>
                           {p.titulo}
                         </h4>
-
-                        {/* Description */}
-                        {p.descripcion && (
-                          <p style={{
-                            margin: '0 0 10px 0',
-                            fontSize: '0.8rem',
-                            color: '#666',
-                            lineHeight: 1.4
-                          }}>
-                            {p.descripcion.length > 80 ? p.descripcion.substring(0, 80) + '...' : p.descripcion}
-                          </p>
-                        )}
 
                         {/* Date */}
                         {p.fecha_limite && (
                           <div style={{
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '5px',
-                            fontSize: '0.75rem',
+                            gap: '4px',
+                            fontSize: '0.7rem',
                             color: new Date(p.fecha_limite) < new Date() && !p.completado ? '#dc2626' : '#888',
-                            marginBottom: '10px'
+                            marginBottom: '8px'
                           }}>
-                            <FontAwesomeIcon icon={faCalendar} />
+                            <FontAwesomeIcon icon={faCalendar} style={{ fontSize: '0.6rem' }} />
                             {new Date(p.fecha_limite).toLocaleDateString('es-MX')}
                           </div>
                         )}
@@ -410,7 +400,7 @@ export default function PendientesPage() {
                           display: 'flex',
                           justifyContent: 'space-between',
                           alignItems: 'center',
-                          paddingTop: '10px',
+                          paddingTop: '8px',
                           borderTop: '1px solid #f0f0f0'
                         }}>
                           <button
@@ -418,20 +408,19 @@ export default function PendientesPage() {
                             style={{
                               display: 'flex',
                               alignItems: 'center',
-                              gap: '5px',
-                              padding: '5px 10px',
+                              gap: '4px',
+                              padding: '3px 8px',
                               background: p.completado ? '#dcfce7' : '#f5f5f5',
                               border: 'none',
                               borderRadius: '4px',
                               cursor: 'pointer',
-                              fontSize: '0.75rem',
+                              fontSize: '0.7rem',
                               color: p.completado ? '#16a34a' : '#666'
                             }}
                           >
                             <FontAwesomeIcon icon={faCheck} />
-                            {p.completado ? 'Completado' : 'Completar'}
                           </button>
-                          <div style={{ display: 'flex', gap: '5px' }}>
+                          <div style={{ display: 'flex', gap: '4px' }}>
                             <button
                               onClick={() => openEdit(p)}
                               style={{
@@ -439,10 +428,10 @@ export default function PendientesPage() {
                                 border: 'none',
                                 cursor: 'pointer',
                                 color: 'var(--primary)',
-                                padding: '5px'
+                                padding: '4px'
                               }}
                             >
-                              <FontAwesomeIcon icon={faEdit} />
+                              <FontAwesomeIcon icon={faEdit} style={{ fontSize: '0.8rem' }} />
                             </button>
                             <button
                               onClick={() => handleDelete(p)}
@@ -451,10 +440,10 @@ export default function PendientesPage() {
                                 border: 'none',
                                 cursor: 'pointer',
                                 color: '#dc2626',
-                                padding: '5px'
+                                padding: '4px'
                               }}
                             >
-                              <FontAwesomeIcon icon={faTrash} />
+                              <FontAwesomeIcon icon={faTrash} style={{ fontSize: '0.8rem' }} />
                             </button>
                           </div>
                         </div>
@@ -543,14 +532,6 @@ export default function PendientesPage() {
         </div>
       )}
 
-      {/* Responsive styles */}
-      <style jsx global>{`
-        @media (max-width: 1024px) {
-          .kanban-board {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
     </div>
   )
 }
