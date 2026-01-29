@@ -67,13 +67,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'usuario_id y curso_id son requeridos' }, { status: 400 });
     }
 
+    const today = new Date().toISOString().split('T')[0];
+    const defaultFechaInicio = fecha_inicio || today;
+    const defaultFechaFin = fecha_fin || (() => {
+      const d = new Date(defaultFechaInicio);
+      d.setDate(d.getDate() + 28);
+      return d.toISOString().split('T')[0];
+    })();
+
     const result = await pool.query(
       `INSERT INTO inscripciones (usuario_id, curso_id, horario_id, fecha_inicio, fecha_fin,
        costo_total, saldo_pendiente, estado, notas, nombre_curso_especifico, horario_otro, modulo_numero, promocion)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
        RETURNING *`,
       [
-        usuario_id, curso_id, horario_id || null, fecha_inicio || null, fecha_fin || null,
+        usuario_id, curso_id, horario_id || null, defaultFechaInicio, defaultFechaFin,
         costo_total || 1700, saldo_pendiente || costo_total || 1700, estado || 'activo',
         notas || null, nombre_curso_especifico || null, horario_otro || null,
         modulo_numero || 1, promocion || null
