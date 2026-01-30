@@ -52,7 +52,7 @@ export default function Navbar() {
           <Link href="/login" className="btn btn-nav" style={{ background: 'transparent', border: '2px solid var(--primary)', color: 'var(--primary)' }}>
             <FontAwesomeIcon icon={faUser} /> Iniciar sesion
           </Link>
-          <Link href="/#contacto" className="btn btn-primary btn-nav">
+          <Link href="/inscripcion" className="btn btn-primary btn-nav">
             Inscribete <FontAwesomeIcon icon={faArrowRight} />
           </Link>
           <button

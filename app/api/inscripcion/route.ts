@@ -97,10 +97,10 @@ export async function POST(request: Request) {
     // Crear inscripción
     const inscripcionResult = await client.query(
       `INSERT INTO inscripciones (
-        usuario_id, curso_id, horario_id, fecha_inicio, costo_total,
+        usuario_id, curso_id, horario_id, fecha_inicio, fecha_fin, costo_total,
         saldo_pendiente, estado, notas, horario_otro, modulo_numero
       )
-       VALUES ($1, $2, $3, CURRENT_DATE, $4, $5, 'activo', $6, $7, 1)
+       VALUES ($1, $2, $3, CURRENT_DATE, CURRENT_DATE + INTERVAL '28 days', $4, $5, 'activo', $6, $7, 1)
        RETURNING id`,
       [
         usuario_id,

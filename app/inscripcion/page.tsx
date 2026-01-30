@@ -78,7 +78,7 @@ export default function InscripcionPage() {
         body: JSON.stringify({
           ...formData,
           curso_id: parseInt(formData.curso_id),
-          horario_id: formData.horario_id ? parseInt(formData.horario_id) : null,
+          horario_id: formData.horario_id && formData.horario_id !== 'otro' ? parseInt(formData.horario_id) : null,
           edad: formData.edad ? parseInt(formData.edad) : null
         })
       })
