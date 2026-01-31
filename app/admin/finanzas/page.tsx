@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
-  faPlus, faEdit, faTrash, faSave, faTimes, faChevronLeft, faChevronRight,
+  faPlus, faEdit, faTrash, faSave, faTimes,
   faArrowUp, faArrowDown, faBalanceScale, faFilePdf
 } from '@fortawesome/free-solid-svg-icons'
 
@@ -51,8 +51,8 @@ export default function FinanzasPage() {
   const [inscripciones, setInscripciones] = useState<Inscripcion[]>([])
   const [loading, setLoading] = useState(true)
 
-  const [mesSeleccionado, setMesSeleccionado] = useState(new Date().getMonth() + 1)
-  const [añoSeleccionado, setAñoSeleccionado] = useState(new Date().getFullYear())
+  const [filtroMes, setFiltroMes] = useState<number | null>(null)
+  const [filtroAño, setFiltroAño] = useState(new Date().getFullYear())
 
   // Modales
   const [modalPago, setModalPago] = useState(false)
@@ -87,30 +87,27 @@ export default function FinanzasPage() {
 
   useEffect(() => { fetchData() }, [])
 
-  // Filtrar por mes
-  const pagosMes = pagos.filter(p => {
+  // Filtrar por mes (opcional)
+  const pagosFiltrados = filtroMes ? pagos.filter(p => {
     const fecha = new Date(p.fecha_pago)
-    return fecha.getUTCMonth() + 1 === mesSeleccionado && fecha.getUTCFullYear() === añoSeleccionado
-  })
+    return fecha.getUTCMonth() + 1 === filtroMes && fecha.getUTCFullYear() === filtroAño
+  }) : pagos
 
-  const gastosMes = gastos.filter(g => {
+  const gastosFiltrados = filtroMes ? gastos.filter(g => {
     const fecha = new Date(g.fecha)
-    return fecha.getUTCMonth() + 1 === mesSeleccionado && fecha.getUTCFullYear() === añoSeleccionado
-  })
+    return fecha.getUTCMonth() + 1 === filtroMes && fecha.getUTCFullYear() === filtroAño
+  }) : gastos
 
   // Totales
-  const totalIngresos = pagosMes.reduce((sum, p) => sum + parseFloat(String(p.monto)), 0)
-  const totalEgresos = gastosMes.reduce((sum, g) => sum + parseFloat(String(g.monto)), 0)
+  const totalIngresos = pagosFiltrados.reduce((sum, p) => sum + parseFloat(String(p.monto)), 0)
+  const totalEgresos = gastosFiltrados.reduce((sum, g) => sum + parseFloat(String(g.monto)), 0)
   const balance = totalIngresos - totalEgresos
 
-  const cambiarMes = (delta: number) => {
-    let nuevoMes = mesSeleccionado + delta
-    let nuevoAño = añoSeleccionado
-    if (nuevoMes < 1) { nuevoMes = 12; nuevoAño -= 1 }
-    else if (nuevoMes > 12) { nuevoMes = 1; nuevoAño += 1 }
-    setMesSeleccionado(nuevoMes)
-    setAñoSeleccionado(nuevoAño)
-  }
+  const años = Array.from(new Set([
+    ...pagos.map(p => new Date(p.fecha_pago).getUTCFullYear()),
+    ...gastos.map(g => new Date(g.fecha).getUTCFullYear()),
+    new Date().getFullYear()
+  ])).sort((a, b) => b - a)
 
   // Handlers de Pago
   const openPago = () => {
@@ -218,26 +215,39 @@ export default function FinanzasPage() {
         </div>
       </div>
 
-      {/* Selector de mes */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '20px' }}>
-        <button onClick={() => cambiarMes(-1)} style={{
-          padding: '10px 15px', background: 'var(--white)', border: '1px solid #ddd',
-          borderRadius: 'var(--radius)', cursor: 'pointer'
-        }}>
-          <FontAwesomeIcon icon={faChevronLeft} />
-        </button>
-        <div style={{
-          padding: '10px 30px', background: 'var(--white)', borderRadius: 'var(--radius)',
-          boxShadow: 'var(--shadow)', fontWeight: 600, fontSize: '1.1rem', minWidth: '200px', textAlign: 'center'
-        }}>
-          {MESES[mesSeleccionado - 1]} {añoSeleccionado}
-        </div>
-        <button onClick={() => cambiarMes(1)} style={{
-          padding: '10px 15px', background: 'var(--white)', border: '1px solid #ddd',
-          borderRadius: 'var(--radius)', cursor: 'pointer'
-        }}>
-          <FontAwesomeIcon icon={faChevronRight} />
-        </button>
+      {/* Filtro por mes */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
+        <select
+          value={filtroMes ?? ''}
+          onChange={(e) => setFiltroMes(e.target.value ? parseInt(e.target.value) : null)}
+          style={{
+            padding: '10px 15px', background: 'var(--white)', border: '1px solid #ddd',
+            borderRadius: 'var(--radius)', fontWeight: 600, fontSize: '1rem', cursor: 'pointer'
+          }}
+        >
+          <option value="">Todos los meses</option>
+          {MESES.map((m, i) => <option key={i} value={i + 1}>{m}</option>)}
+        </select>
+        {filtroMes && (
+          <select
+            value={filtroAño}
+            onChange={(e) => setFiltroAño(parseInt(e.target.value))}
+            style={{
+              padding: '10px 15px', background: 'var(--white)', border: '1px solid #ddd',
+              borderRadius: 'var(--radius)', fontWeight: 600, fontSize: '1rem', cursor: 'pointer'
+            }}
+          >
+            {años.map(a => <option key={a} value={a}>{a}</option>)}
+          </select>
+        )}
+        {filtroMes && (
+          <button onClick={() => setFiltroMes(null)} style={{
+            padding: '10px 15px', background: '#f5f5f5', border: '1px solid #ddd',
+            borderRadius: 'var(--radius)', cursor: 'pointer', fontSize: '0.9rem', color: '#666'
+          }}>
+            <FontAwesomeIcon icon={faTimes} /> Limpiar filtro
+          </button>
+        )}
       </div>
 
       {/* Resumen */}
@@ -250,7 +260,7 @@ export default function FinanzasPage() {
           <div style={{ fontSize: '1.8rem', fontWeight: 700, color: '#16a34a' }}>
             ${totalIngresos.toLocaleString()}
           </div>
-          <div style={{ fontSize: '0.85rem', color: '#166534' }}>{pagosMes.length} pagos</div>
+          <div style={{ fontSize: '0.85rem', color: '#166534' }}>{pagosFiltrados.length} pago{pagosFiltrados.length !== 1 ? 's' : ''}</div>
         </div>
         <div style={{ background: '#fee2e2', padding: '20px', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '5px' }}>
@@ -260,7 +270,7 @@ export default function FinanzasPage() {
           <div style={{ fontSize: '1.8rem', fontWeight: 700, color: '#dc2626' }}>
             ${totalEgresos.toLocaleString()}
           </div>
-          <div style={{ fontSize: '0.85rem', color: '#991b1b' }}>{gastosMes.length} gastos</div>
+          <div style={{ fontSize: '0.85rem', color: '#991b1b' }}>{gastosFiltrados.length} gasto{gastosFiltrados.length !== 1 ? 's' : ''}</div>
         </div>
         <div style={{
           background: balance >= 0 ? '#dbeafe' : '#fef3c7',
@@ -299,9 +309,9 @@ export default function FinanzasPage() {
               <tbody>
                 {loading ? (
                   <tr><td colSpan={4} style={{ padding: '30px', textAlign: 'center' }}>Cargando...</td></tr>
-                ) : pagosMes.length === 0 ? (
+                ) : pagosFiltrados.length === 0 ? (
                   <tr><td colSpan={4} style={{ padding: '30px', textAlign: 'center', color: 'var(--gray)' }}>Sin ingresos</td></tr>
-                ) : pagosMes.map(p => (
+                ) : pagosFiltrados.map(p => (
                   <tr key={p.id} style={{ borderBottom: '1px solid #f0fdf4' }}>
                     <td style={{ padding: '10px', fontSize: '0.85rem' }}>
                       {new Date(p.fecha_pago).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', timeZone: 'UTC' })}
@@ -354,9 +364,9 @@ export default function FinanzasPage() {
               <tbody>
                 {loading ? (
                   <tr><td colSpan={4} style={{ padding: '30px', textAlign: 'center' }}>Cargando...</td></tr>
-                ) : gastosMes.length === 0 ? (
+                ) : gastosFiltrados.length === 0 ? (
                   <tr><td colSpan={4} style={{ padding: '30px', textAlign: 'center', color: 'var(--gray)' }}>Sin egresos</td></tr>
-                ) : gastosMes.map(g => (
+                ) : gastosFiltrados.map(g => (
                   <tr key={g.id} style={{ borderBottom: '1px solid #fef2f2' }}>
                     <td style={{ padding: '10px', fontSize: '0.85rem' }}>
                       {new Date(g.fecha).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', timeZone: 'UTC' })}
