@@ -90,12 +90,12 @@ export default function FinanzasPage() {
   // Filtrar por mes
   const pagosMes = pagos.filter(p => {
     const fecha = new Date(p.fecha_pago)
-    return fecha.getMonth() + 1 === mesSeleccionado && fecha.getFullYear() === añoSeleccionado
+    return fecha.getUTCMonth() + 1 === mesSeleccionado && fecha.getUTCFullYear() === añoSeleccionado
   })
 
   const gastosMes = gastos.filter(g => {
     const fecha = new Date(g.fecha)
-    return fecha.getMonth() + 1 === mesSeleccionado && fecha.getFullYear() === añoSeleccionado
+    return fecha.getUTCMonth() + 1 === mesSeleccionado && fecha.getUTCFullYear() === añoSeleccionado
   })
 
   // Totales
@@ -304,7 +304,7 @@ export default function FinanzasPage() {
                 ) : pagosMes.map(p => (
                   <tr key={p.id} style={{ borderBottom: '1px solid #f0fdf4' }}>
                     <td style={{ padding: '10px', fontSize: '0.85rem' }}>
-                      {new Date(p.fecha_pago).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' })}
+                      {new Date(p.fecha_pago).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', timeZone: 'UTC' })}
                     </td>
                     <td style={{ padding: '10px' }}>
                       <div style={{ fontWeight: 500, fontSize: '0.9rem' }}>{p.usuario_nombre}</div>
@@ -359,7 +359,7 @@ export default function FinanzasPage() {
                 ) : gastosMes.map(g => (
                   <tr key={g.id} style={{ borderBottom: '1px solid #fef2f2' }}>
                     <td style={{ padding: '10px', fontSize: '0.85rem' }}>
-                      {new Date(g.fecha).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' })}
+                      {new Date(g.fecha).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', timeZone: 'UTC' })}
                     </td>
                     <td style={{ padding: '10px' }}>
                       <div style={{ fontWeight: 500, fontSize: '0.9rem' }}>{g.tipo}</div>
