@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Portal | Cursos Brooklyn</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/sistema-admin/public/css/styles.css">
+    <style>
+        .curso-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .curso-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .curso-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .curso-badge {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .progress-container {
+            background: #f1f5f9;
+            border-radius: 10px;
+            height: 12px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            font-size: 0.85rem;
+            color: var(--gray);
+            text-align: right;
+        }
+
+        .lecciones-list {
+            margin-top: 15px;
+        }
+
+        .leccion-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background: #f8fafc;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .leccion-item:hover {
+            background: #fff7ed;
+            transform: translateX(5px);
+        }
+
+        .leccion-item.completada {
+            background: #ecfdf5;
+        }
+
+        .leccion-check {
+            width: 28px;
+            height: 28px;
+            border: 2px solid #cbd5e1;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            transition: all 0.2s;
+        }
+
+        .leccion-item.completada .leccion-check {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        .leccion-numero {
+            width: 30px;
+            height: 30px;
+            background: var(--primary);
+            color: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-right: 12px;
+        }
+
+        .leccion-titulo {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .leccion-video {
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        .section-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .section-tab {
+            padding: 12px 24px;
+            border: none;
+            background: white;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-tab:hover {
+            transform: translateY(-2px);
+        }
+
+        .section-tab.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .saldo-card {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .saldo-card.pagado {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="#" class="navbar-brand">
+                <i class="fas fa-graduation-cap"></i>
+                Cursos <span style="color: var(--secondary);">Brooklyn</span>
+            </a>
+            <div class="navbar-user">
+                <div>
+                    <div class="navbar-name" id="user-name">Alumno</div>
+                    <div class="navbar-role">Mi Portal</div>
+                </div>
+                <div class="navbar-avatar" id="user-avatar">A</div>
+                <button class="btn btn-sm btn-outline" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard -->
+    <div class="dashboard container">
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">¡Hola, <span id="welcome-name">Alumno</span>! 👋</h1>
+            <p class="dashboard-subtitle">Aquí puedes ver tu progreso, pagos y contenido del curso</p>
+        </div>
+
+        <!-- Tabs de sección -->
+        <div class="section-tabs">
+            <button class="section-tab active" onclick="cambiarSeccion('resumen', this)">
+                <i class="fas fa-home"></i> Resumen
+            </button>
+            <button class="section-tab" onclick="cambiarSeccion('contenido', this)">
+                <i class="fas fa-play-circle"></i> Mi Contenido
+            </button>
+            <button class="section-tab" onclick="cambiarSeccion('pagos', this)">
+                <i class="fas fa-receipt"></i> Mis Pagos
+            </button>
+        </div>
+
+        <!-- Sección: Resumen -->
+        <div id="seccion-resumen" class="section-content">
+            <!-- Inscripciones activas -->
+            <h3 class="mb-3"><i class="fas fa-book-open text-primary"></i> Mis Cursos Activos</h3>
+            <div id="inscripciones-container">
+                <div class="loading">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+
+            <!-- Saldo Pendiente -->
+            <div id="saldo-container" class="mt-4"></div>
+        </div>
+
+        <!-- Sección: Contenido -->
+        <div id="seccion-contenido" class="section-content hidden">
+            <h3 class="mb-3"><i class="fas fa-play-circle text-primary"></i> Mi Contenido del Curso</h3>
+            <p class="text-gray mb-4">Marca las lecciones que vayas completando para ver tu avance</p>
+            <div id="contenido-container">
+                <div class="loading">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección: Pagos -->
+        <div id="seccion-pagos" class="section-content hidden">
+            <h3 class="mb-3"><i class="fas fa-receipt text-primary"></i> Historial de Pagos</h3>
+            <div id="pagos-container">
+                <div class="loading">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let usuario = null;
+
+        // Helper para fetch con token de localStorage
+        const api = (url, options = {}) => {
+            const token = localStorage.getItem('token');
+            const headers = { ...options.headers };
+            if (token) {
+                headers['Authorization'] = 'Bearer ' + token;
+            }
+            return fetch(url, { ...options, headers, credentials: 'include' });
+        };
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', async function () {
+            try {
+                // Verificar si hay token guardado
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Verificar sesión con el servidor
+                const response = await api('/api/me');
+                if (!response.ok) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('usuario');
+                    window.location.href = 'login.html';
+                    return;
+                }
+                usuario = await response.json();
+
+                if (usuario.rol === 'admin') {
+                    window.location.href = 'admin.html';
+                    return;
+                }
+
+                document.getElementById('user-name').textContent = usuario.nombre;
+                document.getElementById('user-avatar').textContent = usuario.nombre.charAt(0).toUpperCase();
+                document.getElementById('welcome-name').textContent = usuario.nombre.split(' ')[0];
+
+                // Cargar datos
+                await Promise.all([
+                    cargarInscripciones(),
+                    cargarPagos(),
+                    cargarContenido()
+                ]);
+            } catch (error) {
+                console.error('Error:', error);
+                window.location.href = 'login.html';
+            }
+        });
+
+        // Cambiar sección
+        function cambiarSeccion(seccion, btn) {
+            document.querySelectorAll('.section-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.section-content').forEach(c => c.classList.add('hidden'));
+            btn.classList.add('active');
+            document.getElementById('seccion-' + seccion).classList.remove('hidden');
+        }
+
+        // Cargar inscripciones
+        async function cargarInscripciones() {
+            try {
+                const response = await api('/api/alumno/inscripciones');
+                const inscripciones = await response.json();
+
+                const container = document.getElementById('inscripciones-container');
+                const saldoContainer = document.getElementById('saldo-container');
+
+                if (inscripciones.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-book"></i>
+                            <h3>Sin inscripciones activas</h3>
+                            <p>Aún no tienes cursos registrados</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let saldoTotal = 0;
+                container.innerHTML = inscripciones.map(ins => {
+                    const inicio = new Date(ins.fecha_inicio).toLocaleDateString('es-MX');
+                    const fin = new Date(ins.fecha_fin).toLocaleDateString('es-MX');
+                    saldoTotal += parseFloat(ins.saldo_pendiente);
+
+                    return `
+                        <div class="course-card">
+                            <div class="course-header">
+                                <div class="course-icon">
+                                    <i class="fas fa-${ins.curso_nombre === 'Inglés' ? 'language' : 'bullhorn'}"></i>
+                                </div>
+                                <div class="course-info">
+                                    <h3>${ins.nombre_curso_especifico || ins.curso_nombre}</h3>
+                                    <span class="badge badge-${ins.estado === 'activo' ? 'success' : 'gray'}">${ins.estado}</span>
+                                </div>
+                            </div>
+                            <div class="course-details">
+                                <div class="course-detail">
+                                    <i class="fas fa-calendar"></i>
+                                    <span>${inicio} - ${fin}</span>
+                                </div>
+                                <div class="course-detail">
+                                    <i class="fas fa-clock"></i>
+                                    <span>${ins.horario_nombre}${ins.horario_otro ? ' (' + ins.horario_otro + ')' : ''}</span>
+                                </div>
+                            </div>
+                            <div class="course-footer">
+                                <div class="course-price">
+                                    <span class="price-label">Costo total:</span>
+                                    <span class="price-value">$${parseFloat(ins.costo_total).toLocaleString()}</span>
+                                </div>
+                                ${ins.saldo_pendiente > 0 ? `
+                                    <span class="badge badge-warning" style="font-size: 0.9rem;">
+                                        <i class="fas fa-exclamation-triangle"></i> Saldo: $${parseFloat(ins.saldo_pendiente).toLocaleString()}
+                                    </span>
+                                ` : '<span class="badge badge-success"><i class="fas fa-check"></i> Pagado</span>'}
+                            </div>
+                            ${ins.promocion ? `<div class="mt-2"><span class="badge badge-primary"><i class="fas fa-gift"></i> ${ins.promocion}</span></div>` : ''}
+                        </div>
+                    `;
+                }).join('');
+
+                // Mostrar saldo total
+                if (saldoTotal > 0) {
+                    saldoContainer.innerHTML = `
+                        <div class="saldo-card">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <div style="font-size: 0.9rem; opacity: 0.9;">Saldo pendiente total</div>
+                                    <div style="font-size: 2rem; font-weight: 700;">$${saldoTotal.toLocaleString()}</div>
+                                </div>
+                                <i class="fas fa-exclamation-circle" style="font-size: 3rem; opacity: 0.3;"></i>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    saldoContainer.innerHTML = `
+                        <div class="saldo-card pagado">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <div style="font-size: 0.9rem; opacity: 0.9;">Estado de cuenta</div>
+                                    <div style="font-size: 1.5rem; font-weight: 700;">¡Al corriente! 🎉</div>
+                                </div>
+                                <i class="fas fa-check-circle" style="font-size: 3rem; opacity: 0.3;"></i>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Cargar historial de pagos
+        async function cargarPagos() {
+            try {
+                const response = await api('/api/alumno/pagos');
+                const pagos = await response.json();
+
+                const container = document.getElementById('pagos-container');
+
+                if (pagos.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-receipt"></i>
+                            <h3>Sin pagos registrados</h3>
+                            <p>Aún no tienes pagos en tu historial</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = `
+                    <div class="card">
+                        <div class="card-body">
+                            ${pagos.map(pago => {
+                    const fecha = new Date(pago.fecha_pago).toLocaleDateString('es-MX', {
+                        year: 'numeric', month: 'long', day: 'numeric'
+                    });
+                    return `
+                                    <div class="payment-item">
+                                        <div class="payment-info">
+                                            <div class="payment-icon">
+                                                <i class="fas fa-check"></i>
+                                            </div>
+                                            <div class="payment-details">
+                                                <h4>${pago.curso_nombre}</h4>
+                                                <span class="payment-date">${fecha} • ${pago.metodo_pago || 'N/A'}</span>
+                                            </div>
+                                        </div>
+                                        <div class="payment-amount">+$${parseFloat(pago.monto).toLocaleString()}</div>
+                                    </div>
+                                `;
+                }).join('')}
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Cargar contenido/lecciones
+        async function cargarContenido() {
+            try {
+                const response = await api('/api/alumno/lecciones');
+                const data = await response.json();
+
+                const container = document.getElementById('contenido-container');
+
+                if (!data.cursos || data.cursos.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-video"></i>
+                            <h3>Sin contenido disponible</h3>
+                            <p>El contenido estará disponible cuando tengas una inscripción activa</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = data.cursos.map(curso => {
+                    const porcentaje = curso.total > 0 ? Math.round((curso.completadas / curso.total) * 100) : 0;
+
+                    return `
+                        <div class="curso-card">
+                            <div class="curso-header">
+                                <div>
+                                    <div class="curso-title">${curso.nombre}</div>
+                                    <div class="text-gray">${curso.modulo}</div>
+                                </div>
+                                <div class="curso-badge">${curso.tipo}</div>
+                            </div>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: ${porcentaje}%;"></div>
+                            </div>
+                            <div class="progress-text">${curso.completadas} de ${curso.total} lecciones (${porcentaje}%)</div>
+                            
+                            <div class="lecciones-list">
+                                ${curso.lecciones.map(leccion => `
+                                    <div class="leccion-item ${leccion.completado ? 'completada' : ''}" 
+                                         onclick="toggleLeccion(${leccion.id}, ${leccion.completado})">
+                                        <div class="leccion-check">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <div class="leccion-numero">${leccion.numero_leccion}</div>
+                                        <div class="leccion-titulo">${leccion.titulo}</div>
+                                        ${leccion.video_url ? '<i class="fas fa-play-circle leccion-video"></i>' : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Toggle completar lección
+        async function toggleLeccion(id, estaCompletada) {
+            try {
+                const endpoint = estaCompletada ? 'desmarcar' : 'completar';
+                await api(`/api/alumno/lecciones/${id}/${endpoint}`, { method: 'POST' });
+                await cargarContenido();
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('usuario');
+            await api('/api/logout', { method: 'POST' });
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+
+</html>

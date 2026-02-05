@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración | Cursos Brooklyn</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/sistema-admin/public/css/styles.css">
+    <style>
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .alumno-row {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .alumno-row:hover {
+            background: var(--light) !important;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .detail-item {
+            background: var(--light);
+            padding: 15px;
+            border-radius: var(--radius);
+        }
+
+        .detail-label {
+            font-size: 0.8rem;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .dates-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .promo-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .promo-btn {
+            padding: 8px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: #f8fafc;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .promo-btn:hover {
+            border-color: var(--primary);
+            background: #fff7ed;
+        }
+
+        .promo-btn.active {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="#" class="navbar-brand">
+                <i class="fas fa-graduation-cap"></i>
+                Cursos <span style="color: var(--secondary);">Brooklyn</span>
+                <span class="badge badge-primary" style="margin-left: 10px;">Admin</span>
+            </a>
+            <div class="navbar-user">
+                <div>
+                    <div class="navbar-name" id="user-name">Admin</div>
+                    <div class="navbar-role">Administrador</div>
+                </div>
+                <div class="navbar-avatar" id="user-avatar">A</div>
+                <button class="btn btn-sm btn-outline" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard -->
+    <div class="dashboard container">
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">Panel de Administración</h1>
+            <p class="dashboard-subtitle">Gestiona alumnos, inscripciones y pagos</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <div class="stat-value" id="stat-alumnos">-</div>
+                <div class="stat-label">Total Alumnos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-book-open"></i></div>
+                <div class="stat-value" id="stat-inscripciones">-</div>
+                <div class="stat-label">Inscripciones Activas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-money-bill-wave"></i></div>
+                <div class="stat-value" id="stat-pagos-mes">-</div>
+                <div class="stat-label">Pagos Este Mes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="stat-value" id="stat-saldo-pendiente">-</div>
+                <div class="stat-label">Saldo Pendiente Total</div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <button class="btn btn-primary" onclick="abrirModalInscripcion()">
+                <i class="fas fa-user-plus"></i> Nueva Inscripción
+            </button>
+            <button class="btn btn-success" onclick="abrirModalPago()">
+                <i class="fas fa-dollar-sign"></i> Registrar Pago
+            </button>
+            <button class="btn" style="background: #8b5cf6; color: white;" onclick="abrirModalGasto()">
+                <i class="fas fa-receipt"></i> Registrar Gasto
+            </button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="cambiarTab('alumnos', this)">
+                <i class="fas fa-users"></i> Alumnos
+            </button>
+            <button class="tab" onclick="cambiarTab('buscar', this)">
+                <i class="fas fa-search"></i> Buscar
+            </button>
+            <button class="tab" onclick="cambiarTab('finanzas', this)">
+                <i class="fas fa-chart-line"></i> Finanzas
+            </button>
+        </div>
+
+        <!-- Tab Content: Alumnos -->
+        <div id="tab-alumnos" class="tab-content">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Celular</th>
+                                    <th>Inscripciones</th>
+                                    <th>Total Pagado</th>
+                                    <th>Fecha Registro</th>
+                                </tr>
+                            </thead>
+                            <tbody id="alumnos-tbody">
+                                <tr>
+                                    <td colspan="5" class="text-center">
+                                        <div class="spinner" style="margin: 20px auto;"></div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Content: Buscar -->
+        <div id="tab-buscar" class="tab-content hidden">
+            <div class="card">
+                <div class="card-body">
+                    <div class="search-box mb-3">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="search-input" class="form-control"
+                            placeholder="Buscar por nombre o celular..." onkeyup="buscarAlumno()">
+                    </div>
+                    <div id="search-results"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Content: Finanzas -->
+        <div id="tab-finanzas" class="tab-content hidden">
+            <!-- Filtros de fecha -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
+                        <div class="form-group" style="margin: 0;">
+                            <label style="font-size: 0.85rem;">Desde</label>
+                            <input type="date" id="finanzas-desde" class="form-control" onchange="cargarFinanzas()">
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label style="font-size: 0.85rem;">Hasta</label>
+                            <input type="date" id="finanzas-hasta" class="form-control" onchange="cargarFinanzas()">
+                        </div>
+                        <button class="btn btn-primary" onclick="cargarFinanzas()">
+                            <i class="fas fa-filter"></i> Filtrar
+                        </button>
+                        <button class="btn btn-outline" onclick="resetearFiltrosFinanzas()">
+                            Ver mes actual
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resumen financiero -->
+            <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="stat-card" style="background: linear-gradient(135deg, #10b981, #059669);">
+                    <div class="stat-icon" style="background: rgba(255,255,255,0.2);"><i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div class="stat-value" id="finanzas-ingresos" style="color: white;">$0</div>
+                    <div class="stat-label" style="color: rgba(255,255,255,0.8);">Total Ingresos</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+                    <div class="stat-icon" style="background: rgba(255,255,255,0.2);"><i class="fas fa-arrow-up"></i>
+                    </div>
+                    <div class="stat-value" id="finanzas-gastos" style="color: white;">$0</div>
+                    <div class="stat-label" style="color: rgba(255,255,255,0.8);">Total Gastos</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">
+                    <div class="stat-icon" style="background: rgba(255,255,255,0.2);"><i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="stat-value" id="finanzas-utilidad" style="color: white;">$0</div>
+                    <div class="stat-label" style="color: rgba(255,255,255,0.8);">Utilidad</div>
+                </div>
+            </div>
+
+            <!-- Desglose de gastos -->
+            <div class="admin-grid mt-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-chart-pie text-primary"></i> Desglose de Gastos</h3>
+                    </div>
+                    <div class="card-body" id="desglose-gastos">
+                        <p class="text-gray text-center">Sin gastos registrados</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-list text-primary"></i> Últimos Gastos</h3>
+                    </div>
+                    <div class="card-body" id="lista-gastos">
+                        <p class="text-gray text-center">Sin gastos registrados</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Detalles del Alumno -->
+    <div class="modal-overlay" id="modal-alumno">
+        <div class="modal" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-alumno-nombre">Detalles del Alumno</h3>
+                <button class="modal-close" onclick="cerrarModal('modal-alumno')">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-alumno-content">
+                <div class="loading">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Nueva Inscripción -->
+    <div class="modal-overlay" id="modal-inscripcion">
+        <div class="modal" style="max-width: 520px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Nueva Inscripción</h3>
+                <button class="modal-close" onclick="cerrarModal('modal-inscripcion')">&times;</button>
+            </div>
+            <form id="form-inscripcion" onsubmit="guardarInscripcion(event)">
+                <div class="modal-body">
+                    <div id="inscripcion-alert"></div>
+
+                    <div class="form-group">
+                        <label>Buscar Alumno por Celular</label>
+                        <input type="text" id="inscripcion-celular" class="form-control"
+                            placeholder="Celular del alumno" onkeyup="buscarParaInscripcion()">
+                    </div>
+
+                    <div id="inscripcion-alumno-info" class="hidden mb-3">
+                        <div class="alert alert-success">
+                            <i class="fas fa-user"></i>
+                            <span id="inscripcion-alumno-nombre"></span>
+                            <input type="hidden" id="inscripcion-usuario-id">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Curso</label>
+                        <select id="inscripcion-curso" class="form-control" required>
+                            <option value="">Selecciona un curso...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Horario</label>
+                        <select id="inscripcion-horario" class="form-control" required>
+                            <option value="">Selecciona un horario...</option>
+                        </select>
+                    </div>
+
+                    <!-- Fechas del curso -->
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-alt"></i> Fechas del Curso</label>
+                        <div class="dates-row">
+                            <div>
+                                <label style="font-size: 0.8rem; color: var(--gray);">Inicio</label>
+                                <input type="date" id="inscripcion-fecha-inicio" class="form-control" required>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.8rem; color: var(--gray);">Fin</label>
+                                <input type="date" id="inscripcion-fecha-fin" class="form-control" required>
+                            </div>
+                        </div>
+                        <span class="form-hint">Módulo de 4 semanas por defecto</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Costo del Módulo</label>
+                        <input type="number" id="inscripcion-costo" class="form-control" value="1900" min="0"
+                            step="100">
+                    </div>
+
+                    <!-- Promociones -->
+                    <div class="form-group">
+                        <label><i class="fas fa-gift"></i> Promoción</label>
+                        <div class="promo-options">
+                            <button type="button" class="promo-btn active" onclick="selectPromoAdmin(this, '')">Sin
+                                promoción</button>
+                            <button type="button" class="promo-btn"
+                                onclick="selectPromoAdmin(this, 'Inscripción gratis')">Inscripción gratis</button>
+                            <button type="button" class="promo-btn"
+                                onclick="selectPromoAdmin(this, 'Segundo a mitad de precio')">2do a mitad</button>
+                            <button type="button" class="promo-btn"
+                                onclick="selectPromoAdmin(this, 'otra')">Otra</button>
+                        </div>
+                        <input type="text" id="inscripcion-promocion-otra" class="form-control hidden"
+                            placeholder="Escribe la promoción...">
+                        <input type="hidden" id="inscripcion-promocion">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline"
+                        onclick="cerrarModal('modal-inscripcion')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-check"></i> Crear Inscripción
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Registrar Pago -->
+    <div class="modal-overlay" id="modal-pago">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Registrar Pago</h3>
+                <button class="modal-close" onclick="cerrarModal('modal-pago')">&times;</button>
+            </div>
+            <form id="form-pago" onsubmit="guardarPago(event)">
+                <div class="modal-body">
+                    <div id="pago-alert"></div>
+
+                    <div class="form-group">
+                        <label>Buscar Alumno por Celular</label>
+                        <input type="text" id="pago-celular" class="form-control" placeholder="Celular del alumno"
+                            onkeyup="buscarParaPago()">
+                    </div>
+
+                    <div id="pago-inscripciones" class="hidden">
+                        <div class="form-group">
+                            <label>Selecciona la Inscripción</label>
+                            <select id="pago-inscripcion" class="form-control" required>
+                                <option value="">Selecciona...</option>
+                            </select>
+                        </div>
+
+                        <div id="pago-saldo-info" class="alert alert-warning hidden">
+                            <i class="fas fa-info-circle"></i>
+                            Saldo pendiente: <strong id="pago-saldo-monto">$0</strong>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Monto del Pago</label>
+                        <input type="number" id="pago-monto" class="form-control" min="1" step="1" required
+                            placeholder="Ej: 500">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Método de Pago</label>
+                        <select id="pago-metodo" class="form-control">
+                            <option value="Efectivo">Efectivo</option>
+                            <option value="Transferencia">Transferencia</option>
+                            <option value="Tarjeta">Tarjeta</option>
+                            <option value="Depósito">Depósito</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Notas (opcional)</label>
+                        <input type="text" id="pago-notas" class="form-control" placeholder="Ej: Pago parcial 1 de 3">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="cerrarModal('modal-pago')">Cancelar</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-dollar-sign"></i> Registrar Pago
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Registrar Gasto -->
+    <div class="modal-overlay" id="modal-gasto">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-receipt"></i> Registrar Gasto</h3>
+                <button class="modal-close" onclick="cerrarModal('modal-gasto')">&times;</button>
+            </div>
+            <form id="form-gasto" onsubmit="guardarGasto(event)">
+                <div class="modal-body">
+                    <div id="gasto-alert"></div>
+
+                    <div class="form-group">
+                        <label>Tipo de Gasto</label>
+                        <select id="gasto-tipo" class="form-control" required>
+                            <option value="">Selecciona...</option>
+                            <option value="Publicidad">Publicidad</option>
+                            <option value="Sueldos">Sueldos</option>
+                            <option value="Impuestos">Impuestos</option>
+                            <option value="Servicios">Servicios (luz, agua, internet)</option>
+                            <option value="Material">Material didáctico</option>
+                            <option value="Renta">Renta</option>
+                            <option value="Otros">Otros</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Monto</label>
+                        <input type="number" id="gasto-monto" class="form-control" min="1" step="0.01" required
+                            placeholder="Ej: 500">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Fecha</label>
+                        <input type="date" id="gasto-fecha" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Descripción (opcional)</label>
+                        <input type="text" id="gasto-descripcion" class="form-control"
+                            placeholder="Ej: Anuncio de Facebook para campaña enero">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="cerrarModal('modal-gasto')">Cancelar</button>
+                    <button type="submit" class="btn" style="background: #8b5cf6; color: white;">
+                        <i class="fas fa-check"></i> Guardar Gasto
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let usuario = null;
+        let cursos = [];
+        let horarios = [];
+        let debounceTimer = null;
+
+        // Helper para fetch con token de localStorage
+        const api = (url, options = {}) => {
+            const token = localStorage.getItem('token');
+            const headers = { ...options.headers };
+            if (token) {
+                headers['Authorization'] = 'Bearer ' + token;
+            }
+            return fetch(url, { ...options, headers, credentials: 'include' });
+        };
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', async function () {
+            try {
+                // Verificar si hay token guardado
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Verificar sesión con el servidor
+                const response = await api('/api/me');
+
+                if (!response.ok) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('usuario');
+                    window.location.href = 'login.html';
+                    return;
+                }
+                usuario = await response.json();
+
+                if (usuario.rol !== 'admin') {
+                    console.log('No es admin, redirigiendo a alumno');
+                    window.location.href = 'alumno.html';
+                    return;
+                }
+
+                document.getElementById('user-name').textContent = usuario.nombre;
+                document.getElementById('user-avatar').textContent = usuario.nombre.charAt(0).toUpperCase();
+
+                // Cargar datos iniciales
+                await Promise.all([
+                    cargarStats(),
+                    cargarAlumnos(),
+                    cargarCursosYHorarios()
+                ]);
+
+                // Establecer fecha por defecto
+                document.getElementById('inscripcion-fecha').valueAsDate = new Date();
+            } catch (error) {
+                console.error('Error:', error);
+                window.location.href = 'login.html';
+            }
+        });
+
+        async function cargarStats() {
+            try {
+                const response = await api('/api/admin/stats');
+                const stats = await response.json();
+
+                document.getElementById('stat-alumnos').textContent = stats.totalAlumnos;
+                document.getElementById('stat-inscripciones').textContent = stats.inscripcionesActivas;
+                document.getElementById('stat-pagos-mes').textContent = '$' + stats.pagosMes.toLocaleString();
+                document.getElementById('stat-saldo-pendiente').textContent = '$' + stats.saldoPendiente.toLocaleString();
+            } catch (error) {
+                console.error('Error al cargar stats:', error);
+            }
+        }
+
+        async function cargarAlumnos() {
+            try {
+                const response = await api('/api/admin/alumnos');
+                const alumnos = await response.json();
+
+                const tbody = document.getElementById('alumnos-tbody');
+
+                if (alumnos.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-gray">No hay alumnos registrados</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = alumnos.map(alumno => {
+                    const fecha = new Date(alumno.created_at).toLocaleDateString('es-MX');
+                    return `
+                        <tr class="alumno-row" onclick="verAlumno(${alumno.id})">
+                            <td><strong>${alumno.nombre}</strong></td>
+                            <td>${alumno.celular}</td>
+                            <td><span class="badge badge-primary">${alumno.total_inscripciones}</span></td>
+                            <td class="text-success">$${parseFloat(alumno.total_pagado).toLocaleString()}</td>
+                            <td class="text-gray">${fecha}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error al cargar alumnos:', error);
+            }
+        }
+
+        async function cargarCursosYHorarios() {
+            try {
+                // Cargar cursos
+                const cursosRes = await api('/api/cursos');
+                cursos = await cursosRes.json();
+
+                const selectCurso = document.getElementById('inscripcion-curso');
+                cursos.forEach(curso => {
+                    const option = document.createElement('option');
+                    option.value = curso.id;
+                    option.textContent = `${curso.nombre} - $${curso.costo}`;
+                    option.dataset.costo = curso.costo;
+                    selectCurso.appendChild(option);
+                });
+
+                // Actualizar costo al seleccionar curso
+                selectCurso.addEventListener('change', function () {
+                    const option = this.options[this.selectedIndex];
+                    if (option.dataset.costo) {
+                        document.getElementById('inscripcion-costo').value = option.dataset.costo;
+                    }
+                });
+
+                // Cargar horarios
+                const horariosRes = await api('/api/horarios');
+                horarios = await horariosRes.json();
+
+                const selectHorario = document.getElementById('inscripcion-horario');
+                horarios.forEach(horario => {
+                    const option = document.createElement('option');
+                    option.value = horario.id;
+                    option.textContent = horario.nombre;
+                    selectHorario.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error al cargar cursos/horarios:', error);
+            }
+        }
+
+        // Tabs
+        function cambiarTab(tab, el) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+            el.classList.add('active');
+            document.getElementById('tab-' + tab).classList.remove('hidden');
+
+            // Si es finanzas, cargar datos
+            if (tab === 'finanzas') {
+                resetearFiltrosFinanzas();
+            }
+        }
+
+        // Buscar alumno por nombre o celular
+        function buscarAlumno() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(async () => {
+                const query = document.getElementById('search-input').value;
+                if (query.length < 3) {
+                    document.getElementById('search-results').innerHTML = '<p class="text-gray">Escribe al menos 3 caracteres...</p>';
+                    return;
+                }
+
+                try {
+                    const response = await api(`/api/admin/buscar/${encodeURIComponent(query)}`);
+                    const alumnos = await response.json();
+
+                    if (alumnos.length === 0) {
+                        document.getElementById('search-results').innerHTML = '<p class="text-gray">No se encontraron resultados</p>';
+                        return;
+                    }
+
+                    document.getElementById('search-results').innerHTML = alumnos.map(alumno => `
+                        <div class="course-card" style="cursor: pointer;" onclick="verAlumno(${alumno.id})">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <h4>${alumno.nombre}</h4>
+                                    <p class="text-gray"><i class="fas fa-phone"></i> ${alumno.celular}</p>
+                                </div>
+                                <i class="fas fa-chevron-right text-gray"></i>
+                            </div>
+                        </div>
+                    `).join('');
+                } catch (error) {
+                    console.error('Error al buscar:', error);
+                }
+            }, 300);
+        }
+
+        // Ver detalles del alumno
+        async function verAlumno(id) {
+            abrirModal('modal-alumno');
+            document.getElementById('modal-alumno-content').innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+            try {
+                const response = await api(`/api/admin/alumno/${id}`);
+                const data = await response.json();
+
+                document.getElementById('modal-alumno-nombre').textContent = data.alumno.nombre;
+
+                let html = `
+                    <div class="detail-grid mb-4">
+                        <div class="detail-item">
+                            <div class="detail-label">Celular</div>
+                            <div class="detail-value">${data.alumno.celular}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Email</div>
+                            <div class="detail-value">${data.alumno.email || 'No registrado'}</div>
+                        </div>
+                    </div>
+                `;
+
+                // Inscripciones
+                html += '<h4 class="mb-2"><i class="fas fa-book text-primary"></i> Inscripciones</h4>';
+                if (data.inscripciones.length === 0) {
+                    html += '<p class="text-gray mb-3">Sin inscripciones</p>';
+                } else {
+                    data.inscripciones.forEach(ins => {
+                        const inicio = new Date(ins.fecha_inicio).toLocaleDateString('es-MX');
+                        const fin = new Date(ins.fecha_fin).toLocaleDateString('es-MX');
+                        html += `
+                            <div class="payment-item">
+                                <div class="payment-info">
+                                    <div class="payment-icon" style="background: rgba(250, 115, 21, 0.1); color: var(--primary);">
+                                        <i class="fas fa-book"></i>
+                                    </div>
+                                    <div class="payment-details">
+                                        <h4>${ins.curso_nombre}</h4>
+                                        <span class="payment-date">${inicio} - ${fin} | ${ins.horario_nombre}</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="badge badge-${ins.saldo_pendiente > 0 ? 'warning' : 'success'}">
+                                        ${ins.saldo_pendiente > 0 ? 'Debe $' + ins.saldo_pendiente : 'Pagado'}
+                                    </span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
+                // Pagos
+                html += '<h4 class="mb-2 mt-4"><i class="fas fa-receipt text-primary"></i> Historial de Pagos</h4>';
+                if (data.pagos.length === 0) {
+                    html += '<p class="text-gray">Sin pagos registrados</p>';
+                } else {
+                    data.pagos.forEach(pago => {
+                        const fecha = new Date(pago.fecha_pago).toLocaleDateString('es-MX');
+                        html += `
+                            <div class="payment-item">
+                                <div class="payment-info">
+                                    <div class="payment-icon">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <div class="payment-details">
+                                        <h4>${pago.curso_nombre}</h4>
+                                        <span class="payment-date">${fecha} ${pago.metodo_pago ? '• ' + pago.metodo_pago : ''}</span>
+                                    </div>
+                                </div>
+                                <div class="payment-amount">+$${parseFloat(pago.monto).toLocaleString()}</div>
+                            </div>
+                        `;
+                    });
+                }
+
+                document.getElementById('modal-alumno-content').innerHTML = html;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('modal-alumno-content').innerHTML = '<p class="text-danger">Error al cargar datos</p>';
+            }
+        }
+
+        // Modales
+        function abrirModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function cerrarModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function abrirModalInscripcion() {
+            document.getElementById('form-inscripcion').reset();
+            document.getElementById('inscripcion-alumno-info').classList.add('hidden');
+
+            // Establecer fecha de inicio (hoy)
+            const hoy = new Date();
+            document.getElementById('inscripcion-fecha-inicio').valueAsDate = hoy;
+
+            // Establecer fecha fin (4 semanas después)
+            const fin = new Date();
+            fin.setDate(fin.getDate() + 28);
+            document.getElementById('inscripcion-fecha-fin').valueAsDate = fin;
+
+            document.getElementById('inscripcion-costo').value = 1900;
+
+            // Resetear promociones
+            document.querySelectorAll('.promo-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('.promo-btn').classList.add('active'); // Primera opción
+            document.getElementById('inscripcion-promocion').value = '';
+            document.getElementById('inscripcion-promocion-otra').classList.add('hidden');
+            document.getElementById('inscripcion-promocion-otra').value = '';
+
+            abrirModal('modal-inscripcion');
+        }
+
+        // Función para seleccionar promoción
+        function selectPromoAdmin(btn, value) {
+            document.querySelectorAll('.promo-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const otraInput = document.getElementById('inscripcion-promocion-otra');
+            const promoHidden = document.getElementById('inscripcion-promocion');
+
+            if (value === 'otra') {
+                otraInput.classList.remove('hidden');
+                otraInput.focus();
+            } else {
+                otraInput.classList.add('hidden');
+                otraInput.value = '';
+                promoHidden.value = value;
+            }
+        }
+
+        // Escuchar cambios en el campo de "otra promoción"
+        document.addEventListener('DOMContentLoaded', function () {
+            const otraInput = document.getElementById('inscripcion-promocion-otra');
+            if (otraInput) {
+                otraInput.addEventListener('input', function () {
+                    document.getElementById('inscripcion-promocion').value = this.value;
+                });
+            }
+
+            // Calcular fecha fin automáticamente cuando cambia fecha inicio
+            const fechaInicio = document.getElementById('inscripcion-fecha-inicio');
+            if (fechaInicio) {
+                fechaInicio.addEventListener('change', function () {
+                    const inicio = new Date(this.value);
+                    inicio.setDate(inicio.getDate() + 28);
+                    document.getElementById('inscripcion-fecha-fin').valueAsDate = inicio;
+                });
+            }
+        });
+
+        function abrirModalPago() {
+            document.getElementById('form-pago').reset();
+            document.getElementById('pago-inscripciones').classList.add('hidden');
+            abrirModal('modal-pago');
+        }
+
+        // Buscar para inscripción
+        function buscarParaInscripcion() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(async () => {
+                const celular = document.getElementById('inscripcion-celular').value;
+                if (celular.length < 10) return;
+
+                try {
+                    const response = await api(`/api/admin/buscar-alumno/${celular}`);
+                    const alumnos = await response.json();
+
+                    if (alumnos.length > 0) {
+                        const alumno = alumnos[0];
+                        document.getElementById('inscripcion-alumno-info').classList.remove('hidden');
+                        document.getElementById('inscripcion-alumno-nombre').textContent = alumno.nombre;
+                        document.getElementById('inscripcion-usuario-id').value = alumno.id;
+                    } else {
+                        document.getElementById('inscripcion-alumno-info').classList.add('hidden');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }, 300);
+        }
+
+        // Buscar para pago
+        let inscripcionesEncontradas = [];
+
+        function buscarParaPago() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(async () => {
+                const celular = document.getElementById('pago-celular').value;
+                if (celular.length < 10) return;
+
+                try {
+                    const response = await api(`/api/admin/buscar-alumno/${celular}`);
+                    const alumnos = await response.json();
+
+                    if (alumnos.length > 0 && alumnos[0].inscripciones) {
+                        inscripcionesEncontradas = alumnos[0].inscripciones.filter(i => i.id);
+
+                        if (inscripcionesEncontradas.length > 0) {
+                            document.getElementById('pago-inscripciones').classList.remove('hidden');
+
+                            const select = document.getElementById('pago-inscripcion');
+                            select.innerHTML = '<option value="">Selecciona...</option>';
+                            inscripcionesEncontradas.forEach(ins => {
+                                const option = document.createElement('option');
+                                option.value = ins.id;
+                                option.textContent = `${ins.curso} - Debe: $${ins.saldo_pendiente}`;
+                                option.dataset.saldo = ins.saldo_pendiente;
+                                select.appendChild(option);
+                            });
+
+                            select.addEventListener('change', function () {
+                                const option = this.options[this.selectedIndex];
+                                if (option.dataset.saldo) {
+                                    document.getElementById('pago-saldo-info').classList.remove('hidden');
+                                    document.getElementById('pago-saldo-monto').textContent = '$' + parseFloat(option.dataset.saldo).toLocaleString();
+                                }
+                            });
+                        }
+                    } else {
+                        document.getElementById('pago-inscripciones').classList.add('hidden');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }, 300);
+        }
+
+        // Guardar inscripción
+        async function guardarInscripcion(e) {
+            e.preventDefault();
+
+            const usuarioId = document.getElementById('inscripcion-usuario-id').value;
+            if (!usuarioId) {
+                document.getElementById('inscripcion-alert').innerHTML =
+                    '<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> Busca y selecciona un alumno primero</div>';
+                return;
+            }
+
+            try {
+                const response = await api('/api/admin/inscripcion', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        usuario_id: usuarioId,
+                        curso_id: document.getElementById('inscripcion-curso').value,
+                        horario_id: document.getElementById('inscripcion-horario').value,
+                        fecha_inicio: document.getElementById('inscripcion-fecha-inicio').value,
+                        fecha_fin: document.getElementById('inscripcion-fecha-fin').value,
+                        costo_total: document.getElementById('inscripcion-costo').value,
+                        promocion: document.getElementById('inscripcion-promocion').value || null
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    cerrarModal('modal-inscripcion');
+                    await cargarStats();
+                    await cargarAlumnos();
+                    alert('✅ Inscripción creada exitosamente. Se envió email de bienvenida.');
+                } else {
+                    document.getElementById('inscripcion-alert').innerHTML =
+                        `<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> ${data.error}</div>`;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Guardar pago
+        async function guardarPago(e) {
+            e.preventDefault();
+
+            const inscripcionId = document.getElementById('pago-inscripcion').value;
+            if (!inscripcionId) {
+                document.getElementById('pago-alert').innerHTML =
+                    '<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> Selecciona una inscripción</div>';
+                return;
+            }
+
+            try {
+                const response = await api('/api/admin/pago', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        inscripcion_id: inscripcionId,
+                        monto: document.getElementById('pago-monto').value,
+                        metodo_pago: document.getElementById('pago-metodo').value,
+                        notas: document.getElementById('pago-notas').value
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    cerrarModal('modal-pago');
+                    await cargarStats();
+                    await cargarAlumnos();
+                    alert(`✅ Pago registrado exitosamente. Nuevo saldo: $${data.nuevo_saldo}`);
+                } else {
+                    document.getElementById('pago-alert').innerHTML =
+                        `<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> ${data.error}</div>`;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // ===================== FUNCIONES DE GASTOS =====================
+
+        function abrirModalGasto() {
+            document.getElementById('form-gasto').reset();
+            document.getElementById('gasto-alert').innerHTML = '';
+            document.getElementById('gasto-fecha').valueAsDate = new Date();
+            abrirModal('modal-gasto');
+        }
+
+        async function guardarGasto(e) {
+            e.preventDefault();
+
+            try {
+                const response = await api('/api/admin/gasto', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        tipo: document.getElementById('gasto-tipo').value,
+                        monto: document.getElementById('gasto-monto').value,
+                        fecha: document.getElementById('gasto-fecha').value,
+                        descripcion: document.getElementById('gasto-descripcion').value
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    cerrarModal('modal-gasto');
+                    await cargarStats();
+                    if (!document.getElementById('tab-finanzas').classList.contains('hidden')) {
+                        await cargarFinanzas();
+                    }
+                    alert('✅ Gasto registrado exitosamente');
+                } else {
+                    document.getElementById('gasto-alert').innerHTML =
+                        `<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> ${data.error}</div>`;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // ===================== FUNCIONES DE FINANZAS =====================
+
+        async function cargarFinanzas() {
+            const desde = document.getElementById('finanzas-desde').value;
+            const hasta = document.getElementById('finanzas-hasta').value;
+
+            try {
+                let url = '/api/admin/finanzas/resumen';
+                if (desde && hasta) {
+                    url += `?desde=${desde}&hasta=${hasta}`;
+                }
+
+                const response = await api(url);
+                const data = await response.json();
+
+                // Actualizar resumen
+                document.getElementById('finanzas-ingresos').textContent = '$' + data.ingresos.toLocaleString();
+                document.getElementById('finanzas-gastos').textContent = '$' + data.gastos.toLocaleString();
+                document.getElementById('finanzas-utilidad').textContent = '$' + data.utilidad.toLocaleString();
+
+                // Desglose de gastos
+                const desgloseContainer = document.getElementById('desglose-gastos');
+                if (data.desglose && data.desglose.length > 0) {
+                    const colores = {
+                        'Publicidad': '#f59e0b',
+                        'Sueldos': '#3b82f6',
+                        'Impuestos': '#ef4444',
+                        'Servicios': '#10b981',
+                        'Material': '#8b5cf6',
+                        'Renta': '#ec4899',
+                        'Otros': '#6b7280'
+                    };
+
+                    desgloseContainer.innerHTML = data.desglose.map(item => `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f8fafc; border-radius: 8px; margin-bottom: 8px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 12px; height: 12px; border-radius: 50%; background: ${colores[item.tipo] || '#6b7280'};"></div>
+                                <span>${item.tipo}</span>
+                            </div>
+                            <strong>$${parseFloat(item.total).toLocaleString()}</strong>
+                        </div>
+                    `).join('');
+                } else {
+                    desgloseContainer.innerHTML = '<p class="text-gray text-center">Sin gastos registrados</p>';
+                }
+
+                // Cargar lista de gastos
+                await cargarListaGastos(desde, hasta);
+
+            } catch (error) {
+                console.error('Error al cargar finanzas:', error);
+            }
+        }
+
+        async function cargarListaGastos(desde, hasta) {
+            try {
+                let url = '/api/admin/gastos';
+                if (desde && hasta) {
+                    url += `?desde=${desde}&hasta=${hasta}`;
+                }
+
+                const response = await api(url);
+                const gastos = await response.json();
+
+                const container = document.getElementById('lista-gastos');
+                if (gastos.length === 0) {
+                    container.innerHTML = '<p class="text-gray text-center">Sin gastos registrados</p>';
+                    return;
+                }
+
+                container.innerHTML = gastos.slice(0, 10).map(gasto => {
+                    const fecha = new Date(gasto.fecha).toLocaleDateString('es-MX');
+                    return `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #fef2f2; border-radius: 8px; margin-bottom: 8px;">
+                            <div>
+                                <div style="font-weight: 600;">${gasto.tipo}</div>
+                                <div style="font-size: 0.85rem; color: var(--gray);">${fecha}${gasto.descripcion ? ' - ' + gasto.descripcion : ''}</div>
+                            </div>
+                            <div style="color: #ef4444; font-weight: 600;">-$${parseFloat(gasto.monto).toLocaleString()}</div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                console.error('Error al cargar gastos:', error);
+            }
+        }
+
+        function resetearFiltrosFinanzas() {
+            // Establecer primer día del mes actual
+            const hoy = new Date();
+            const primerDia = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+            const ultimoDia = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
+
+            document.getElementById('finanzas-desde').value = primerDia.toISOString().split('T')[0];
+            document.getElementById('finanzas-hasta').value = ultimoDia.toISOString().split('T')[0];
+            cargarFinanzas();
+        }
+
+        async function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('usuario');
+            await api('/api/logout', { method: 'POST' });
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+
+</html>

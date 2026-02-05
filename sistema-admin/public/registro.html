@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Regístrate en Cursos Brooklyn - Aprende Inglés con certificación Oxford y SELPIP">
+    <title>Registro Rápido | Cursos Brooklyn</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/sistema-admin/public/css/styles.css">
+    <style>
+        .promo-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .promo-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .promo-option:hover {
+            background: #fff7ed;
+        }
+
+        .promo-option.selected {
+            background: #fff7ed;
+            border-color: var(--primary);
+        }
+
+        .promo-option input[type="radio"] {
+            display: none;
+        }
+
+        .promo-option .promo-check {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #cbd5e1;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .promo-option.selected .promo-check {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .dates-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .info-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 480px) {
+
+            .promo-grid,
+            .dates-row,
+            .info-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-page">
+        <div class="auth-container" style="max-width: 580px;">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <div class="logo">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span>Cursos <span style="color: var(--secondary);">Brooklyn</span></span>
+                    </div>
+                    <p>¡Regístrate y comienza tu transformación!</p>
+                </div>
+
+                <div class="auth-body">
+                    <div id="alert-container"></div>
+
+                    <form id="registro-form">
+                        <div class="form-group">
+                            <label for="nombre">
+                                <i class="fas fa-user"></i> Nombre completo *
+                            </label>
+                            <input type="text" id="nombre" name="nombre" class="form-control"
+                                placeholder="Ej: María García López" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="celular">
+                                <i class="fas fa-phone"></i> Celular (WhatsApp) *
+                            </label>
+                            <input type="tel" id="celular" name="celular" class="form-control"
+                                placeholder="Ej: 5512345678" required pattern="[0-9]{10}">
+                            <span class="form-hint">10 dígitos sin espacios</span>
+                        </div>
+
+                        <!-- Edad y Fecha de Cumpleaños -->
+                        <div class="info-row">
+                            <div class="form-group">
+                                <label for="edad">
+                                    <i class="fas fa-birthday-cake"></i> Edad
+                                </label>
+                                <input type="number" id="edad" name="edad" class="form-control" placeholder="Ej: 25"
+                                    min="5" max="100">
+                            </div>
+                            <div class="form-group">
+                                <label for="fecha_cumpleanos">Fecha de cumpleaños</label>
+                                <input type="date" id="fecha_cumpleanos" name="fecha_cumpleanos" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">
+                                <i class="fas fa-envelope"></i> Correo electrónico
+                            </label>
+                            <input type="email" id="email" name="email" class="form-control"
+                                placeholder="Ej: tu@email.com">
+                            <span class="form-hint">Te enviaremos tu bienvenida y recordatorios</span>
+                        </div>
+
+                        <!-- Contraseña -->
+                        <div class="form-group">
+                            <label for="password">
+                                <i class="fas fa-lock"></i> Crea tu contraseña *
+                            </label>
+                            <input type="password" id="password" name="password" class="form-control"
+                                placeholder="Mínimo 6 caracteres" required minlength="6">
+                            <span class="form-hint">Con esta contraseña podrás ver tu estado de cuenta y contenido del
+                                curso</span>
+                        </div>
+
+                        <!-- Tipo de Curso -->
+                        <div class="form-group">
+                            <label for="curso">
+                                <i class="fas fa-book"></i> Tipo de Curso *
+                            </label>
+                            <select id="curso" name="curso_id" class="form-control" required
+                                onchange="mostrarNombreCurso()">
+                                <option value="">Selecciona un tipo...</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" id="nombre-curso-container">
+                            <label for="nombre_curso_especifico">
+                                <i class="fas fa-tag"></i> Nombre del curso específico *
+                            </label>
+                            <input type="text" id="nombre_curso_especifico" name="nombre_curso_especifico"
+                                class="form-control" placeholder="Ej: Inglés Básico, Marketing para Redes...">
+                        </div>
+
+                        <!-- Horario -->
+                        <div class="form-group">
+                            <label for="horario">
+                                <i class="fas fa-clock"></i> Horario de preferencia *
+                            </label>
+                            <select id="horario" name="horario_id" class="form-control" required
+                                onchange="mostrarOtroHorario()">
+                                <option value="">Selecciona un horario...</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group hidden" id="otro-horario-container">
+                            <label for="horario_otro">Especifica el horario</label>
+                            <input type="text" id="horario_otro" name="horario_otro" class="form-control"
+                                placeholder="Ej: Domingos 10am a 12pm">
+                        </div>
+
+                        <!-- Fechas del curso -->
+                        <div class="form-group">
+                            <label><i class="fas fa-calendar-alt"></i> Fechas del curso</label>
+                            <div class="dates-row">
+                                <div>
+                                    <label for="fecha_inicio"
+                                        style="font-size: 0.85rem; color: var(--gray);">Inicio</label>
+                                    <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control">
+                                </div>
+                                <div>
+                                    <label for="fecha_fin" style="font-size: 0.85rem; color: var(--gray);">Fin</label>
+                                    <input type="date" id="fecha_fin" name="fecha_fin" class="form-control">
+                                </div>
+                            </div>
+                            <span class="form-hint">Módulo de 4 semanas. Si dejas en blanco, se calculará
+                                automáticamente.</span>
+                        </div>
+
+                        <!-- Promociones -->
+                        <div class="form-group">
+                            <label><i class="fas fa-gift"></i> ¿Tienes alguna promoción?</label>
+                            <div class="promo-grid">
+                                <label class="promo-option selected" onclick="selectPromo(this, '')">
+                                    <input type="radio" name="promocion_tipo" value="" checked>
+                                    <span class="promo-check"><i class="fas fa-check"
+                                            style="font-size: 10px;"></i></span>
+                                    <span>Sin promoción</span>
+                                </label>
+                                <label class="promo-option" onclick="selectPromo(this, 'Inscripción gratis')">
+                                    <input type="radio" name="promocion_tipo" value="Inscripción gratis">
+                                    <span class="promo-check"><i class="fas fa-check"
+                                            style="font-size: 10px;"></i></span>
+                                    <span>Inscripción gratis</span>
+                                </label>
+                                <label class="promo-option" onclick="selectPromo(this, 'Segundo a mitad de precio')">
+                                    <input type="radio" name="promocion_tipo" value="Segundo a mitad de precio">
+                                    <span class="promo-check"><i class="fas fa-check"
+                                            style="font-size: 10px;"></i></span>
+                                    <span>2do a mitad de precio</span>
+                                </label>
+                                <label class="promo-option" onclick="selectPromo(this, 'otra')">
+                                    <input type="radio" name="promocion_tipo" value="otra">
+                                    <span class="promo-check"><i class="fas fa-check"
+                                            style="font-size: 10px;"></i></span>
+                                    <span>Otra promoción</span>
+                                </label>
+                            </div>
+                            <input type="text" id="promocion_otra" class="form-control hidden"
+                                placeholder="Escribe la promoción...">
+                            <input type="hidden" id="promocion" name="promocion">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg btn-block" id="btn-registro">
+                            <i class="fas fa-check-circle"></i> Registrarme
+                        </button>
+                    </form>
+                </div>
+
+                <div class="auth-footer">
+                    <p>¿Ya tienes cuenta? <a href="login.html">Inicia sesión aquí</a></p>
+                </div>
+            </div>
+
+            <div class="text-center mt-3" style="color: rgba(255,255,255,0.7);">
+                <a href="https://wa.me/5215625813428" target="_blank" style="color: #fff;">
+                    <i class="fab fa-whatsapp"></i> ¿Dudas? Contáctanos por WhatsApp
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let horariosData = [];
+
+        // Cargar cursos y horarios al iniciar
+        document.addEventListener('DOMContentLoaded', async function () {
+            try {
+                // Cargar cursos
+                const cursosRes = await fetch('/api/cursos');
+                const cursos = await cursosRes.json();
+                const selectCurso = document.getElementById('curso');
+                cursos.forEach(curso => {
+                    const option = document.createElement('option');
+                    option.value = curso.id;
+                    option.textContent = curso.nombre;
+                    selectCurso.appendChild(option);
+                });
+
+                // Cargar horarios
+                const horariosRes = await fetch('/api/horarios');
+                horariosData = await horariosRes.json();
+                const selectHorario = document.getElementById('horario');
+                horariosData.forEach(horario => {
+                    const option = document.createElement('option');
+                    option.value = horario.id;
+                    option.textContent = horario.nombre;
+                    selectHorario.appendChild(option);
+                });
+
+                // Establecer fecha de inicio por defecto (hoy)
+                const hoy = new Date().toISOString().split('T')[0];
+                document.getElementById('fecha_inicio').value = hoy;
+
+                // Calcular fecha fin (4 semanas después)
+                calcularFechaFin();
+            } catch (error) {
+                console.error('Error al cargar datos:', error);
+            }
+        });
+
+        // Mostrar campo de nombre del curso
+        function mostrarNombreCurso() {
+            // Siempre visible ya que ahora solo hay Inglés/Marketing
+            document.getElementById('nombre-curso-container').classList.remove('hidden');
+        }
+
+        // Mostrar campo de otro horario
+        function mostrarOtroHorario() {
+            const select = document.getElementById('horario');
+            const selectedOption = select.options[select.selectedIndex];
+            const container = document.getElementById('otro-horario-container');
+
+            if (selectedOption && selectedOption.text === 'Otro') {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+                document.getElementById('horario_otro').value = '';
+            }
+        }
+
+        // Calcular fecha fin al cambiar fecha inicio
+        document.getElementById('fecha_inicio').addEventListener('change', calcularFechaFin);
+
+        function calcularFechaFin() {
+            const fechaInicio = document.getElementById('fecha_inicio').value;
+            if (fechaInicio) {
+                const inicio = new Date(fechaInicio);
+                inicio.setDate(inicio.getDate() + 28); // 4 semanas
+                document.getElementById('fecha_fin').value = inicio.toISOString().split('T')[0];
+            }
+        }
+
+        // Seleccionar promoción
+        function selectPromo(element, value) {
+            document.querySelectorAll('.promo-option').forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+
+            const otraInput = document.getElementById('promocion_otra');
+            const promocionHidden = document.getElementById('promocion');
+
+            if (value === 'otra') {
+                otraInput.classList.remove('hidden');
+                otraInput.focus();
+            } else {
+                otraInput.classList.add('hidden');
+                otraInput.value = '';
+                promocionHidden.value = value;
+            }
+        }
+
+        // Actualizar promoción cuando se escribe en "otra"
+        document.getElementById('promocion_otra').addEventListener('input', function () {
+            document.getElementById('promocion').value = this.value;
+        });
+
+        // Manejar envío del formulario
+        document.getElementById('registro-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const btn = document.getElementById('btn-registro');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registrando...';
+
+            const formData = {
+                nombre: document.getElementById('nombre').value,
+                celular: document.getElementById('celular').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                edad: document.getElementById('edad').value || null,
+                fecha_cumpleanos: document.getElementById('fecha_cumpleanos').value || null,
+                curso_id: document.getElementById('curso').value,
+                nombre_curso_especifico: document.getElementById('nombre_curso_especifico').value,
+                horario_id: document.getElementById('horario').value,
+                horario_otro: document.getElementById('horario_otro').value || null,
+                fecha_inicio: document.getElementById('fecha_inicio').value,
+                fecha_fin: document.getElementById('fecha_fin').value,
+                promocion: document.getElementById('promocion').value || null
+            };
+
+            try {
+                const response = await fetch('/api/registro-rapido', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    window.location.href = 'exito.html';
+                } else {
+                    showAlert(data.error || 'Error al registrar', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                }
+            } catch (error) {
+                showAlert('Error de conexión. Intenta de nuevo.', 'error');
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        });
+
+        function showAlert(message, type) {
+            const container = document.getElementById('alert-container');
+            container.innerHTML = `
+                <div class="alert alert-${type}">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                    ${message}
+                </div>
+            `;
+        }
+    </script>
+</body>
+
+</html>
