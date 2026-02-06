@@ -17,6 +17,7 @@ interface ReciboProps {
         concepto: string;
         estado: string;
         forma_pago?: string;
+        promocion?: string | null;
     };
 }
 
@@ -82,10 +83,20 @@ export default function ReciboDisplay({ data }: ReciboProps) {
         doc.setTextColor(0);
         doc.text(`$${data.costo_total}`, 160, startY + 20);
 
+
         // Desglose
         let currentY = startY + 35;
 
+        // Si hay promoción
+        if (data.promocion) {
+            doc.setFontSize(10);
+            doc.setTextColor(220, 38, 38); // Rojo para destacar
+            doc.text(`Promoción: ${data.promocion}`, 25, startY + 34);
+            currentY += 10;
+        }
+
         doc.setFontSize(10);
+        doc.setTextColor(0); // Reset color
         doc.text('Total Pagado:', 120, currentY);
         doc.setTextColor(22, 163, 74); // Verde
         doc.text(`$${data.total_pagado}`, 160, currentY);
@@ -142,6 +153,11 @@ export default function ReciboDisplay({ data }: ReciboProps) {
                             <td style={{ padding: '15px 10px', borderBottom: '1px solid #f0f0f0' }}>
                                 <div style={{ fontWeight: 'bold', fontSize: '1.05rem', color: '#2c3e50' }}>{data.curso}</div>
                                 <div style={{ fontSize: '0.85rem', color: '#7f8c8d', marginTop: '4px' }}>{data.concepto}</div>
+                                {data.promocion && (
+                                    <div style={{ fontSize: '0.9rem', color: '#dc2626', marginTop: '6px', fontWeight: 'bold' }}>
+                                        Promoción: {data.promocion}
+                                    </div>
+                                )}
                             </td>
                             <td style={{ padding: '15px 10px', borderBottom: '1px solid #f0f0f0', textAlign: 'right', fontWeight: 'bold' }}>
                                 ${data.costo_total}

@@ -48,7 +48,7 @@ export default async function ReciboPage({ params }: PageProps) {
     let reciboData = null;
     try {
         const result = await pool.query(`
-      SELECT i.id, i.fecha_inicio, i.costo_total, i.saldo_pendiente, i.estado,
+      SELECT i.id, i.fecha_inicio, i.costo_total, i.saldo_pendiente, i.estado, i.promocion,
              u.nombre as alumno_nombre,
              c.nombre as curso_nombre,
              COALESCE(i.nombre_curso_especifico, c.nombre) as curso_display
@@ -79,6 +79,7 @@ export default async function ReciboPage({ params }: PageProps) {
             total_pagado: totalPagado.toLocaleString('es-MX', { minimumFractionDigits: 2 }),
             concepto: `Estado de Cuenta`,
             estado: row.estado === 'activo' ? 'Activo' : row.estado,
+            promocion: row.promocion || null,
         };
 
     } catch (dbError) {
