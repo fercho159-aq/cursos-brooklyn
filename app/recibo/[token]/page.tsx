@@ -97,7 +97,7 @@ export default async function ReciboPage({ params }: PageProps) {
             <ReciboDisplay data={reciboData} />
 
             <div style={{ textAlign: 'center', marginTop: '40px', fontSize: '0.9rem', color: '#bdc3c7' }}>
-                <p>© {new Date().getFullYear()} Cursos Brooklyn. Todos los derechos reservados. (v1.1)</p>
+                <p>© {new Date().getFullYear()} Cursos Brooklyn. Todos los derechos reservados.</p>
             </div>
         </div>
     );
