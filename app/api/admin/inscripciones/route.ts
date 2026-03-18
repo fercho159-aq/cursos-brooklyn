@@ -16,12 +16,13 @@ export async function GET(request: Request) {
 
     let query = `
       SELECT i.*, u.nombre as usuario_nombre, u.celular as usuario_celular,
+             u.estado as usuario_estado, u.id as usuario_id_real,
              c.nombre as curso_nombre_ref, h.nombre as horario_nombre
-      FROM inscripciones i
-      LEFT JOIN usuarios u ON i.usuario_id = u.id
+      FROM usuarios u
+      LEFT JOIN inscripciones i ON u.id = i.usuario_id
       LEFT JOIN cursos c ON i.curso_id = c.id
       LEFT JOIN horarios h ON i.horario_id = h.id
-      WHERE 1=1
+      WHERE u.rol = 'alumno'
     `;
     const params: (string | number)[] = [];
     let paramIndex = 1;
@@ -30,21 +31,21 @@ export async function GET(request: Request) {
       if (estado === 'inactivo') {
         query += ` AND (i.estado = 'inactivo' OR LOWER(u.estado) = 'inactivo')`;
       } else if (estado === 'activo') {
-        query += ` AND i.estado = 'activo' AND (LOWER(u.estado) != 'inactivo' OR u.estado IS NULL)`;
+        query += ` AND (i.estado = 'activo' OR i.estado IS NULL) AND (LOWER(u.estado) != 'inactivo' OR u.estado IS NULL)`;
       } else {
-        query += ` AND i.estado = $${paramIndex}`;
+        query += ` AND (i.estado = $${paramIndex} OR LOWER(u.estado) = $${paramIndex})`;
         params.push(estado);
         paramIndex++;
       }
     }
 
     if (usuario_id) {
-      query += ` AND i.usuario_id = $${paramIndex}`;
+      query += ` AND u.id = $${paramIndex}`;
       params.push(parseInt(usuario_id));
       paramIndex++;
     }
 
-    query += ` ORDER BY i.created_at DESC`;
+    query += ` ORDER BY u.nombre ASC`;
 
     const result = await pool.query(query, params);
     return NextResponse.json(result.rows);

@@ -22,6 +22,8 @@ interface Inscripcion {
   promocion: string | null
   usuario_nombre: string
   usuario_celular: string
+  usuario_estado: string | null
+  usuario_id_real: number
   curso_nombre_ref: string
   horario_nombre: string | null
   created_at: string
@@ -83,14 +85,14 @@ export default function InscripcionesPage() {
   }
 
   const openEdit = (i: Inscripcion) => {
-    setEditing(i)
+    setEditing(i.id ? i : null)
     setFormData({
-      usuario_id: i.usuario_id.toString(), curso_id: i.curso_id.toString(),
-      horario_id: i.horario_id?.toString() || '', fecha_inicio: i.fecha_inicio?.split('T')[0] || '',
-      fecha_fin: i.fecha_fin?.split('T')[0] || '', costo_total: i.costo_total.toString(),
-      saldo_pendiente: i.saldo_pendiente.toString(), estado: i.estado, notas: i.notas || '',
+      usuario_id: i.usuario_id_real?.toString(), curso_id: i.curso_id?.toString() || '',
+      horario_id: i.horario_id?.toString() || '', fecha_inicio: i.fecha_inicio?.split('T')[0] || new Date().toISOString().split('T')[0],
+      fecha_fin: i.fecha_fin?.split('T')[0] || '', costo_total: i.costo_total?.toString() || '',
+      saldo_pendiente: i.saldo_pendiente?.toString() || '', estado: i.estado || 'activo', notas: i.notas || '',
       nombre_curso_especifico: i.nombre_curso_especifico || '', horario_otro: i.horario_otro || '',
-      modulo_numero: i.modulo_numero.toString(), promocion: i.promocion || ''
+      modulo_numero: i.modulo_numero?.toString() || '1', promocion: i.promocion || ''
     })
     setModalOpen(true)
   }
@@ -180,9 +182,9 @@ export default function InscripcionesPage() {
     }
   }
 
-  const modulosDisponibles = Array.from(new Set(inscripciones.map(i => i.modulo_numero))).sort((a, b) => a - b);
+  const modulosDisponibles = Array.from(new Set(inscripciones.map(i => i.modulo_numero).filter(Boolean))).sort((a, b) => a - b);
   const filteredInscripciones = inscripciones.filter(i => {
-    if (filtroModulo && i.modulo_numero.toString() !== filtroModulo) return false;
+    if (filtroModulo && (!i.modulo_numero || i.modulo_numero.toString() !== filtroModulo)) return false;
     return true;
   });
 
@@ -238,42 +240,46 @@ export default function InscripcionesPage() {
               ) : filteredInscripciones.length === 0 ? (
                 <tr><td colSpan={8} style={{ padding: '40px', textAlign: 'center', color: 'var(--gray)' }}>No hay inscripciones</td></tr>
               ) : filteredInscripciones.map(i => (
-                <tr key={i.id} style={{ borderBottom: '1px solid #eee' }}>
+                <tr key={i.id || 'u'+i.usuario_id_real} style={{ borderBottom: '1px solid #eee' }}>
                   <td style={{ padding: '12px 15px' }}>
                     <strong>{i.usuario_nombre}</strong>
                     <br /><span style={{ fontSize: '0.8rem', color: 'var(--gray)' }}>{i.usuario_celular}</span>
                   </td>
-                  <td style={{ padding: '12px 15px' }}>{i.nombre_curso_especifico || i.curso_nombre_ref}</td>
-                  <td style={{ padding: '12px 15px' }}>{i.horario_nombre || i.horario_otro}</td>
-                  <td style={{ padding: '12px 15px', textAlign: 'center' }}>{i.modulo_numero}</td>
-                  <td style={{ padding: '12px 15px', textAlign: 'right' }}>${i.costo_total.toLocaleString()}</td>
-                  <td style={{ padding: '12px 15px', textAlign: 'right', color: i.saldo_pendiente > 0 ? '#dc2626' : '#16a34a', fontWeight: 600 }}>
-                    ${i.saldo_pendiente.toLocaleString()}
+                  <td style={{ padding: '12px 15px' }}>{i.nombre_curso_especifico || i.curso_nombre_ref || <span style={{color: '#999'}}>Sin curso</span>}</td>
+                  <td style={{ padding: '12px 15px' }}>{i.horario_nombre || i.horario_otro || '-'}</td>
+                  <td style={{ padding: '12px 15px', textAlign: 'center' }}>{i.modulo_numero || '-'}</td>
+                  <td style={{ padding: '12px 15px', textAlign: 'right' }}>{i.costo_total ? '$'+parseFloat(i.costo_total as any).toLocaleString() : '-'}</td>
+                  <td style={{ padding: '12px 15px', textAlign: 'right', color: (i.saldo_pendiente || 0) > 0 ? '#dc2626' : '#16a34a', fontWeight: 600 }}>
+                    {i.saldo_pendiente ? '$'+parseFloat(i.saldo_pendiente as any).toLocaleString() : '-'}
                   </td>
                   <td style={{ padding: '12px 15px', textAlign: 'center' }}>
                     <span style={{
                       padding: '4px 10px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 500,
-                      background: i.estado === 'activo' ? '#dcfce7' : '#fee2e2',
-                      color: i.estado === 'activo' ? '#16a34a' : '#dc2626'
-                    }}>{i.estado}</span>
+                      background: i.estado === 'activo' ? '#dcfce7' : (i.estado === 'inactivo' ? '#fee2e2' : '#f3f4f6'),
+                      color: i.estado === 'activo' ? '#16a34a' : (i.estado === 'inactivo' ? '#dc2626' : '#6b7280')
+                    }}>{i.estado || i.usuario_estado || 'Sin inscrip.'}</span>
                   </td>
                   <td style={{ padding: '12px 15px', textAlign: 'center' }}>
                     <button onClick={() => openEdit(i)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)', marginRight: '10px', padding: '5px' }}>
                       <FontAwesomeIcon icon={faEdit} />
                     </button>
-                    <button onClick={() => handleDelete(i)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#dc2626', padding: '5px' }}>
-                      <FontAwesomeIcon icon={faTrash} />
-                    </button>
-                    <div style={{ display: 'flex', gap: '5px', justifyContent: 'center', marginTop: '5px' }}>
-                      <button onClick={() => handleVerRecibo(i)} disabled={processingId === i.id} title="Ver Recibo PDF"
-                        style={{ background: 'white', border: '1px solid var(--primary)', borderRadius: '4px', cursor: 'pointer', color: 'var(--primary)', padding: '5px 8px' }}>
-                        {processingId === i.id ? <FontAwesomeIcon icon={faSpinner} spin /> : <FontAwesomeIcon icon={faFilePdf} />}
-                      </button>
-                      <button onClick={() => handleShareWhatsapp(i)} disabled={processingId === i.id} title="Enviar por WhatsApp"
-                        style={{ background: '#25D366', border: 'none', borderRadius: '4px', cursor: 'pointer', color: 'white', padding: '5px 8px' }}>
-                        <FontAwesomeIcon icon={faWhatsapp} />
-                      </button>
-                    </div>
+                    {i.id && (
+                      <>
+                        <button onClick={() => handleDelete(i)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#dc2626', padding: '5px' }}>
+                          <FontAwesomeIcon icon={faTrash} />
+                        </button>
+                        <div style={{ display: 'flex', gap: '5px', justifyContent: 'center', marginTop: '5px' }}>
+                          <button onClick={() => handleVerRecibo(i)} disabled={processingId === i.id} title="Ver Recibo PDF"
+                            style={{ background: 'white', border: '1px solid var(--primary)', borderRadius: '4px', cursor: 'pointer', color: 'var(--primary)', padding: '5px 8px' }}>
+                            {processingId === i.id ? <FontAwesomeIcon icon={faSpinner} spin /> : <FontAwesomeIcon icon={faFilePdf} />}
+                          </button>
+                          <button onClick={() => handleShareWhatsapp(i)} disabled={processingId === i.id} title="Enviar por WhatsApp"
+                            style={{ background: '#25D366', border: 'none', borderRadius: '4px', cursor: 'pointer', color: 'white', padding: '5px 8px' }}>
+                            <FontAwesomeIcon icon={faWhatsapp} />
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </td>
                 </tr>
               ))}
