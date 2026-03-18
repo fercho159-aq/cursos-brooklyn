@@ -27,9 +27,15 @@ export async function GET(request: Request) {
     let paramIndex = 1;
 
     if (estado) {
-      query += ` AND i.estado = $${paramIndex}`;
-      params.push(estado);
-      paramIndex++;
+      if (estado === 'inactivo') {
+        query += ` AND (i.estado = 'inactivo' OR LOWER(u.estado) = 'inactivo')`;
+      } else if (estado === 'activo') {
+        query += ` AND i.estado = 'activo' AND (LOWER(u.estado) != 'inactivo' OR u.estado IS NULL)`;
+      } else {
+        query += ` AND i.estado = $${paramIndex}`;
+        params.push(estado);
+        paramIndex++;
+      }
     }
 
     if (usuario_id) {
