@@ -92,9 +92,9 @@ const enviarEmailBienvenida = async (alumno, inscripcion, curso, horario) => {
             </div>
             <div class="footer">
                 <div class="social">
-                    <a href="https://www.instagram.com/cursosbrooklynchimalhuacan">Instagram</a>
-                    <a href="https://www.facebook.com/share/1ErZWi2BwZ/">Facebook</a>
-                    <a href="https://www.tiktok.com/@cursosbrooklynchimal">TikTok</a>
+                    <a href="https://www.instagram.com/cursos_brooklyn/">Instagram</a>
+                    <a href="https://www.facebook.com/cursosbrooklyn1">Facebook</a>
+                    <a href="https://www.tiktok.com/@cursos_brooklyn">TikTok</a>
                 </div>
                 <p>© 2025 Cursos Brooklyn. Transformando vidas a través de la educación.</p>
                 <p>Av Patos Manzana 019 Lote 70, San Pablo, Chimalhuacán</p>

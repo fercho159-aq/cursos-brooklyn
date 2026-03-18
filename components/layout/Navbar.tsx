@@ -39,13 +39,13 @@ export default function Navbar() {
 
         <div className="nav-actions">
           <div className="nav-social">
-            <a href="https://www.instagram.com/cursosbrooklynchimalhuacan" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+            <a href="https://www.instagram.com/cursos_brooklyn/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
               <FontAwesomeIcon icon={faInstagram} />
             </a>
-            <a href="https://www.facebook.com/share/1ErZWi2BwZ/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+            <a href="https://www.facebook.com/cursosbrooklyn1" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
               <FontAwesomeIcon icon={faFacebookF} />
             </a>
-            <a href="https://www.tiktok.com/@cursosbrooklynchimal" target="_blank" rel="noopener noreferrer" aria-label="TikTok">
+            <a href="https://www.tiktok.com/@cursos_brooklyn" target="_blank" rel="noopener noreferrer" aria-label="TikTok">
               <FontAwesomeIcon icon={faTiktok} />
             </a>
           </div>

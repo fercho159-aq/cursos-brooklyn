@@ -320,13 +320,13 @@ export default function HomePage() {
           <h2>Siguenos en <span className="gradient-text">Redes Sociales</span></h2>
           <p>Tips, promociones y contenido exclusivo</p>
           <div className="social-links">
-            <a href="https://www.instagram.com/cursosbrooklynchimalhuacan" target="_blank" rel="noopener noreferrer" className="social-btn instagram">
+            <a href="https://www.instagram.com/cursos_brooklyn/" target="_blank" rel="noopener noreferrer" className="social-btn instagram">
               <FontAwesomeIcon icon={faInstagram} /> Instagram
             </a>
-            <a href="https://www.facebook.com/share/1ErZWi2BwZ/" target="_blank" rel="noopener noreferrer" className="social-btn facebook">
+            <a href="https://www.facebook.com/cursosbrooklyn1" target="_blank" rel="noopener noreferrer" className="social-btn facebook">
               <FontAwesomeIcon icon={faFacebookF} /> Facebook
             </a>
-            <a href="https://www.tiktok.com/@cursosbrooklynchimal" target="_blank" rel="noopener noreferrer" className="social-btn tiktok">
+            <a href="https://www.tiktok.com/@cursos_brooklyn" target="_blank" rel="noopener noreferrer" className="social-btn tiktok">
               <FontAwesomeIcon icon={faTiktok} /> TikTok
             </a>
           </div>
