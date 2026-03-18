@@ -38,6 +38,7 @@ export default function InscripcionesPage() {
   const [horarios, setHorarios] = useState<Horario[]>([])
   const [loading, setLoading] = useState(true)
   const [filtroEstado, setFiltroEstado] = useState('')
+  const [filtroModulo, setFiltroModulo] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<Inscripcion | null>(null)
   const [saving, setSaving] = useState(false)
@@ -179,6 +180,12 @@ export default function InscripcionesPage() {
     }
   }
 
+  const modulosDisponibles = Array.from(new Set(inscripciones.map(i => i.modulo_numero))).sort((a, b) => a - b);
+  const filteredInscripciones = inscripciones.filter(i => {
+    if (filtroModulo && i.modulo_numero.toString() !== filtroModulo) return false;
+    return true;
+  });
+
   return (
     <div style={{ padding: '30px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
@@ -198,8 +205,15 @@ export default function InscripcionesPage() {
           <option value="activo">Activos</option>
           <option value="inactivo">Inactivos</option>
         </select>
+        <select value={filtroModulo} onChange={(e) => setFiltroModulo(e.target.value)}
+          style={{ padding: '10px 15px', borderRadius: 'var(--radius)', border: '1px solid #ddd', background: 'var(--white)' }}>
+          <option value="">Todos los módulos</option>
+          {modulosDisponibles.map(m => (
+            <option key={m} value={m}>Módulo {m}</option>
+          ))}
+        </select>
         <div style={{ background: 'var(--white)', padding: '10px 20px', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow)' }}>
-          <span style={{ color: 'var(--gray)' }}>Total: </span><strong>{inscripciones.length}</strong>
+          <span style={{ color: 'var(--gray)' }}>Total: </span><strong>{filteredInscripciones.length}</strong>
         </div>
       </div>
 
@@ -220,10 +234,10 @@ export default function InscripcionesPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={7} style={{ padding: '40px', textAlign: 'center' }}>Cargando...</td></tr>
-              ) : inscripciones.length === 0 ? (
-                <tr><td colSpan={7} style={{ padding: '40px', textAlign: 'center', color: 'var(--gray)' }}>No hay inscripciones</td></tr>
-              ) : inscripciones.map(i => (
+                <tr><td colSpan={8} style={{ padding: '40px', textAlign: 'center' }}>Cargando...</td></tr>
+              ) : filteredInscripciones.length === 0 ? (
+                <tr><td colSpan={8} style={{ padding: '40px', textAlign: 'center', color: 'var(--gray)' }}>No hay inscripciones</td></tr>
+              ) : filteredInscripciones.map(i => (
                 <tr key={i.id} style={{ borderBottom: '1px solid #eee' }}>
                   <td style={{ padding: '12px 15px' }}>
                     <strong>{i.usuario_nombre}</strong>
