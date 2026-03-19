@@ -188,6 +188,10 @@ export default function InscripcionesPage() {
     return true;
   });
 
+  const totalCosto = filteredInscripciones.reduce((sum, i) => sum + (Number(i.costo_total) || 0), 0);
+  const totalAdeudo = filteredInscripciones.reduce((sum, i) => sum + (Number(i.saldo_pendiente) || 0), 0);
+  const totalRecaudado = totalCosto - totalAdeudo;
+
   return (
     <div style={{ padding: '30px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
@@ -200,22 +204,36 @@ export default function InscripcionesPage() {
         </button>
       </div>
 
-      <div style={{ display: 'flex', gap: '15px', marginBottom: '20px', flexWrap: 'wrap' }}>
-        <select value={filtroEstado} onChange={(e) => setFiltroEstado(e.target.value)}
-          style={{ padding: '10px 15px', borderRadius: 'var(--radius)', border: '1px solid #ddd', background: 'var(--white)' }}>
-          <option value="">Todos los estados</option>
-          <option value="activo">Activos</option>
-          <option value="inactivo">Inactivos</option>
-        </select>
-        <select value={filtroModulo} onChange={(e) => setFiltroModulo(e.target.value)}
-          style={{ padding: '10px 15px', borderRadius: 'var(--radius)', border: '1px solid #ddd', background: 'var(--white)' }}>
-          <option value="">Todos los módulos</option>
-          {modulosDisponibles.map(m => (
-            <option key={m} value={m}>Módulo {m}</option>
-          ))}
-        </select>
-        <div style={{ background: 'var(--white)', padding: '10px 20px', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow)' }}>
-          <span style={{ color: 'var(--gray)' }}>Total: </span><strong>{filteredInscripciones.length}</strong>
+      <div style={{ display: 'flex', gap: '15px', marginBottom: '25px', flexWrap: 'wrap', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+          <select value={filtroEstado} onChange={(e) => setFiltroEstado(e.target.value)}
+            style={{ padding: '10px 15px', borderRadius: 'var(--radius)', border: '1px solid #ddd', background: 'var(--white)', minWidth: '160px' }}>
+            <option value="">Todos los estados</option>
+            <option value="activo">Activos</option>
+            <option value="inactivo">Inactivos</option>
+          </select>
+          <select value={filtroModulo} onChange={(e) => setFiltroModulo(e.target.value)}
+            style={{ padding: '10px 15px', borderRadius: 'var(--radius)', border: '1px solid #ddd', background: 'var(--white)', minWidth: '160px' }}>
+            <option value="">Todos los módulos</option>
+            {modulosDisponibles.map(m => (
+              <option key={m} value={m}>Módulo {m}</option>
+            ))}
+          </select>
+        </div>
+        
+        <div style={{ display: 'flex', gap: '15px', flexGrow: 1, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+          <div style={{ background: 'var(--white)', padding: '12px 20px', borderRadius: 'var(--radius)', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)', display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '130px', borderBottom: '4px solid #3b82f6' }}>
+            <span style={{ color: 'var(--gray)', fontSize: '0.8rem', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>Total Alumnos</span>
+            <strong style={{ fontSize: '1.4rem', color: '#1f2937', marginTop: '4px' }}>{filteredInscripciones.length}</strong>
+          </div>
+          <div style={{ background: 'var(--white)', padding: '12px 20px', borderRadius: 'var(--radius)', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)', display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '130px', borderBottom: '4px solid #10b981' }}>
+            <span style={{ color: 'var(--gray)', fontSize: '0.8rem', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>Recaudado</span>
+            <strong style={{ fontSize: '1.4rem', color: '#10b981', marginTop: '4px' }}>${totalRecaudado.toLocaleString('es-MX')}</strong>
+          </div>
+          <div style={{ background: 'var(--white)', padding: '12px 20px', borderRadius: 'var(--radius)', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)', display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '130px', borderBottom: '4px solid #ef4444' }}>
+            <span style={{ color: 'var(--gray)', fontSize: '0.8rem', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>Por Cobrar</span>
+            <strong style={{ fontSize: '1.4rem', color: '#ef4444', marginTop: '4px' }}>${totalAdeudo.toLocaleString('es-MX')}</strong>
+          </div>
         </div>
       </div>
 
