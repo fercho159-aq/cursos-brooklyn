@@ -21,11 +21,14 @@ export async function GET(request: Request) {
 
     const grupo = grupoRes.rows[0];
 
-    // 2. Obtener los alumnos del grupo
+    // 2. Obtener los alumnos del grupo (SOLO ACTIVOS)
     const alumnosRes = await pool.query(`
       SELECT id, nombre, email, celular, estado, genero 
       FROM usuarios 
-      WHERE grupo_id = $1 AND rol = 'alumno'
+      WHERE grupo_id = $1 
+        AND rol = 'alumno'
+        AND activo = true
+        AND (estado IS NULL OR LOWER(estado) NOT IN ('inactivo', 'cancelado'))
       ORDER BY nombre
     `, [grupo.id]);
 
