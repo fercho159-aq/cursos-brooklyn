@@ -12,10 +12,12 @@ export async function GET(request: Request) {
   try {
     const result = await pool.query(`
       SELECT g.*,
-             COUNT(u.id) as total_alumnos
+             COUNT(u.id) as total_alumnos,
+             p.nombre as profesor_nombre
       FROM grupos g
       LEFT JOIN usuarios u ON u.grupo_id = g.id AND u.rol = 'alumno'
-      GROUP BY g.id
+      LEFT JOIN usuarios p ON g.profesor_id = p.id AND p.rol = 'profesor'
+      GROUP BY g.id, p.nombre
       ORDER BY g.nombre
     `);
     return NextResponse.json(result.rows);
@@ -34,17 +36,17 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { nombre, dias, turno, horario, color, activo } = body;
+    const { nombre, dias, turno, horario, color, activo, profesor_id } = body;
 
     if (!nombre || !dias) {
       return NextResponse.json({ error: 'Nombre y días son requeridos' }, { status: 400 });
     }
 
     const result = await pool.query(
-      `INSERT INTO grupos (nombre, dias, turno, horario, color, activo)
-       VALUES ($1, $2, $3, $4, $5, $6)
+      `INSERT INTO grupos (nombre, dias, turno, horario, color, activo, profesor_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING *`,
-      [nombre, dias, turno || null, horario || null, color || '#3b82f6', activo !== false]
+      [nombre, dias, turno || null, horario || null, color || '#3b82f6', activo !== false, profesor_id || null]
     );
 
     return NextResponse.json(result.rows[0], { status: 201 });
@@ -70,7 +72,7 @@ export async function PATCH(request: Request) {
     }
 
     const body = await request.json();
-    const allowedFields = ['nombre', 'dias', 'turno', 'horario', 'color', 'activo'];
+    const allowedFields = ['nombre', 'dias', 'turno', 'horario', 'color', 'activo', 'profesor_id'];
     const updates: string[] = [];
     const values: (string | number | boolean | null)[] = [];
     let paramIndex = 1;

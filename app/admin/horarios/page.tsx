@@ -26,6 +26,8 @@ interface Grupo {
   color: string
   activo: boolean
   total_alumnos: number
+  profesor_id?: number | null
+  profesor_nombre?: string | null
 }
 
 export default function HorariosPage() {
@@ -33,6 +35,8 @@ export default function HorariosPage() {
   const [grupos, setGrupos] = useState<Grupo[]>([])
   const [loading, setLoading] = useState(true)
   const [gruposAbiertos, setGruposAbiertos] = useState<number[]>([])
+
+  const [profesores, setProfesores] = useState<Usuario[]>([])
 
   // Modal de grupo
   const [modalGrupoOpen, setModalGrupoOpen] = useState(false)
@@ -43,7 +47,8 @@ export default function HorariosPage() {
     dias: '',
     turno: '',
     horario: '',
-    color: '#3b82f6'
+    color: '#3b82f6',
+    profesor_id: '' as string | number
   })
 
   // Modal de edición de horario
@@ -60,13 +65,15 @@ export default function HorariosPage() {
 
   const fetchData = async () => {
     try {
-      const [usuariosRes, gruposRes] = await Promise.all([
+      const [usuariosRes, gruposRes, profsRes] = await Promise.all([
         fetch('/api/admin/usuarios?rol=alumno', { credentials: 'include' }),
-        fetch('/api/admin/grupos', { credentials: 'include' })
+        fetch('/api/admin/grupos', { credentials: 'include' }),
+        fetch('/api/admin/usuarios?rol=profesor', { credentials: 'include' })
       ])
 
       if (usuariosRes.ok) setUsuarios(await usuariosRes.json())
       if (gruposRes.ok) setGrupos(await gruposRes.json())
+      if (profsRes.ok) setProfesores(await profsRes.json())
     } catch (error) {
       console.error('Error:', error)
     } finally {
@@ -114,7 +121,7 @@ export default function HorariosPage() {
   // CRUD de Grupos
   const openCreateGrupo = () => {
     setEditingGrupo(null)
-    setGrupoForm({ nombre: '', dias: '', turno: '', horario: '', color: '#3b82f6' })
+    setGrupoForm({ nombre: '', dias: '', turno: '', horario: '', color: '#3b82f6', profesor_id: '' })
     setModalGrupoOpen(true)
   }
 
@@ -126,7 +133,8 @@ export default function HorariosPage() {
       dias: grupo.dias,
       turno: grupo.turno || '',
       horario: grupo.horario || '',
-      color: grupo.color || '#3b82f6'
+      color: grupo.color || '#3b82f6',
+      profesor_id: grupo.profesor_id || ''
     })
     setModalGrupoOpen(true)
   }
@@ -140,11 +148,12 @@ export default function HorariosPage() {
     setSavingGrupo(true)
     try {
       const url = editingGrupo ? `/api/admin/grupos?id=${editingGrupo.id}` : '/api/admin/grupos'
+      const payload = { ...grupoForm, profesor_id: grupoForm.profesor_id === '' ? null : grupoForm.profesor_id };
       const res = await fetch(url, {
         method: editingGrupo ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(grupoForm)
+        body: JSON.stringify(payload)
       })
 
       if (res.ok) {
@@ -295,7 +304,7 @@ export default function HorariosPage() {
                   <div>
                     <div style={{ color: 'white', fontWeight: 700, fontSize: '1.2rem' }}>{grupo.nombre}</div>
                     <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
-                      {count} alumno{count !== 1 ? 's' : ''} • {grupo.dias}
+                      {count} alumno{count !== 1 ? 's' : ''} • {grupo.dias} {grupo.profesor_nombre ? `• Prof. ${grupo.profesor_nombre}` : ''}
                     </div>
                   </div>
                 </div>
@@ -540,6 +549,20 @@ export default function HorariosPage() {
                   placeholder="Ej: Lunes y Miércoles"
                   style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }}
                 />
+              </div>
+
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Profesor Asignado</label>
+                <select
+                  value={grupoForm.profesor_id}
+                  onChange={(e) => setGrupoForm({ ...grupoForm, profesor_id: e.target.value })}
+                  style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }}
+                >
+                  <option value="">Sin profesor</option>
+                  {profesores.map(p => (
+                    <option key={p.id} value={p.id}>{p.nombre}</option>
+                  ))}
+                </select>
               </div>
 
               <div style={{ marginBottom: '15px' }}>

@@ -331,6 +331,7 @@ export default function UsuariosPage() {
         >
           <option value="">Todos los roles</option>
           <option value="alumno">Alumnos</option>
+          <option value="profesor">Profesores</option>
           <option value="admin">Administradores</option>
         </select>
       </div>
@@ -656,6 +657,7 @@ export default function UsuariosPage() {
                   <select value={formData.rol} onChange={(e) => setFormData({ ...formData, rol: e.target.value })}
                     style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }}>
                     <option value="alumno">Alumno</option>
+                    <option value="profesor">Profesor</option>
                     <option value="admin">Administrador</option>
                   </select>
                 </div>
