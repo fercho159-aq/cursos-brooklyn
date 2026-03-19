@@ -38,6 +38,9 @@ export default function HorariosPage() {
   const [gruposAbiertos, setGruposAbiertos] = useState<number[]>([])
 
   const [profesores, setProfesores] = useState<Usuario[]>([])
+  
+  // Mapping
+  const [horariosProfesores, setHorariosProfesores] = useState<{grupo_id: number, turno: string, horario: string, profesor_id: number}[]>([])
 
   // Modal de grupo
   const [modalGrupoOpen, setModalGrupoOpen] = useState(false)
@@ -66,15 +69,17 @@ export default function HorariosPage() {
 
   const fetchData = async () => {
     try {
-      const [usuariosRes, gruposRes, profsRes] = await Promise.all([
+      const [usuariosRes, gruposRes, profsRes, mappingsRes] = await Promise.all([
         fetch('/api/admin/usuarios?rol=alumno', { credentials: 'include' }),
         fetch('/api/admin/grupos', { credentials: 'include' }),
-        fetch('/api/admin/usuarios?rol=profesor', { credentials: 'include' })
+        fetch('/api/admin/usuarios?rol=profesor', { credentials: 'include' }),
+        fetch('/api/admin/grupos/profesores', { credentials: 'include' })
       ])
 
       if (usuariosRes.ok) setUsuarios(await usuariosRes.json())
       if (gruposRes.ok) setGrupos(await gruposRes.json())
       if (profsRes.ok) setProfesores(await profsRes.json())
+      if (mappingsRes.ok) setHorariosProfesores(await mappingsRes.json())
     } catch (error) {
       console.error('Error:', error)
     } finally {
@@ -239,6 +244,29 @@ export default function HorariosPage() {
     }
   }
 
+  const handleAssignScheduleProfesor = async (grupoId: number, turno: string, horario: string, profesorId: string) => {
+    const turnoLimpio = turno === 'Sin turno' ? '' : turno
+    const horarioLimpio = horario === 'Sin horario definido' ? '' : horario
+
+    try {
+      const res = await fetch('/api/admin/grupos/profesores', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          grupo_id: grupoId,
+          turno: turnoLimpio,
+          horario: horarioLimpio,
+          profesor_id: profesorId ? parseInt(profesorId) : null
+        })
+      });
+      if (res.ok) fetchData();
+      else alert('Error al asignar profesor al horario');
+    } catch {
+      alert('Error de conexión');
+    }
+  }
+
   const totalInscritos = usuarios.length
   const sinGrupo = getUsuariosSinGrupo()
 
@@ -350,6 +378,12 @@ export default function HorariosPage() {
                     horarios.map(([horarioKey, alumnos]) => {
                       const isMatutino = horarioKey.toLowerCase().includes('matutino')
                       const [turnoDisplay, horarioDisplay] = horarioKey.split(' - ')
+                      
+                      const turnoL = turnoDisplay === 'Sin turno' ? '' : turnoDisplay;
+                      const horarioL = horarioDisplay === 'Sin horario definido' ? '' : horarioDisplay;
+                      const mapping = horariosProfesores.find(hp => hp.grupo_id === grupo.id && hp.turno === turnoL && hp.horario === horarioL);
+                      const currentProfId = mapping ? mapping.profesor_id?.toString() : '';
+
                       return (
                         <div key={horarioKey} style={{ borderBottom: '1px solid #eee' }}>
                           <div style={{
@@ -364,6 +398,28 @@ export default function HorariosPage() {
                             <span style={{ fontWeight: 600, color: isMatutino ? '#92400e' : '#3730a3' }}>
                               {horarioKey}
                             </span>
+                            
+                            <select 
+                              value={currentProfId}
+                              onChange={(e) => handleAssignScheduleProfesor(grupo.id, turnoDisplay, horarioDisplay, e.target.value)}
+                              style={{
+                                marginLeft: '15px',
+                                padding: '4px 10px',
+                                borderRadius: 'var(--radius)',
+                                border: '1px solid rgba(0,0,0,0.1)',
+                                background: isMatutino ? '#fffbeb' : '#eef2ff',
+                                color: isMatutino ? '#92400e' : '#3730a3',
+                                fontSize: '0.85rem',
+                                fontWeight: 500,
+                                cursor: 'pointer'
+                              }}
+                            >
+                              <option value="">Profesor del Grupo (Default)</option>
+                              {profesores.map(p => (
+                                <option key={p.id} value={p.id}>{p.nombre}</option>
+                              ))}
+                            </select>
+
                             <button
                               onClick={() => openEditHorario(grupo.id, turnoDisplay, horarioDisplay, alumnos)}
                               style={{

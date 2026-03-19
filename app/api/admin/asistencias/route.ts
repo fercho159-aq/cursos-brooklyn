@@ -24,12 +24,17 @@ export async function GET(request: Request) {
 
     // 2. Asistencias de Alumnos
     const alumnosQuery = await pool.query(`
-      SELECT al.id, al.nombre, al.celular, g.nombre as grupo_nombre, p.nombre as profesor_nombre, a.estado
+      SELECT al.id, al.nombre, al.celular, g.nombre as grupo_nombre, 
+             COALESCE(p_actual.nombre, p_asignado.nombre, p_grupo.nombre) as profesor_nombre, 
+             a.estado
       FROM usuarios al
       LEFT JOIN asistencias_alumnos a ON al.id = a.alumno_id AND a.fecha = $1
       LEFT JOIN grupos g ON al.grupo_id = g.id
-      LEFT JOIN usuarios p ON g.profesor_id = p.id
-      WHERE al.rol = 'alumno' AND al.grupo_id IS NOT NULL
+      LEFT JOIN usuarios p_actual ON a.profesor_id = p_actual.id
+      LEFT JOIN grupo_horarios_profesores ghp ON al.grupo_id = ghp.grupo_id AND COALESCE(al.turno,'') = ghp.turno AND COALESCE(al.horario,'') = ghp.horario
+      LEFT JOIN usuarios p_asignado ON ghp.profesor_id = p_asignado.id
+      LEFT JOIN usuarios p_grupo ON g.profesor_id = p_grupo.id
+      WHERE al.rol = 'alumno' AND al.grupo_id IS NOT NULL AND al.activo = true
       ORDER BY g.nombre, al.nombre
     `, [fecha]);
 
