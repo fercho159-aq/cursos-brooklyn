@@ -188,10 +188,17 @@ export default function InscripcionesPage() {
     return true;
   });
 
-  const totalCosto = filteredInscripciones.reduce((sum, i) => sum + (Number(i.costo_total) || 0), 0);
-  const totalAdeudo = filteredInscripciones.reduce((sum, i) => sum + (Number(i.saldo_pendiente) || 0), 0);
-  const totalRecaudado = totalCosto - totalAdeudo;
-
+  const totalAdeudo = filteredInscripciones.reduce((sum, i) => {
+    const saldo = parseFloat(i.saldo_pendiente as any) || 0;
+    return saldo > 0 ? sum + saldo : sum;
+  }, 0);
+  const totalRecaudado = filteredInscripciones.reduce((sum, i) => {
+    const costo = parseFloat(i.costo_total as any) || 0;
+    const saldo = parseFloat(i.saldo_pendiente as any) || 0;
+    // Si el saldo es mayor al costo, recaudó 0, sino la diferencia es lo recaudado
+    const recaudadoDeEste = Math.max(0, costo - (saldo > 0 ? saldo : 0));
+    return sum + recaudadoDeEste;
+  }, 0);
   return (
     <div style={{ padding: '30px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
