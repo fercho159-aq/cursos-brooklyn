@@ -221,18 +221,18 @@ export default function InscripcionesPage() {
           </select>
         </div>
         
-        <div style={{ display: 'flex', gap: '15px', flexGrow: 1, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-          <div style={{ background: 'var(--white)', padding: '12px 20px', borderRadius: 'var(--radius)', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)', display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '130px', borderBottom: '4px solid #3b82f6' }}>
-            <span style={{ color: 'var(--gray)', fontSize: '0.8rem', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>Total Alumnos</span>
-            <strong style={{ fontSize: '1.4rem', color: '#1f2937', marginTop: '4px' }}>{filteredInscripciones.length}</strong>
+        <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+          <div style={{ background: 'var(--white)', padding: '10px 15px', borderRadius: 'var(--radius)', border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '110px', borderLeft: '4px solid #3b82f6' }}>
+            <span style={{ color: 'var(--gray)', fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>Alumnos</span>
+            <strong style={{ fontSize: '1.2rem', color: '#1f2937', marginTop: '2px' }}>{filteredInscripciones.length}</strong>
           </div>
-          <div style={{ background: 'var(--white)', padding: '12px 20px', borderRadius: 'var(--radius)', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)', display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '130px', borderBottom: '4px solid #10b981' }}>
-            <span style={{ color: 'var(--gray)', fontSize: '0.8rem', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>Recaudado</span>
-            <strong style={{ fontSize: '1.4rem', color: '#10b981', marginTop: '4px' }}>${totalRecaudado.toLocaleString('es-MX')}</strong>
+          <div style={{ background: 'var(--white)', padding: '10px 15px', borderRadius: 'var(--radius)', border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '110px', borderLeft: '4px solid #10b981' }}>
+            <span style={{ color: 'var(--gray)', fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>Recaudado</span>
+            <strong style={{ fontSize: '1.2rem', color: '#10b981', marginTop: '2px' }}>${totalRecaudado.toLocaleString('es-MX')}</strong>
           </div>
-          <div style={{ background: 'var(--white)', padding: '12px 20px', borderRadius: 'var(--radius)', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)', display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '130px', borderBottom: '4px solid #ef4444' }}>
-            <span style={{ color: 'var(--gray)', fontSize: '0.8rem', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>Por Cobrar</span>
-            <strong style={{ fontSize: '1.4rem', color: '#ef4444', marginTop: '4px' }}>${totalAdeudo.toLocaleString('es-MX')}</strong>
+          <div style={{ background: 'var(--white)', padding: '10px 15px', borderRadius: 'var(--radius)', border: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '110px', borderLeft: '4px solid #ef4444' }}>
+            <span style={{ color: 'var(--gray)', fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>Por Cobrar</span>
+            <strong style={{ fontSize: '1.2rem', color: '#ef4444', marginTop: '2px' }}>${totalAdeudo.toLocaleString('es-MX')}</strong>
           </div>
         </div>
       </div>
