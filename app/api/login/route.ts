@@ -43,7 +43,7 @@ export async function POST(request: Request) {
         email: usuario.email,
         rol: usuario.rol
       },
-      redirect: usuario.rol === 'admin' ? '/admin' : '/alumno'
+      redirect: usuario.rol === 'admin' ? '/admin' : usuario.rol === 'profesor' ? '/profesor' : '/alumno'
     });
 
     response.headers.set('Set-Cookie', setTokenCookie(token));

@@ -65,6 +65,14 @@ export default function AlumnoPage() {
           return
         }
 
+        if (userData.rol === 'admin') {
+          router.push('/admin')
+          return
+        } else if (userData.rol === 'profesor') {
+          router.push('/profesor')
+          return
+        }
+
         setUsuario(userData)
 
         const inscRes = await fetch('/api/alumno/inscripciones', { credentials: 'include' })

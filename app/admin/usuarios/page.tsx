@@ -60,7 +60,7 @@ export default function UsuariosPage() {
     edad: '',
     fecha_cumpleanos: '',
     password: '',
-    rol: 'alumno',
+    rol: '',
     activo: true,
     genero: '',
     tipo_curso: '',
@@ -146,7 +146,7 @@ export default function UsuariosPage() {
     setShowPassword(false)
     setFormData({
       nombre: '', celular: '', email: '', edad: '', fecha_cumpleanos: '',
-      password: '', rol: 'alumno', activo: true,
+      password: '', rol: '', activo: true,
       genero: '', tipo_curso: '', turno: '', dia: '',
       estado_pago: '', estado: '', lunes: false, martes: false, miercoles: false,
       jueves: false, sabado: false, horario: '', grupo_id: ''
@@ -186,6 +186,11 @@ export default function UsuariosPage() {
   const handleSave = async () => {
     if (!formData.nombre.trim() || !formData.celular.trim()) {
       alert('Nombre y celular son requeridos')
+      return
+    }
+
+    if (!formData.rol) {
+      alert('Debes seleccionar un rol para el usuario.')
       return
     }
 
@@ -476,6 +481,16 @@ export default function UsuariosPage() {
               {/* Datos básicos */}
               <h3 style={{ margin: '0 0 15px 0', fontSize: '1rem', color: 'var(--gray)' }}>Datos Básicos</h3>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 600, color: 'var(--primary)' }}>Rol en el Sistema *</label>
+                  <select value={formData.rol} onChange={(e) => setFormData({ ...formData, rol: e.target.value })}
+                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '2px solid var(--primary)', background: '#fafafa', fontSize: '1.05rem', fontWeight: 500 }}>
+                    <option value="" disabled>-- Selecciona un Rol --</option>
+                    <option value="alumno">Alumno</option>
+                    <option value="profesor">Profesor</option>
+                    <option value="admin">Administrador</option>
+                  </select>
+                </div>
                 <div>
                   <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Nombre *</label>
                   <input type="text" value={formData.nombre} onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
@@ -512,114 +527,118 @@ export default function UsuariosPage() {
                 </div>
               </div>
 
-              {/* Curso y horarios */}
-              <h3 style={{ margin: '0 0 15px 0', fontSize: '1rem', color: 'var(--gray)' }}>Curso y Horarios</h3>
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Grupo</label>
-                <select value={formData.grupo_id} onChange={(e) => setFormData({ ...formData, grupo_id: e.target.value, turno: '', horario: '' })}
-                  style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }}>
-                  <option value="">Sin grupo asignado</option>
-                  {grupos.filter(g => g.activo).map(g => (
-                    <option key={g.id} value={g.id}>{g.nombre}</option>
-                  ))}
-                </select>
-              </div>
-
-              {formData.grupo_id && horariosDisponibles.length > 0 ? (
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Turno y Horario</label>
-                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                    {horariosDisponibles.map((h, idx) => {
-                      const isSelected = formData.turno === h.turno && formData.horario === h.horario
-                      const isMatutino = h.turno === 'Matutino'
-                      return (
-                        <button
-                          key={idx}
-                          type="button"
-                          onClick={() => setFormData({ ...formData, turno: h.turno, horario: h.horario })}
-                          style={{
-                            flex: '1 1 calc(50% - 5px)',
-                            minWidth: '200px',
-                            padding: '12px',
-                            borderRadius: 'var(--radius)',
-                            cursor: 'pointer',
-                            border: isSelected ? '2px solid var(--primary)' : '1px solid #ddd',
-                            background: isSelected ? 'var(--primary)' : (isMatutino ? '#fef3c7' : '#e0e7ff'),
-                            color: isSelected ? 'white' : (isMatutino ? '#92400e' : '#3730a3'),
-                            fontWeight: 600,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            gap: '4px'
-                          }}
-                        >
-                          <span>{isMatutino ? 'A (Matutino)' : 'B (Vespertino)'}</span>
-                          <span style={{ fontSize: '0.85rem', fontWeight: 500 }}>{h.horario}</span>
-                        </button>
-                      )
-                    })}
+              {/* Curso y horarios y Estado se muestran solo a alumnos */}
+              {formData.rol === 'alumno' && (
+                <>
+                  <h3 style={{ margin: '0 0 15px 0', fontSize: '1rem', color: 'var(--gray)' }}>Curso y Horarios</h3>
+                  <div style={{ marginBottom: '15px' }}>
+                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Grupo</label>
+                    <select value={formData.grupo_id} onChange={(e) => setFormData({ ...formData, grupo_id: e.target.value, turno: '', horario: '' })}
+                      style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }}>
+                      <option value="">Sin grupo asignado</option>
+                      {grupos.filter(g => g.activo).map(g => (
+                        <option key={g.id} value={g.id}>{g.nombre}</option>
+                      ))}
+                    </select>
                   </div>
-                </div>
-              ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Turno</label>
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                      <button type="button" onClick={() => setFormData({ ...formData, turno: 'Matutino' })}
-                        style={{
-                          flex: 1, padding: '12px', borderRadius: 'var(--radius)', cursor: 'pointer',
-                          border: formData.turno === 'Matutino' ? '2px solid var(--primary)' : '1px solid #ddd',
-                          background: formData.turno === 'Matutino' ? 'var(--primary)' : 'white',
-                          color: formData.turno === 'Matutino' ? 'white' : '#333',
-                          fontWeight: 600
-                        }}>
-                        A (Matutino)
-                      </button>
-                      <button type="button" onClick={() => setFormData({ ...formData, turno: 'Vespertino' })}
-                        style={{
-                          flex: 1, padding: '12px', borderRadius: 'var(--radius)', cursor: 'pointer',
-                          border: formData.turno === 'Vespertino' ? '2px solid var(--primary)' : '1px solid #ddd',
-                          background: formData.turno === 'Vespertino' ? 'var(--primary)' : 'white',
-                          color: formData.turno === 'Vespertino' ? 'white' : '#333',
-                          fontWeight: 600
-                        }}>
-                        B (Vespertino)
-                      </button>
+
+                  {formData.grupo_id && horariosDisponibles.length > 0 ? (
+                    <div style={{ marginBottom: '20px' }}>
+                      <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Turno y Horario</label>
+                      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                        {horariosDisponibles.map((h, idx) => {
+                          const isSelected = formData.turno === h.turno && formData.horario === h.horario
+                          const isMatutino = h.turno === 'Matutino'
+                          return (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => setFormData({ ...formData, turno: h.turno, horario: h.horario })}
+                              style={{
+                                flex: '1 1 calc(50% - 5px)',
+                                minWidth: '200px',
+                                padding: '12px',
+                                borderRadius: 'var(--radius)',
+                                cursor: 'pointer',
+                                border: isSelected ? '2px solid var(--primary)' : '1px solid #ddd',
+                                background: isSelected ? 'var(--primary)' : (isMatutino ? '#fef3c7' : '#e0e7ff'),
+                                color: isSelected ? 'white' : (isMatutino ? '#92400e' : '#3730a3'),
+                                fontWeight: 600,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                gap: '4px'
+                              }}
+                            >
+                              <span>{isMatutino ? 'A (Matutino)' : 'B (Vespertino)'}</span>
+                              <span style={{ fontSize: '0.85rem', fontWeight: 500 }}>{h.horario}</span>
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Turno</label>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                          <button type="button" onClick={() => setFormData({ ...formData, turno: 'Matutino' })}
+                            style={{
+                              flex: 1, padding: '12px', borderRadius: 'var(--radius)', cursor: 'pointer',
+                              border: formData.turno === 'Matutino' ? '2px solid var(--primary)' : '1px solid #ddd',
+                              background: formData.turno === 'Matutino' ? 'var(--primary)' : 'white',
+                              color: formData.turno === 'Matutino' ? 'white' : '#333',
+                              fontWeight: 600
+                            }}>
+                            A (Matutino)
+                          </button>
+                          <button type="button" onClick={() => setFormData({ ...formData, turno: 'Vespertino' })}
+                            style={{
+                              flex: 1, padding: '12px', borderRadius: 'var(--radius)', cursor: 'pointer',
+                              border: formData.turno === 'Vespertino' ? '2px solid var(--primary)' : '1px solid #ddd',
+                              background: formData.turno === 'Vespertino' ? 'var(--primary)' : 'white',
+                              color: formData.turno === 'Vespertino' ? 'white' : '#333',
+                              fontWeight: 600
+                            }}>
+                            B (Vespertino)
+                          </button>
+                        </div>
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Horario</label>
+                        <input type="text" value={formData.horario} onChange={(e) => setFormData({ ...formData, horario: e.target.value })}
+                          placeholder="Ej: 10:00 a 11:30"
+                          style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }} />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Estado */}
+                  <h3 style={{ margin: '0 0 15px 0', fontSize: '1rem', color: 'var(--gray)' }}>Estado</h3>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Estado de Pago</label>
+                      <select value={formData.estado_pago} onChange={(e) => setFormData({ ...formData, estado_pago: e.target.value })}
+                        style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }}>
+                        <option value="">Seleccionar</option>
+                        <option value="Pendiente de pago">Pendiente de pago</option>
+                        <option value="Pagado">Pagado</option>
+                        <option value="Parcial">Parcial</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Estado</label>
+                      <select value={formData.estado} onChange={(e) => setFormData({ ...formData, estado: e.target.value })}
+                        style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }}>
+                        <option value="">Seleccionar</option>
+                        <option value="Confirmado">Confirmado</option>
+                        <option value="Pendiente Horario">Pendiente Horario</option>
+                        <option value="Cancelado">Cancelado</option>
+                      </select>
                     </div>
                   </div>
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Horario</label>
-                    <input type="text" value={formData.horario} onChange={(e) => setFormData({ ...formData, horario: e.target.value })}
-                      placeholder="Ej: 10:00 a 11:30"
-                      style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }} />
-                  </div>
-                </div>
+                </>
               )}
-
-              {/* Estado */}
-              <h3 style={{ margin: '0 0 15px 0', fontSize: '1rem', color: 'var(--gray)' }}>Estado</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Estado de Pago</label>
-                  <select value={formData.estado_pago} onChange={(e) => setFormData({ ...formData, estado_pago: e.target.value })}
-                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }}>
-                    <option value="">Seleccionar</option>
-                    <option value="Pendiente de pago">Pendiente de pago</option>
-                    <option value="Pagado">Pagado</option>
-                    <option value="Parcial">Parcial</option>
-                  </select>
-                </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Estado</label>
-                  <select value={formData.estado} onChange={(e) => setFormData({ ...formData, estado: e.target.value })}
-                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }}>
-                    <option value="">Seleccionar</option>
-                    <option value="Confirmado">Confirmado</option>
-                    <option value="Pendiente Horario">Pendiente Horario</option>
-                    <option value="Cancelado">Cancelado</option>
-                  </select>
-                </div>
-              </div>
 
               {/* Sistema */}
               <h3 style={{ margin: '0 0 15px 0', fontSize: '1rem', color: 'var(--gray)' }}>Sistema</h3>
@@ -651,15 +670,6 @@ export default function UsuariosPage() {
                       <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
                     </button>
                   </div>
-                </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Rol</label>
-                  <select value={formData.rol} onChange={(e) => setFormData({ ...formData, rol: e.target.value })}
-                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }}>
-                    <option value="alumno">Alumno</option>
-                    <option value="profesor">Profesor</option>
-                    <option value="admin">Administrador</option>
-                  </select>
                 </div>
               </div>
 
