@@ -15,6 +15,7 @@ interface Usuario {
   horario: string | null
   estado: string | null
   grupo_id: number | null
+  activo?: boolean
 }
 
 interface Grupo {
@@ -90,11 +91,19 @@ export default function HorariosPage() {
   }
 
   const getUsuariosPorGrupo = (grupoId: number) => {
-    return usuarios.filter(u => u.grupo_id === grupoId)
+    return usuarios.filter(u => 
+      u.grupo_id === grupoId && 
+      u.activo !== false && 
+      (!u.estado || (u.estado.toLowerCase() !== 'inactivo' && u.estado.toLowerCase() !== 'cancelado'))
+    )
   }
 
   const getUsuariosSinGrupo = () => {
-    return usuarios.filter(u => u.grupo_id === null)
+    return usuarios.filter(u => 
+      u.grupo_id === null && 
+      u.activo !== false && 
+      (!u.estado || (u.estado.toLowerCase() !== 'inactivo' && u.estado.toLowerCase() !== 'cancelado'))
+    )
   }
 
   const agruparPorHorario = (usuariosGrupo: Usuario[]) => {
