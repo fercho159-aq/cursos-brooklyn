@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faClock, faUsers, faCheckCircle, faSignOutAlt } from '@fortawesome/free-solid-svg-icons'
+import { faClock, faUsers, faCheckCircle, faSignOutAlt, faCalendarDay, faGraduationCap, faSun, faMoon, faStar } from '@fortawesome/free-solid-svg-icons'
 
 interface GrupoData {
   id: number
@@ -79,64 +79,83 @@ export default function ProfesorDashboard() {
     }
   }
 
-  if (loading) return <div style={{ padding: '30px' }}>Cargando panel...</div>;
+  if (loading) return (
+    <div style={{ padding: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
+      <div style={{ width: '40px', height: '40px', border: '3px solid rgba(249, 115, 22, 0.2)', borderTopColor: '#ea580c', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+      <p style={{ marginTop: '15px', color: '#6b7280', fontWeight: 500 }}>Preparando tu panel...</p>
+      <style>{`@keyframes spin { 100% { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
 
   return (
-    <div style={{ padding: '30px' }}>
-      <h1 style={{ marginBottom: '20px' }}>Bienvenido, Profesor</h1>
+    <div style={{ padding: '40px 30px', maxWidth: '1200px', margin: '0 auto' }}>
+      <div style={{ marginBottom: '40px', display: 'flex', alignItems: 'center', gap: '15px' }}>
+        <div style={{ width: '50px', height: '50px', borderRadius: '15px', background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', boxShadow: '0 10px 20px rgba(234, 88, 12, 0.3)' }}>
+          <FontAwesomeIcon icon={faStar} style={{ fontSize: '1.5rem' }} />
+        </div>
+        <div>
+          <h1 style={{ margin: '0 0 5px 0', fontSize: '2rem', fontWeight: 800, color: '#111827', letterSpacing: '-0.02em' }}>Bienvenido, Profesor</h1>
+          <p style={{ margin: 0, color: '#6b7280', fontSize: '1.05rem' }}>Aquí está el resumen de tu día de trabajo y grupo asignado.</p>
+        </div>
+      </div>
 
-      <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '30px' }}>
+      <div style={{ display: 'flex', gap: '30px', flexWrap: 'wrap', marginBottom: '30px' }}>
         {/* Tarjeta de Checador */}
-        <div style={{
-          background: 'var(--white)', padding: '25px', borderRadius: 'var(--radius)',
-          boxShadow: 'var(--shadow)', flex: '1 1 300px',
+        <div className="glass-card" style={{
+          padding: '30px', flex: '1 1 400px',
           display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'
         }}>
-          <h2 style={{ fontSize: '1.2rem', margin: '0 0 15px 0', color: 'var(--gray)' }}>
-            Mi Asistencia ({new Date().toLocaleDateString('es-MX')})
-          </h2>
+          <div style={{ background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)', width: '60px', height: '60px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '15px', color: '#2563eb' }}>
+            <FontAwesomeIcon icon={faClock} style={{ fontSize: '1.5rem' }} />
+          </div>
+          <h2 style={{ fontSize: '1.4rem', fontWeight: 700, margin: '0 0 5px 0', color: '#1f2937' }}>Mi Checador</h2>
+          <p style={{ margin: '0 0 25px 0', color: '#6b7280', fontSize: '0.95rem' }}>{new Date().toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
 
-          <div style={{ display: 'flex', gap: '20px', width: '100%', justifyContent: 'center', marginTop: '10px' }}>
-            <div style={{ flex: 1, padding: '15px', background: asistencia ? '#ecfdf5' : '#f9fafb', borderRadius: 'var(--radius)', border: '1px solid #eee' }}>
-              <p style={{ margin: '0 0 5px 0', fontWeight: 600, color: 'var(--gray)' }}>Entrada</p>
+          <div style={{ display: 'flex', gap: '20px', width: '100%', justifyContent: 'center' }}>
+            <div style={{ flex: 1, padding: '20px', background: asistencia ? 'rgba(16, 185, 129, 0.06)' : '#ffffff', borderRadius: '20px', border: asistencia ? '1px solid rgba(16, 185, 129, 0.2)' : '1px solid #e5e7eb', transition: 'all 0.3s' }}>
+              <p style={{ margin: '0 0 10px 0', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', fontSize: '0.8rem', letterSpacing: '0.05em' }}>Entrada</p>
               {asistencia ? (
-                <div style={{ color: '#10b981', fontSize: '1.2rem', fontWeight: 700 }}>
-                  <FontAwesomeIcon icon={faCheckCircle} style={{ marginRight: '5px' }} />
+                <div style={{ color: '#059669', fontSize: '1.4rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                  <FontAwesomeIcon icon={faCheckCircle} />
                   {asistencia.hora_entrada.slice(0, 5)} hrs
                 </div>
               ) : (
                 <button
+                  className="animated-button"
                   onClick={() => marcarAsistencia('entrada')}
                   disabled={marcando}
                   style={{
-                    padding: '10px 20px', background: 'var(--primary)', color: 'white',
-                    border: 'none', borderRadius: '50px', fontWeight: 600, cursor: marcando ? 'wait' : 'pointer'
+                    width: '100%', padding: '12px 15px', background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)', color: 'white',
+                    border: 'none', borderRadius: '12px', fontWeight: 600, cursor: marcando ? 'wait' : 'pointer',
+                    boxShadow: '0 4px 14px rgba(234, 88, 12, 0.3)'
                   }}
                 >
                   <FontAwesomeIcon icon={faClock} style={{ marginRight: '8px' }} />
-                  Registrar Entrada
+                  Marcar Entrada
                 </button>
               )}
             </div>
 
-            <div style={{ flex: 1, padding: '15px', background: asistencia?.hora_salida ? '#ecfdf5' : '#f9fafb', borderRadius: 'var(--radius)', border: '1px solid #eee' }}>
-              <p style={{ margin: '0 0 5px 0', fontWeight: 600, color: 'var(--gray)' }}>Salida</p>
+            <div style={{ flex: 1, padding: '20px', background: asistencia?.hora_salida ? 'rgba(16, 185, 129, 0.06)' : '#ffffff', borderRadius: '20px', border: asistencia?.hora_salida ? '1px solid rgba(16, 185, 129, 0.2)' : '1px solid #e5e7eb', transition: 'all 0.3s' }}>
+              <p style={{ margin: '0 0 10px 0', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', fontSize: '0.8rem', letterSpacing: '0.05em' }}>Salida</p>
               {asistencia?.hora_salida ? (
-                <div style={{ color: '#10b981', fontSize: '1.2rem', fontWeight: 700 }}>
-                  <FontAwesomeIcon icon={faCheckCircle} style={{ marginRight: '5px' }} />
+                <div style={{ color: '#059669', fontSize: '1.4rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                  <FontAwesomeIcon icon={faCheckCircle} />
                   {asistencia.hora_salida.slice(0, 5)} hrs
                 </div>
               ) : (
                  <button
+                  className="animated-button"
                   onClick={() => marcarAsistencia('salida')}
                   disabled={!asistencia || marcando}
                   style={{
-                    padding: '10px 20px', background: asistencia ? '#ef4444' : '#ccc', color: 'white',
-                    border: 'none', borderRadius: '50px', fontWeight: 600, cursor: (!asistencia || marcando) ? 'not-allowed' : 'pointer'
+                    width: '100%', padding: '12px 15px', background: asistencia ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' : '#e5e7eb', color: asistencia ? 'white' : '#9ca3af',
+                    border: 'none', borderRadius: '12px', fontWeight: 600, cursor: (!asistencia || marcando) ? 'not-allowed' : 'pointer',
+                    boxShadow: asistencia ? '0 4px 14px rgba(239, 68, 68, 0.3)' : 'none'
                   }}
                 >
                   <FontAwesomeIcon icon={faSignOutAlt} style={{ marginRight: '8px' }} />
-                  Registrar Salida
+                  Marcar Salida
                 </button>
               )}
             </div>
@@ -144,35 +163,63 @@ export default function ProfesorDashboard() {
         </div>
 
         {/* Tarjeta de Grupo */}
-        <div style={{
-          background: 'var(--white)', padding: '25px', borderRadius: 'var(--radius)',
-          boxShadow: 'var(--shadow)', flex: '1 1 300px'
+        <div className="glass-card" style={{
+          padding: '30px', flex: '1 1 400px'
         }}>
-          <h2 style={{ fontSize: '1.2rem', margin: '0 0 15px 0', color: 'var(--gray)' }}>Mi Grupo Asignado</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '25px' }}>
+            <div style={{ background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(109, 40, 217, 0.05) 100%)', width: '50px', height: '50px', borderRadius: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#7c3aed' }}>
+              <FontAwesomeIcon icon={faGraduationCap} style={{ fontSize: '1.3rem' }} />
+            </div>
+            <h2 style={{ fontSize: '1.4rem', fontWeight: 700, margin: 0, color: '#1f2937' }}>Mi Grupo Asignado</h2>
+          </div>
           {grupo ? (
-            <div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--primary)', marginBottom: '10px' }}>
-                {grupo.nombre}
+            <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+              <div style={{ background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(124, 58, 237, 0.02) 100%)', padding: '20px', borderRadius: '16px', border: '1px solid rgba(139, 92, 246, 0.1)', flex: 1 }}>
+                <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#5b21b6', marginBottom: '20px', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#8b5cf6', boxShadow: '0 0 10px rgba(139, 92, 246, 0.5)' }}></div>
+                  {grupo.nombre}
+                </div>
+                
+                <div style={{ display: 'grid', gap: '15px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px', background: '#ffffff', borderRadius: '12px', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }}>
+                    <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280' }}>
+                      <FontAwesomeIcon icon={faCalendarDay} />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#9ca3af', textTransform: 'uppercase' }}>Días</div>
+                      <div style={{ fontSize: '0.95rem', fontWeight: 600, color: '#374151' }}>{grupo.dias}</div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px', background: '#ffffff', borderRadius: '12px', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }}>
+                    <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: '#fffbeb', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d97706' }}>
+                      <FontAwesomeIcon icon={grupo.turno?.toLowerCase().includes('matutino') ? faSun : faMoon} />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#9ca3af', textTransform: 'uppercase' }}>Horario Asignado</div>
+                      <div style={{ fontSize: '0.95rem', fontWeight: 600, color: '#374151' }}>{grupo.turno ? `${grupo.turno} - ` : ''}{grupo.horario || 'Horario General'}</div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px', background: '#ffffff', borderRadius: '12px', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }}>
+                    <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: '#ecfdf5', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#059669' }}>
+                      <FontAwesomeIcon icon={faUsers} />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#9ca3af', textTransform: 'uppercase' }}>Alumnos en tu bloque</div>
+                      <div style={{ fontSize: '0.95rem', fontWeight: 600, color: '#374151' }}>{totalAlumnos} Estudiantes</div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0, color: 'var(--gray)' }}>
-                <li style={{ padding: '8px 0', borderBottom: '1px solid #eee' }}>
-                  <strong>Días:</strong> {grupo.dias}
-                </li>
-                <li style={{ padding: '8px 0', borderBottom: '1px solid #eee' }}>
-                  <strong>Turno:</strong> {grupo.turno || 'N/A'}
-                </li>
-                <li style={{ padding: '8px 0', borderBottom: '1px solid #eee' }}>
-                  <strong>Horario:</strong> {grupo.horario || 'N/A'}
-                </li>
-                <li style={{ padding: '8px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <FontAwesomeIcon icon={faUsers} />
-                  <strong>Total Alumnos:</strong> {totalAlumnos}
-                </li>
-              </ul>
             </div>
           ) : (
-            <div style={{ padding: '20px', textAlign: 'center', color: 'var(--gray)', background: '#f9fafb', borderRadius: 'var(--radius)' }}>
-              No tienes ningún grupo asignado actualmente.
+            <div style={{ padding: '40px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: '200px' }}>
+              <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af', marginBottom: '15px' }}>
+                <FontAwesomeIcon icon={faUsers} style={{ fontSize: '1.5rem' }} />
+              </div>
+              <h3 style={{ margin: '0 0 10px 0', color: '#374151', fontSize: '1.1rem' }}>Sin grupos asignados</h3>
+              <p style={{ margin: 0, color: '#6b7280', fontSize: '0.9rem', maxWidth: '80%' }}>No tienes ningún bloque horario asignado para impartir clases actualmente.</p>
             </div>
           )}
         </div>
