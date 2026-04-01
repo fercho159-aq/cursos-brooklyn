@@ -30,6 +30,7 @@ export default function Footer() {
             <ul>
               <li><Link href="/cursos/ingles">Ingles</Link></li>
               <li><Link href="/cursos/marketing">Marketing Digital</Link></li>
+              <li><Link href="/registro-clase-muestra">Clase Muestra</Link></li>
             </ul>
           </div>
           <div className="footer-links">

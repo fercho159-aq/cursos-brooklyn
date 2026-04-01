@@ -1,0 +1,142 @@
+{
+  "grupos": [
+    {
+      "id": 1,
+      "nombre": "Lunes y Miércoles",
+      "dias": "Lunes y Miércoles",
+      "turno": "Matutino",
+      "horario": "10:00 a 11:30",
+      "color": "#ec4899",
+      "activo": true,
+      "created_at": "2026-01-28T01:27:42.411Z",
+      "profesor_id": 57
+    },
+    {
+      "id": 2,
+      "nombre": "Martes y Jueves",
+      "dias": "Martes y Jueves",
+      "turno": "Vespertino",
+      "horario": "3:30 a 5:00",
+      "color": "#8b5cf6",
+      "activo": true,
+      "created_at": "2026-01-28T01:27:42.411Z",
+      "profesor_id": 58
+    },
+    {
+      "id": 3,
+      "nombre": "Sábado",
+      "dias": "Sábado",
+      "turno": "Matutino",
+      "horario": "9:00 a 12:00",
+      "color": "#84cc16",
+      "activo": true,
+      "created_at": "2026-01-28T01:27:42.411Z",
+      "profesor_id": 59
+    },
+    {
+      "id": 4,
+      "nombre": "Domingos",
+      "dias": "Domingo",
+      "turno": "Vespertino",
+      "horario": "2 a 3pm",
+      "color": "#3b82f6",
+      "activo": true,
+      "created_at": "2026-01-29T07:50:40.880Z",
+      "profesor_id": null
+    }
+  ],
+  "mappings": [
+    {
+      "grupo_id": 2,
+      "turno": "Vespertino",
+      "horario": "3:30 a 5:00",
+      "profesor_id": 58
+    },
+    {
+      "grupo_id": 1,
+      "turno": "Matutino",
+      "horario": "10:00 a 11:30",
+      "profesor_id": 57
+    },
+    {
+      "grupo_id": 3,
+      "turno": "Matutino",
+      "horario": "9:00 a 12:00",
+      "profesor_id": 57
+    }
+  ],
+  "alumnos": [
+    {
+      "id": 18,
+      "nombre": "Katherine Guadalupe Vazquez Romero",
+      "turno": "Vespertino",
+      "horario": "3:30 a 5:00"
+    },
+    {
+      "id": 17,
+      "nombre": "Roberto Zacarías Vázquez Rojas",
+      "turno": "Vespertino",
+      "horario": "3:30 a 5:00"
+    },
+    {
+      "id": 38,
+      "nombre": "Raquel Morales López",
+      "turno": "Vespertino",
+      "horario": "3:30 a 5:00"
+    },
+    {
+      "id": 48,
+      "nombre": "Rosa María Salazar",
+      "turno": "Matutino",
+      "horario": "9:00 a 3:00"
+    },
+    {
+      "id": 15,
+      "nombre": "Luz María Flores Chávez",
+      "turno": "Vespertino",
+      "horario": "3:30 a 5:00"
+    },
+    {
+      "id": 37,
+      "nombre": "Sandibel Sostenes Jwon",
+      "turno": "Vespertino",
+      "horario": "3:30 a 5:00"
+    },
+    {
+      "id": 49,
+      "nombre": "Luis Gustavo Contreras",
+      "turno": "Matutino",
+      "horario": "9:00 a 3:00"
+    },
+    {
+      "id": 25,
+      "nombre": "Leticia Hernandez Martinez",
+      "turno": "Vespertino",
+      "horario": "3:30 a 5:00"
+    },
+    {
+      "id": 23,
+      "nombre": "Karina Solorio",
+      "turno": "Vespertino",
+      "horario": "3:30 a 5:00"
+    },
+    {
+      "id": 55,
+      "nombre": "Luis Eduardo",
+      "turno": "Vespertino",
+      "horario": "3:30 a 5:00"
+    },
+    {
+      "id": 53,
+      "nombre": "Pablo Medina Gonzales",
+      "turno": "Vespertino",
+      "horario": "3:30 a 5:00"
+    },
+    {
+      "id": 54,
+      "nombre": "Gadiel Jimenez Santana",
+      "turno": "Vespertino",
+      "horario": "3:30 a 5:00"
+    }
+  ]
+}

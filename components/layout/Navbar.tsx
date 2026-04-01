@@ -30,6 +30,7 @@ export default function Navbar() {
           <ul className="nav-list">
             <li><Link href="/#inicio" className="nav-link">Inicio</Link></li>
             <li><Link href="/cursos" className="nav-link">Cursos</Link></li>
+            <li><Link href="/registro-clase-muestra" className="nav-link highlight" style={{ fontWeight: 600 }}>Clase Muestra</Link></li>
             <li><Link href="/porque-brooklyn" className="nav-link">¿Por qué Brooklyn?</Link></li>
             <li><Link href="/#promociones" className="nav-link">Promociones</Link></li>
             <li><Link href="/#sedes" className="nav-link">Sedes</Link></li>

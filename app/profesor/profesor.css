@@ -1,0 +1,174 @@
+/* app/profesor/profesor.css */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+
+html, body {
+  background-color: #050505 !important;
+  color: #f3f4f6 !important;
+}
+
+.profesor-dashboard-container {
+  background-color: #050505;
+  color: #f3f4f6;
+  min-height: 100vh;
+  font-family: 'Outfit', sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animated Dark Orbs Background */
+.bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.6;
+  z-index: 0;
+  animation: floatOrb 20s infinite ease-in-out alternate;
+}
+.orb-1 { width: 600px; height: 600px; background: rgba(139, 92, 246, 0.2); top: -200px; left: -100px; animation-delay: 0s; }
+.orb-2 { width: 500px; height: 500px; background: rgba(234, 179, 8, 0.15); bottom: -150px; right: -100px; animation-delay: -5s; }
+.orb-3 { width: 400px; height: 400px; background: rgba(14, 165, 233, 0.15); top: 30%; left: 40%; animation-delay: -10s; }
+
+.bg-mesh {
+  position: absolute; inset: 0; z-index: 0;
+  background-image: radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 30px 30px;
+  opacity: 0.5;
+}
+
+.content-fade-in {
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Glassmorphism Classes */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.6) !important;
+  backdrop-filter: blur(30px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(150%) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-card {
+  background: rgba(30, 41, 59, 0.4) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  border-radius: 28px !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-card::before {
+  content: "";
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  opacity: 0.5;
+}
+
+.glass-card:hover {
+  transform: translateY(-8px) !important;
+  box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 0 40px rgba(234, 179, 8, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Nav links & Hover effects */
+.nav-link {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #fff !important;
+  transform: translateX(8px);
+}
+.active-nav-link {
+  transform: scale(1.02);
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+}
+
+.hover-glow {
+  transition: all 0.3s !important;
+}
+.hover-glow:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
+}
+
+/* Animated Buttons */
+.animated-button {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  position: relative;
+  overflow: hidden;
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: 0.03em;
+  border: none;
+  cursor: pointer;
+}
+
+.animated-button::after {
+  content: "";
+  position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 50%);
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.6s ease-out;
+}
+
+.animated-button:hover:not(:disabled) {
+  transform: translateY(-4px) scale(1.03) !important;
+  box-shadow: 0 15px 30px rgba(0,0,0,0.4) !important;
+}
+.animated-button:hover:not(:disabled)::after {
+  opacity: 1;
+  transform: scale(1);
+}
+.animated-button:active:not(:disabled) {
+  transform: translateY(1px) scale(0.97) !important;
+}
+
+.badge-pulse {
+  animation: pulse-neon 2s infinite;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(40px) scale(0.95); filter: blur(10px); }
+  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+@keyframes floatOrb {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  50% { transform: translate(50px, 30px) rotate(180deg) scale(1.1); }
+  100% { transform: translate(-20px, 50px) rotate(360deg) scale(0.9); }
+}
+
+@keyframes pulse-neon {
+  0% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.6), 0 0 20px rgba(234, 179, 8, 0.4); }
+  70% { box-shadow: 0 0 0 15px rgba(234, 179, 8, 0), 0 0 40px rgba(234, 179, 8, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0), 0 0 20px rgba(234, 179, 8, 0); }
+}
+
+/* Scrollbar styling specifically for teacher view */
+.profesor-dashboard-container ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.profesor-dashboard-container ::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+.profesor-dashboard-container ::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 10px;
+}
+.profesor-dashboard-container ::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+@media (max-width: 768px) {
+  .profesor-sidebar { display: none !important; }
+  .profesor-mobile-header { display: flex !important; background: rgba(15,23,42,0.8) !important; backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .profesor-main-content { margin-left: 0 !important; padding-top: 60px; }
+}

@@ -12,10 +12,12 @@ export async function GET(request: Request) {
   try {
     // Buscamos cualquier grupo al que esté asignado (directamente o por horario)
     const gruposRes = await pool.query(
-      `SELECT DISTINCT g.id, g.nombre, g.dias, g.turno, g.horario
+      `SELECT g.id, g.nombre, g.dias, 
+              COALESCE((SELECT turno FROM grupo_horarios_profesores WHERE grupo_id = g.id AND profesor_id = $1 LIMIT 1), g.turno) as turno,
+              COALESCE((SELECT horario FROM grupo_horarios_profesores WHERE grupo_id = g.id AND profesor_id = $1 LIMIT 1), g.horario) as horario
        FROM grupos g
-       LEFT JOIN grupo_horarios_profesores ghp ON g.id = ghp.grupo_id
-       WHERE g.profesor_id = $1 OR ghp.profesor_id = $1
+       WHERE g.profesor_id = $1 
+          OR EXISTS (SELECT 1 FROM grupo_horarios_profesores WHERE grupo_id = g.id AND profesor_id = $1)
        LIMIT 1`,
       [usuario.id]
     );
@@ -37,12 +39,29 @@ export async function GET(request: Request) {
        WHERE u.activo = true 
          AND (u.estado IS NULL OR LOWER(u.estado) NOT IN ('inactivo', 'cancelado'))
          AND u.rol = 'alumno'
-         AND $1 = COALESCE(
-             (SELECT profesor_id FROM grupo_horarios_profesores ghp 
-              WHERE ghp.grupo_id = u.grupo_id 
-                AND ghp.turno = COALESCE(u.turno, '') 
-                AND ghp.horario = COALESCE(u.horario, '')),
-             g.profesor_id
+         AND (
+             EXISTS (
+                 SELECT 1 FROM grupo_horarios_profesores ghp
+                 WHERE ghp.grupo_id = u.grupo_id 
+                   AND ghp.turno = COALESCE(u.turno, '') 
+                   AND ghp.horario = COALESCE(u.horario, '')
+                   AND ghp.profesor_id = $1
+             )
+             OR
+             (
+                 $1 = g.profesor_id
+                 AND NOT EXISTS (
+                     SELECT 1 FROM grupo_horarios_profesores ghp
+                     WHERE ghp.grupo_id = u.grupo_id 
+                       AND ghp.turno = COALESCE(u.turno, '') 
+                       AND ghp.horario = COALESCE(u.horario, '')
+                 )
+                 AND NOT EXISTS (
+                     SELECT 1 FROM grupo_horarios_profesores ghp
+                     WHERE ghp.grupo_id = u.grupo_id
+                       AND ghp.profesor_id = $1
+                 )
+             )
          )
        ORDER BY u.nombre`,
       [usuario.id]

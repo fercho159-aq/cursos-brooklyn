@@ -23,6 +23,7 @@ const menuItems = [
   { href: '/admin/cursos', icon: faGraduationCap, label: 'Cursos' },
   { href: '/admin/horarios', icon: faCalendarAlt, label: 'Horarios' },
   { href: '/admin/inscripciones', icon: faClipboardList, label: 'Inscripciones' },
+  { href: '/admin/clase-muestra', icon: faCalendarAlt, label: 'Clase Muestra' },
   { href: '/admin/asistencias', icon: faClipboardList, label: 'Asistencias' },
   { href: '/admin/finanzas', icon: faBalanceScale, label: 'Finanzas' },
   { href: '/admin/lecciones', icon: faBook, label: 'Lecciones' },
