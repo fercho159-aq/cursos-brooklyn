@@ -249,7 +249,11 @@ export default function FinanzasPage() {
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
         <select
           value={filtroMes ?? ''}
-          onChange={(e) => setFiltroMes(e.target.value ? parseInt(e.target.value) : null)}
+          onChange={(e) => {
+            setFiltroMes(e.target.value ? parseInt(e.target.value) : null)
+            setFechaInicio('')
+            setFechaFin('')
+          }}
           style={{
             padding: '10px 15px', background: 'var(--white)', border: '1px solid #ddd',
             borderRadius: 'var(--radius)', fontWeight: 600, fontSize: '1rem', cursor: 'pointer'
@@ -280,7 +284,10 @@ export default function FinanzasPage() {
           <input 
             type="date" 
             value={fechaInicio} 
-            onChange={(e) => setFechaInicio(e.target.value)}
+            onChange={(e) => {
+              setFechaInicio(e.target.value)
+              setFiltroMes(null)
+            }}
             style={{
               padding: '9px 12px', background: 'var(--white)', border: '1px solid #ddd',
               borderRadius: 'var(--radius)', fontWeight: 500, fontSize: '0.95rem', cursor: 'pointer',
@@ -294,7 +301,10 @@ export default function FinanzasPage() {
           <input 
             type="date" 
             value={fechaFin} 
-            onChange={(e) => setFechaFin(e.target.value)}
+            onChange={(e) => {
+              setFechaFin(e.target.value)
+              setFiltroMes(null)
+            }}
             style={{
               padding: '9px 12px', background: 'var(--white)', border: '1px solid #ddd',
               borderRadius: 'var(--radius)', fontWeight: 500, fontSize: '0.95rem', cursor: 'pointer',
