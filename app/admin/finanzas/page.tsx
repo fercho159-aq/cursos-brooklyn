@@ -53,6 +53,8 @@ export default function FinanzasPage() {
 
   const [filtroMes, setFiltroMes] = useState<number | null>(null)
   const [filtroAño, setFiltroAño] = useState(new Date().getFullYear())
+  const [fechaInicio, setFechaInicio] = useState<string>('')
+  const [fechaFin, setFechaFin] = useState<string>('')
 
   // Modales
   const [modalPago, setModalPago] = useState(false)
@@ -87,16 +89,38 @@ export default function FinanzasPage() {
 
   useEffect(() => { fetchData() }, [])
 
-  // Filtrar por mes (opcional)
-  const pagosFiltrados = filtroMes ? pagos.filter(p => {
+  // Filtrar por mes y/o rango de fechas
+  const pagosFiltrados = pagos.filter(p => {
     const fecha = new Date(p.fecha_pago)
-    return fecha.getUTCMonth() + 1 === filtroMes && fecha.getUTCFullYear() === filtroAño
-  }) : pagos
+    const fechaStr = p.fecha_pago.split('T')[0]
+    
+    let passMes = true
+    if (filtroMes) {
+      passMes = fecha.getUTCMonth() + 1 === filtroMes && fecha.getUTCFullYear() === filtroAño
+    }
+    
+    let passRango = true
+    if (fechaInicio) passRango = passRango && fechaStr >= fechaInicio
+    if (fechaFin) passRango = passRango && fechaStr <= fechaFin
+      
+    return passMes && passRango
+  })
 
-  const gastosFiltrados = filtroMes ? gastos.filter(g => {
+  const gastosFiltrados = gastos.filter(g => {
     const fecha = new Date(g.fecha)
-    return fecha.getUTCMonth() + 1 === filtroMes && fecha.getUTCFullYear() === filtroAño
-  }) : gastos
+    const fechaStr = g.fecha.split('T')[0]
+    
+    let passMes = true
+    if (filtroMes) {
+      passMes = fecha.getUTCMonth() + 1 === filtroMes && fecha.getUTCFullYear() === filtroAño
+    }
+    
+    let passRango = true
+    if (fechaInicio) passRango = passRango && fechaStr >= fechaInicio
+    if (fechaFin) passRango = passRango && fechaStr <= fechaFin
+      
+    return passMes && passRango
+  })
 
   // Totales
   const totalIngresos = pagosFiltrados.reduce((sum, p) => sum + parseFloat(String(p.monto)), 0)
@@ -215,7 +239,7 @@ export default function FinanzasPage() {
         </div>
       </div>
 
-      {/* Filtro por mes */}
+      {/* Filtros */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
         <select
           value={filtroMes ?? ''}
@@ -240,12 +264,34 @@ export default function FinanzasPage() {
             {años.map(a => <option key={a} value={a}>{a}</option>)}
           </select>
         )}
-        {filtroMes && (
-          <button onClick={() => setFiltroMes(null)} style={{
+
+        {/* Separador sutil */}
+        <div style={{ width: '1px', height: '30px', background: '#ddd', margin: '0 5px' }}></div>
+
+        {/* Filtro Rango Fechas */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'var(--white)', padding: '6px 12px', border: '1px solid #ddd', borderRadius: 'var(--radius)' }}>
+          <span style={{ fontSize: '0.85rem', color: '#666', fontWeight: 600 }}>Desde</span>
+          <input 
+            type="date" 
+            value={fechaInicio} 
+            onChange={(e) => setFechaInicio(e.target.value)}
+            style={{ border: 'none', background: 'transparent', outline: 'none', color: '#333', fontSize: '0.9rem', cursor: 'pointer' }}
+          />
+          <span style={{ fontSize: '0.85rem', color: '#666', fontWeight: 600 }}>Hasta</span>
+          <input 
+            type="date" 
+            value={fechaFin} 
+            onChange={(e) => setFechaFin(e.target.value)}
+            style={{ border: 'none', background: 'transparent', outline: 'none', color: '#333', fontSize: '0.9rem', cursor: 'pointer' }}
+          />
+        </div>
+
+        {(filtroMes || fechaInicio || fechaFin) && (
+          <button onClick={() => { setFiltroMes(null); setFechaInicio(''); setFechaFin('') }} style={{
             padding: '10px 15px', background: '#f5f5f5', border: '1px solid #ddd',
             borderRadius: 'var(--radius)', cursor: 'pointer', fontSize: '0.9rem', color: '#666'
           }}>
-            <FontAwesomeIcon icon={faTimes} /> Limpiar filtro
+            <FontAwesomeIcon icon={faTimes} /> Limpiar filtros
           </button>
         )}
       </div>
