@@ -92,7 +92,10 @@ export default function FinanzasPage() {
   // Filtrar por mes y/o rango de fechas
   const pagosFiltrados = pagos.filter(p => {
     const fecha = new Date(p.fecha_pago)
-    const fechaStr = p.fecha_pago.split('T')[0]
+    const yyyy = fecha.getUTCFullYear()
+    const mm = String(fecha.getUTCMonth() + 1).padStart(2, '0')
+    const dd = String(fecha.getUTCDate()).padStart(2, '0')
+    const fechaStr = `${yyyy}-${mm}-${dd}`
     
     let passMes = true
     if (filtroMes) {
@@ -108,7 +111,10 @@ export default function FinanzasPage() {
 
   const gastosFiltrados = gastos.filter(g => {
     const fecha = new Date(g.fecha)
-    const fechaStr = g.fecha.split('T')[0]
+    const yyyy = fecha.getUTCFullYear()
+    const mm = String(fecha.getUTCMonth() + 1).padStart(2, '0')
+    const dd = String(fecha.getUTCDate()).padStart(2, '0')
+    const fechaStr = `${yyyy}-${mm}-${dd}`
     
     let passMes = true
     if (filtroMes) {
