@@ -275,20 +275,31 @@ export default function FinanzasPage() {
         <div style={{ width: '1px', height: '30px', background: '#ddd', margin: '0 5px' }}></div>
 
         {/* Filtro Rango Fechas */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'var(--white)', padding: '6px 12px', border: '1px solid #ddd', borderRadius: 'var(--radius)' }}>
-          <span style={{ fontSize: '0.85rem', color: '#666', fontWeight: 600 }}>Desde</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#666' }}>Desde:</span>
           <input 
             type="date" 
             value={fechaInicio} 
             onChange={(e) => setFechaInicio(e.target.value)}
-            style={{ border: 'none', background: 'transparent', outline: 'none', color: '#333', fontSize: '0.9rem', cursor: 'pointer' }}
+            style={{
+              padding: '9px 12px', background: 'var(--white)', border: '1px solid #ddd',
+              borderRadius: 'var(--radius)', fontWeight: 500, fontSize: '0.95rem', cursor: 'pointer',
+              color: '#333'
+            }}
           />
-          <span style={{ fontSize: '0.85rem', color: '#666', fontWeight: 600 }}>Hasta</span>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#666' }}>Hasta:</span>
           <input 
             type="date" 
             value={fechaFin} 
             onChange={(e) => setFechaFin(e.target.value)}
-            style={{ border: 'none', background: 'transparent', outline: 'none', color: '#333', fontSize: '0.9rem', cursor: 'pointer' }}
+            style={{
+              padding: '9px 12px', background: 'var(--white)', border: '1px solid #ddd',
+              borderRadius: 'var(--radius)', fontWeight: 500, fontSize: '0.95rem', cursor: 'pointer',
+              color: '#333'
+            }}
           />
         </div>
 
