@@ -90,9 +90,18 @@ export default function RegistroClaseMuestraPage() {
             Hemos recibido tu solicitud para la clase muestra en el horario de <strong>{formData.horario_elegido}</strong>. 
             Pronto un asesor se pondrá en contacto contigo al número {formData.celular} para confirmar tu asistencia.
           </p>
-          <Link href="/" className="btn btn-primary btn-lg" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px' }}>
-            <FontAwesomeIcon icon={faArrowLeft} /> Volver al Inicio
-          </Link>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', alignItems: 'center' }}>
+            <a href="https://wa.link/ajmv7o" target="_blank" rel="noopener noreferrer" className="btn btn-lg" style={{ 
+              display: 'inline-flex', alignItems: 'center', gap: '10px', 
+              background: '#25D366', color: 'white', fontWeight: 'bold', 
+              textDecoration: 'none', borderRadius: 'var(--radius)', padding: '12px 24px', border: 'none'
+            }}>
+              Confirma tu clase muestra
+            </a>
+            <Link href="/" style={{ color: 'var(--gray)', display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none', marginTop: '5px', fontSize: '0.95rem' }}>
+              <FontAwesomeIcon icon={faArrowLeft} /> Volver al Inicio
+            </Link>
+          </div>
         </div>
       </div>
     )
