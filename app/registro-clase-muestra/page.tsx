@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { 
-  faGraduationCap, faPhone, faUser, faEnvelope, 
-  faCalendarAlt, faClock, faVenusMars, faArrowLeft,
+  faGraduationCap, faPhone, faUser,
+  faCalendarAlt, faArrowLeft,
   faCheckCircle
 } from '@fortawesome/free-solid-svg-icons'
 
@@ -19,10 +19,6 @@ export default function RegistroClaseMuestraPage() {
   const [formData, setFormData] = useState({
     nombre: '',
     celular: '',
-    email: '',
-    edad: '',
-    fecha_cumpleanos: '',
-    genero: '',
     horario_elegido: ''
   })
 
@@ -187,68 +183,6 @@ export default function RegistroClaseMuestraPage() {
                   placeholder="10 dígitos"
                   style={{ width: '100%', padding: '12px 16px 12px 45px', border: '2px solid #eaeaea', borderRadius: 'var(--radius)', fontSize: '1rem' }}
                 />
-              </div>
-            </div>
-
-            {/* Email */}
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: 'var(--dark-light)' }}>
-                Correo Electrónico
-              </label>
-              <div style={{ position: 'relative' }}>
-                <FontAwesomeIcon icon={faEnvelope} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--gray)' }} />
-                <input
-                  type="email" name="email" value={formData.email} onChange={handleChange}
-                  placeholder="opcional@email.com"
-                  style={{ width: '100%', padding: '12px 16px 12px 45px', border: '2px solid #eaeaea', borderRadius: 'var(--radius)', fontSize: '1rem' }}
-                />
-              </div>
-            </div>
-
-            {/* Edad */}
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: 'var(--dark-light)' }}>
-                Edad
-              </label>
-              <div style={{ position: 'relative' }}>
-                <FontAwesomeIcon icon={faUser} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--gray)' }} />
-                <input
-                  type="number" name="edad" value={formData.edad} onChange={handleChange}
-                  placeholder="Ej. 25" min="5" max="99"
-                  style={{ width: '100%', padding: '12px 16px 12px 45px', border: '2px solid #eaeaea', borderRadius: 'var(--radius)', fontSize: '1rem' }}
-                />
-              </div>
-            </div>
-
-            {/* Cumpleaños */}
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: 'var(--dark-light)' }}>
-                Fecha de Nacimiento
-              </label>
-              <div style={{ position: 'relative' }}>
-                <input
-                  type="date" name="fecha_cumpleanos" value={formData.fecha_cumpleanos} onChange={handleChange}
-                  style={{ width: '100%', padding: '12px 16px', border: '2px solid #eaeaea', borderRadius: 'var(--radius)', fontSize: '1rem' }}
-                />
-              </div>
-            </div>
-
-            {/* Género */}
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: 'var(--dark-light)' }}>
-                Género
-              </label>
-              <div style={{ position: 'relative' }}>
-                <FontAwesomeIcon icon={faVenusMars} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--gray)' }} />
-                <select 
-                  name="genero" value={formData.genero} onChange={handleChange}
-                  style={{ width: '100%', padding: '12px 16px 12px 45px', border: '2px solid #eaeaea', borderRadius: 'var(--radius)', fontSize: '1rem', appearance: 'none', background: 'white' }}
-                >
-                  <option value="">Selecciona...</option>
-                  <option value="Hombre">Hombre</option>
-                  <option value="Mujer">Mujer</option>
-                  <option value="Otro">Otro</option>
-                </select>
               </div>
             </div>
           </div>

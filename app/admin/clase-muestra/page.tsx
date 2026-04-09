@@ -155,7 +155,6 @@ export default function ClaseMuestraPage() {
                 <th style={{ padding: '12px 10px', textAlign: 'left', borderBottom: '2px solid #eee' }}>Fecha Registro</th>
                 <th style={{ padding: '12px 10px', textAlign: 'left', borderBottom: '2px solid #eee' }}>Nombre</th>
                 <th style={{ padding: '12px 10px', textAlign: 'left', borderBottom: '2px solid #eee' }}>Contacto</th>
-                <th style={{ padding: '12px 10px', textAlign: 'center', borderBottom: '2px solid #eee' }}>Edad/Gen</th>
                 <th style={{ padding: '12px 10px', textAlign: 'center', borderBottom: '2px solid #eee' }}>Horario Elegido</th>
                 <th style={{ padding: '12px 10px', textAlign: 'center', borderBottom: '2px solid #eee' }}>Estado</th>
                 <th style={{ padding: '12px 10px', textAlign: 'center', borderBottom: '2px solid #eee' }}>Acciones</th>
@@ -163,9 +162,9 @@ export default function ClaseMuestraPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={7} style={{ padding: '40px', textAlign: 'center' }}>Cargando registros...</td></tr>
+                <tr><td colSpan={6} style={{ padding: '40px', textAlign: 'center' }}>Cargando registros...</td></tr>
               ) : registros.length === 0 ? (
-                <tr><td colSpan={7} style={{ padding: '40px', textAlign: 'center', color: 'var(--gray)' }}>No se encontraron registros de clase muestra</td></tr>
+                <tr><td colSpan={6} style={{ padding: '40px', textAlign: 'center', color: 'var(--gray)' }}>No se encontraron registros de clase muestra</td></tr>
               ) : registros.map(r => (
                 <tr key={r.id} style={{ borderBottom: '1px solid #eee' }}>
                   <td style={{ padding: '10px', whiteSpace: 'nowrap' }}>
@@ -173,11 +172,7 @@ export default function ClaseMuestraPage() {
                   </td>
                   <td style={{ padding: '10px' }}><strong>{r.nombre}</strong></td>
                   <td style={{ padding: '10px' }}>
-                    {r.celular}<br/>
-                    <span style={{ fontSize: '0.8rem', color: 'var(--gray)' }}>{r.email}</span>
-                  </td>
-                  <td style={{ padding: '10px', textAlign: 'center' }}>
-                    {r.edad || '-'}/{r.genero || '-'}
+                    {r.celular}
                   </td>
                   <td style={{ padding: '10px', textAlign: 'center' }}>
                     <span style={{
