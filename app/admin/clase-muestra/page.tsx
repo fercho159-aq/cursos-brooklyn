@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCheck, faTimes, faUserPlus, faSearch, faCalendarCheck, faUserGraduate } from '@fortawesome/free-solid-svg-icons'
+import { faCheck, faTimes, faUserPlus, faSearch, faCalendarCheck, faUserGraduate, faTrash } from '@fortawesome/free-solid-svg-icons'
 
 interface RegistroClase {
   id: number
@@ -98,6 +98,30 @@ export default function ClaseMuestraPage() {
     } catch (err) {
       console.error(err)
       alert('Error de conexión al inscribir')
+    } finally {
+      setProcesandoId(null)
+    }
+  }
+
+  const handleEliminar = async (id: number) => {
+    if (!confirm('¿Estás seguro de que deseas eliminar este registro?\nEsta acción no se puede deshacer.')) return
+
+    setProcesandoId(id)
+    try {
+      const res = await fetch(`/api/admin/clase-muestra/${id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      })
+
+      if (res.ok) {
+        fetchRegistros()
+      } else {
+        const data = await res.json()
+        alert(`Error al eliminar: ${data.error}`)
+      }
+    } catch (err) {
+      console.error(err)
+      alert('Error de conexión al eliminar registro')
     } finally {
       setProcesandoId(null)
     }
@@ -234,6 +258,14 @@ export default function ClaseMuestraPage() {
                             <FontAwesomeIcon icon={faUserGraduate} /> ¡Inscrito!
                           </span>
                         )}
+
+                        <button onClick={() => handleEliminar(r.id)} style={{ 
+                          background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: '4px', 
+                          padding: '5px 8px', cursor: 'pointer', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '5px',
+                          marginLeft: 'auto'
+                        }} title="Eliminar registro">
+                          <FontAwesomeIcon icon={faTrash} />
+                        </button>
                       </div>
                     )}
                   </td>
