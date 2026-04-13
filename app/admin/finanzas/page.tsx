@@ -56,7 +56,7 @@ export default function FinanzasPage() {
   const [filtroAño, setFiltroAño] = useState(new Date().getFullYear())
   const [fechaInicio, setFechaInicio] = useState<string>('')
   const [fechaFin, setFechaFin] = useState<string>('')
-  const [filtroMetodoPago, setFiltroMetodoPago] = useState<string>('')
+  const [filtroEstadoCuenta, setFiltroEstadoCuenta] = useState<'general' | 'efectivo' | 'transferencia'>('general')
 
   // Modales
   const [modalPago, setModalPago] = useState(false)
@@ -107,13 +107,8 @@ export default function FinanzasPage() {
     let passRango = true
     if (fechaInicio) passRango = passRango && fechaStr >= fechaInicio
     if (fechaFin) passRango = passRango && fechaStr <= fechaFin
-
-    let passMetodo = true
-    if (filtroMetodoPago) {
-      passMetodo = p.metodo_pago === filtroMetodoPago
-    }
       
-    return passMes && passRango && passMetodo
+    return passMes && passRango
   })
 
   const gastosFiltrados = gastos.filter(g => {
@@ -132,33 +127,13 @@ export default function FinanzasPage() {
     if (fechaInicio) passRango = passRango && fechaStr >= fechaInicio
     if (fechaFin) passRango = passRango && fechaStr <= fechaFin
       
-    let passMetodo = true
-    if (filtroMetodoPago) {
-      const gMetodo = g.metodo_pago || 'efectivo'
-      passMetodo = gMetodo === filtroMetodoPago
-    }
-
-    return passMes && passRango && passMetodo
+    return passMes && passRango
   })
 
   // Totales Generales
   const totalIngresos = pagosFiltrados.reduce((sum, p) => sum + parseFloat(String(p.monto)), 0)
   const totalEgresos = gastosFiltrados.reduce((sum, g) => sum + parseFloat(String(g.monto)), 0)
   const balance = totalIngresos - totalEgresos
-
-  // Totales Efectivo
-  const pagosEfe = pagosFiltrados.filter(p => p.metodo_pago === 'efectivo')
-  const gastosEfe = gastosFiltrados.filter(g => (g.metodo_pago || 'efectivo') === 'efectivo')
-  const totalIngresosEfe = pagosEfe.reduce((sum, p) => sum + parseFloat(String(p.monto)), 0)
-  const totalEgresosEfe = gastosEfe.reduce((sum, g) => sum + parseFloat(String(g.monto)), 0)
-  const balanceEfe = totalIngresosEfe - totalEgresosEfe
-
-  // Totales Transferencia/Tarjeta
-  const pagosTrans = pagosFiltrados.filter(p => p.metodo_pago !== 'efectivo')
-  const gastosTrans = gastosFiltrados.filter(g => (g.metodo_pago || 'efectivo') !== 'efectivo')
-  const totalIngresosTrans = pagosTrans.reduce((sum, p) => sum + parseFloat(String(p.monto)), 0)
-  const totalEgresosTrans = gastosTrans.reduce((sum, g) => sum + parseFloat(String(g.monto)), 0)
-  const balanceTrans = totalIngresosTrans - totalEgresosTrans
 
   const años = Array.from(new Set([
     ...pagos.map(p => new Date(p.fecha_pago).getUTCFullYear()),
@@ -173,20 +148,30 @@ export default function FinanzasPage() {
       tipoMovimiento: 'ingreso' as const,
       fecha: new Date(p.fecha_pago),
       concepto: p.usuario_nombre + ' (' + p.metodo_pago + ')',
-      monto: parseFloat(String(p.monto))
+      monto: parseFloat(String(p.monto)),
+      metodo_pago: p.metodo_pago
     })),
     ...gastosFiltrados.map(g => ({
       id: `g-${g.id}`,
       tipoMovimiento: 'egreso' as const,
       fecha: new Date(g.fecha),
       concepto: g.tipo + (g.descripcion ? ` - ${g.descripcion}` : '') + ' (' + (g.metodo_pago || 'efectivo') + ')',
-      monto: parseFloat(String(g.monto))
+      monto: parseFloat(String(g.monto)),
+      metodo_pago: g.metodo_pago || 'efectivo'
     }))
   ].sort((a, b) => a.fecha.getTime() - b.fecha.getTime())
 
+  // Filtramos historialMovimientos según el botón activo
+  const historialFiltrado = historialMovimientos.filter(mov => {
+    if (filtroEstadoCuenta === 'general') return true;
+    if (filtroEstadoCuenta === 'efectivo') return mov.metodo_pago === 'efectivo';
+    if (filtroEstadoCuenta === 'transferencia') return mov.metodo_pago !== 'efectivo';
+    return true;
+  });
+
   // Calcular saldo progresivo
   let saldoActual = 0;
-  const estadoDeCuenta = historialMovimientos.map(mov => {
+  const estadoDeCuenta = historialFiltrado.map(mov => {
     if (mov.tipoMovimiento === 'ingreso') saldoActual += mov.monto;
     else saldoActual -= mov.monto;
     return { ...mov, saldo: saldoActual };
@@ -368,25 +353,8 @@ export default function FinanzasPage() {
           />
         </div>
 
-        {/* Separador sutil */}
-        <div style={{ width: '1px', height: '30px', background: '#ddd', margin: '0 5px' }}></div>
-
-        {/* Filtro Método Pago */}
-        <select
-          value={filtroMetodoPago}
-          onChange={(e) => setFiltroMetodoPago(e.target.value)}
-          style={{
-            padding: '10px 15px', background: 'var(--white)', border: '1px solid #ddd',
-            borderRadius: 'var(--radius)', fontWeight: 600, fontSize: '1rem', cursor: 'pointer'
-          }}
-        >
-          <option value="">Todos los métodos</option>
-          <option value="efectivo">Efectivo</option>
-          <option value="transferencia">Transferencia</option>
-        </select>
-
-        {(filtroMes || fechaInicio || fechaFin || filtroMetodoPago) && (
-          <button onClick={() => { setFiltroMes(null); setFechaInicio(''); setFechaFin(''); setFiltroMetodoPago('') }} style={{
+        {(filtroMes || fechaInicio || fechaFin) && (
+          <button onClick={() => { setFiltroMes(null); setFechaInicio(''); setFechaFin('') }} style={{
             padding: '10px 15px', background: '#f5f5f5', border: '1px solid #ddd',
             borderRadius: 'var(--radius)', cursor: 'pointer', fontSize: '0.9rem', color: '#666'
           }}>
@@ -434,34 +402,6 @@ export default function FinanzasPage() {
         </div>
       </div>
 
-      {/* Saldos Desglosados */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '15px', marginBottom: '25px' }}>
-        {/* Efectivo */}
-        <div style={{ background: '#f8fafc', padding: '15px 20px', borderRadius: 'var(--radius)', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <div style={{ color: '#475569', fontWeight: 600, fontSize: '0.95rem', marginBottom: '4px' }}>Caja Chica (Efectivo)</div>
-            <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
-              <span style={{ color: '#16a34a', fontWeight: 500 }}>+${totalIngresosEfe.toLocaleString()}</span> | <span style={{ color: '#dc2626', fontWeight: 500 }}>-${totalEgresosEfe.toLocaleString()}</span>
-            </div>
-          </div>
-          <div style={{ fontSize: '1.4rem', fontWeight: 700, color: balanceEfe >= 0 ? '#0f172a' : '#dc2626' }}>
-            ${balanceEfe.toLocaleString()}
-          </div>
-        </div>
-
-        {/* Transferencia */}
-        <div style={{ background: '#f8fafc', padding: '15px 20px', borderRadius: 'var(--radius)', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <div style={{ color: '#475569', fontWeight: 600, fontSize: '0.95rem', marginBottom: '4px' }}>Bancos (Transferencia/Tarjeta)</div>
-            <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
-              <span style={{ color: '#16a34a', fontWeight: 500 }}>+${totalIngresosTrans.toLocaleString()}</span> | <span style={{ color: '#dc2626', fontWeight: 500 }}>-${totalEgresosTrans.toLocaleString()}</span>
-            </div>
-          </div>
-          <div style={{ fontSize: '1.4rem', fontWeight: 700, color: balanceTrans >= 0 ? '#0f172a' : '#dc2626' }}>
-            ${balanceTrans.toLocaleString()}
-          </div>
-        </div>
-      </div>
 
       {/* Tabla T de Contabilidad */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
@@ -578,8 +518,30 @@ export default function FinanzasPage() {
 
       {/* Estado de Cuenta */}
       <div style={{ marginTop: '30px', background: 'var(--white)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow)', overflow: 'hidden' }}>
-        <div style={{ background: '#1e3a8a', color: 'white', padding: '15px 20px', fontWeight: 700, fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <FontAwesomeIcon icon={faFilePdf} /> Estado de Cuenta (Movimientos y Saldo)
+        <div style={{ background: '#1e3a8a', color: 'white', padding: '15px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+          <div style={{ fontWeight: 700, fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <FontAwesomeIcon icon={faFilePdf} /> Estado de Cuenta
+          </div>
+          <div style={{ display: 'flex', gap: '5px', background: 'rgba(255,255,255,0.1)', padding: '4px', borderRadius: 'var(--radius)' }}>
+            <button onClick={() => setFiltroEstadoCuenta('general')} style={{
+              padding: '6px 12px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem',
+              background: filtroEstadoCuenta === 'general' ? 'white' : 'transparent',
+              color: filtroEstadoCuenta === 'general' ? '#1e3a8a' : 'white',
+              transition: 'all 0.2s'
+            }}>General</button>
+            <button onClick={() => setFiltroEstadoCuenta('efectivo')} style={{
+              padding: '6px 12px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem',
+              background: filtroEstadoCuenta === 'efectivo' ? 'white' : 'transparent',
+              color: filtroEstadoCuenta === 'efectivo' ? '#1e3a8a' : 'white',
+              transition: 'all 0.2s'
+            }}>Efectivo</button>
+            <button onClick={() => setFiltroEstadoCuenta('transferencia')} style={{
+              padding: '6px 12px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem',
+              background: filtroEstadoCuenta === 'transferencia' ? 'white' : 'transparent',
+              color: filtroEstadoCuenta === 'transferencia' ? '#1e3a8a' : 'white',
+              transition: 'all 0.2s'
+            }}>Transferencia</button>
+          </div>
         </div>
         <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
