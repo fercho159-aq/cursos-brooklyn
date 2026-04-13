@@ -177,6 +177,10 @@ export default function FinanzasPage() {
     return { ...mov, saldo: saldoActual };
   }).sort((a, b) => b.fecha.getTime() - a.fecha.getTime()); // Ordenar descendente para la tabla (más reciente primero)
 
+  const totalIngresoEstado = historialFiltrado.filter(m => m.tipoMovimiento === 'ingreso').reduce((sum, m) => sum + m.monto, 0);
+  const totalEgresoEstado = historialFiltrado.filter(m => m.tipoMovimiento === 'egreso').reduce((sum, m) => sum + m.monto, 0);
+  const saldoFinalEstado = totalIngresoEstado - totalEgresoEstado;
+
   // Handlers de Pago
   const openPago = () => {
     setPagoForm({
@@ -582,6 +586,22 @@ export default function FinanzasPage() {
                 </tr>
               ))}
             </tbody>
+            <tfoot>
+              <tr style={{ background: '#f8fafc', borderTop: '2px solid #e2e8f0' }}>
+                <td colSpan={2} style={{ padding: '15px 20px', fontWeight: 700, color: '#1e3a8a', textAlign: 'right', fontSize: '1.1rem' }}>
+                  TOTALES ({filtroEstadoCuenta.toUpperCase()}):
+                </td>
+                <td style={{ padding: '15px 20px', textAlign: 'right', fontWeight: 800, color: '#16a34a', fontSize: '1.1rem' }}>
+                  +${totalIngresoEstado.toLocaleString()}
+                </td>
+                <td style={{ padding: '15px 20px', textAlign: 'right', fontWeight: 800, color: '#dc2626', fontSize: '1.1rem' }}>
+                  -${totalEgresoEstado.toLocaleString()}
+                </td>
+                <td style={{ padding: '15px 20px', textAlign: 'right', fontWeight: 800, color: saldoFinalEstado >= 0 ? '#1e40af' : '#92400e', fontSize: '1.2rem' }}>
+                  ${saldoFinalEstado.toLocaleString()}
+                </td>
+              </tr>
+            </tfoot>
           </table>
         </div>
       </div>
