@@ -55,6 +55,7 @@ export default function FinanzasPage() {
   const [filtroAño, setFiltroAño] = useState(new Date().getFullYear())
   const [fechaInicio, setFechaInicio] = useState<string>('')
   const [fechaFin, setFechaFin] = useState<string>('')
+  const [filtroMetodoPago, setFiltroMetodoPago] = useState<string>('')
 
   // Modales
   const [modalPago, setModalPago] = useState(false)
@@ -89,7 +90,7 @@ export default function FinanzasPage() {
 
   useEffect(() => { fetchData() }, [])
 
-  // Filtrar por mes y/o rango de fechas
+  // Filtrar por mes, rango de fechas y/o método de pago
   const pagosFiltrados = pagos.filter(p => {
     const fecha = new Date(p.fecha_pago)
     const yyyy = fecha.getUTCFullYear()
@@ -105,8 +106,13 @@ export default function FinanzasPage() {
     let passRango = true
     if (fechaInicio) passRango = passRango && fechaStr >= fechaInicio
     if (fechaFin) passRango = passRango && fechaStr <= fechaFin
+
+    let passMetodo = true
+    if (filtroMetodoPago) {
+      passMetodo = p.metodo_pago === filtroMetodoPago
+    }
       
-    return passMes && passRango
+    return passMes && passRango && passMetodo
   })
 
   const gastosFiltrados = gastos.filter(g => {
@@ -339,8 +345,25 @@ export default function FinanzasPage() {
           />
         </div>
 
-        {(filtroMes || fechaInicio || fechaFin) && (
-          <button onClick={() => { setFiltroMes(null); setFechaInicio(''); setFechaFin('') }} style={{
+        {/* Separador sutil */}
+        <div style={{ width: '1px', height: '30px', background: '#ddd', margin: '0 5px' }}></div>
+
+        {/* Filtro Método Pago */}
+        <select
+          value={filtroMetodoPago}
+          onChange={(e) => setFiltroMetodoPago(e.target.value)}
+          style={{
+            padding: '10px 15px', background: 'var(--white)', border: '1px solid #ddd',
+            borderRadius: 'var(--radius)', fontWeight: 600, fontSize: '1rem', cursor: 'pointer'
+          }}
+        >
+          <option value="">Todos los métodos</option>
+          <option value="efectivo">Efectivo</option>
+          <option value="transferencia">Transferencia</option>
+        </select>
+
+        {(filtroMes || fechaInicio || fechaFin || filtroMetodoPago) && (
+          <button onClick={() => { setFiltroMes(null); setFechaInicio(''); setFechaFin(''); setFiltroMetodoPago('') }} style={{
             padding: '10px 15px', background: '#f5f5f5', border: '1px solid #ddd',
             borderRadius: 'var(--radius)', cursor: 'pointer', fontSize: '0.9rem', color: '#666'
           }}>
