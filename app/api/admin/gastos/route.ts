@@ -54,17 +54,17 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { tipo, descripcion, monto, fecha } = body;
+    const { tipo, descripcion, monto, fecha, metodo_pago } = body;
 
     if (!tipo || !monto) {
       return NextResponse.json({ error: 'tipo y monto son requeridos' }, { status: 400 });
     }
 
     const result = await pool.query(
-      `INSERT INTO gastos (tipo, descripcion, monto, fecha, registrado_por)
-       VALUES ($1, $2, $3, $4, $5)
+      `INSERT INTO gastos (tipo, descripcion, monto, fecha, registrado_por, metodo_pago)
+       VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING *`,
-      [tipo, descripcion || '', monto, fecha || new Date().toISOString(), usuario.id]
+      [tipo, descripcion || '', monto, fecha || new Date().toISOString(), usuario.id, metodo_pago || 'efectivo']
     );
 
     return NextResponse.json(result.rows[0], { status: 201 });

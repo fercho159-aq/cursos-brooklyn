@@ -26,6 +26,7 @@ interface Gasto {
   monto: number
   fecha: string
   registrado_por_nombre: string
+  metodo_pago?: string
 }
 
 interface Inscripcion {
@@ -67,7 +68,7 @@ export default function FinanzasPage() {
   })
 
   const [gastoForm, setGastoForm] = useState({
-    tipo: 'Otro', descripcion: '', monto: '', fecha: ''
+    tipo: 'Otro', descripcion: '', monto: '', fecha: '', metodo_pago: 'efectivo'
   })
 
   const fetchData = async () => {
@@ -131,7 +132,13 @@ export default function FinanzasPage() {
     if (fechaInicio) passRango = passRango && fechaStr >= fechaInicio
     if (fechaFin) passRango = passRango && fechaStr <= fechaFin
       
-    return passMes && passRango
+    let passMetodo = true
+    if (filtroMetodoPago) {
+      const gMetodo = g.metodo_pago || 'efectivo'
+      passMetodo = gMetodo === filtroMetodoPago
+    }
+
+    return passMes && passRango && passMetodo
   })
 
   // Totales
@@ -158,7 +165,7 @@ export default function FinanzasPage() {
       id: `g-${g.id}`,
       tipoMovimiento: 'egreso' as const,
       fecha: new Date(g.fecha),
-      concepto: g.tipo + (g.descripcion ? ` - ${g.descripcion}` : ''),
+      concepto: g.tipo + (g.descripcion ? ` - ${g.descripcion}` : '') + ' (' + (g.metodo_pago || 'efectivo') + ')',
       monto: parseFloat(String(g.monto))
     }))
   ].sort((a, b) => a.fecha.getTime() - b.fecha.getTime())
@@ -217,7 +224,8 @@ export default function FinanzasPage() {
   const openGasto = () => {
     setGastoForm({
       tipo: 'Otro', descripcion: '', monto: '',
-      fecha: new Date().toISOString().split('T')[0]
+      fecha: new Date().toISOString().split('T')[0],
+      metodo_pago: 'efectivo'
     })
     setModalGasto(true)
   }
@@ -234,7 +242,8 @@ export default function FinanzasPage() {
           tipo: gastoForm.tipo,
           descripcion: gastoForm.descripcion,
           monto: parseFloat(gastoForm.monto),
-          fecha: gastoForm.fecha
+          fecha: gastoForm.fecha,
+          metodo_pago: gastoForm.metodo_pago
         })
       })
       if (res.ok) { setModalGasto(false); fetchData() }
@@ -687,6 +696,23 @@ export default function FinanzasPage() {
                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Fecha</label>
                 <input type="date" value={gastoForm.fecha} onChange={(e) => setGastoForm({ ...gastoForm, fecha: e.target.value })}
                   style={{ width: '100%', padding: '12px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }} />
+              </div>
+
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Método de pago</label>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  {['efectivo', 'transferencia', 'tarjeta'].map(m => (
+                    <button key={m} type="button" onClick={() => setGastoForm({ ...gastoForm, metodo_pago: m })}
+                      style={{
+                        padding: '8px 16px', borderRadius: '20px', cursor: 'pointer', textTransform: 'capitalize',
+                        background: gastoForm.metodo_pago === m ? '#dc2626' : 'white',
+                        color: gastoForm.metodo_pago === m ? 'white' : '#333',
+                        border: gastoForm.metodo_pago === m ? 'none' : '1px solid #ddd'
+                      }}>
+                      {m}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div style={{ marginBottom: '20px' }}>
