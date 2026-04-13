@@ -64,6 +64,16 @@ export default async function ReciboPage({ params }: PageProps) {
 
         const row = result.rows[0];
 
+        // Fetch pagos for the desglose
+        const pagosResult = await pool.query(`
+          SELECT id, monto, metodo_pago, fecha_pago, notas
+          FROM pagos
+          WHERE inscripcion_id = $1
+          ORDER BY fecha_pago ASC
+        `, [inscriptionId]);
+
+        const pagos = pagosResult.rows;
+
         const costoTotal = parseFloat(row.costo_total);
         const saldoPendiente = parseFloat(row.saldo_pendiente);
         const totalPagado = costoTotal - saldoPendiente;
@@ -80,6 +90,7 @@ export default async function ReciboPage({ params }: PageProps) {
             concepto: `Estado de Cuenta`,
             estado: row.estado === 'activo' ? 'Activo' : row.estado,
             promocion: row.promocion || null,
+            historial_pagos: pagos
         };
 
     } catch (dbError) {

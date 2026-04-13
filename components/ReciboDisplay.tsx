@@ -5,6 +5,14 @@ import jsPDF from 'jspdf';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
 
+interface PagoItem {
+    id: number;
+    monto: string | number;
+    metodo_pago: string;
+    fecha_pago: string;
+    notas?: string;
+}
+
 interface ReciboProps {
     data: {
         folio: string;
@@ -18,6 +26,7 @@ interface ReciboProps {
         estado: string;
         forma_pago?: string;
         promocion?: string | null;
+        historial_pagos?: PagoItem[];
     };
 }
 
@@ -108,14 +117,55 @@ export default function ReciboDisplay({ data }: ReciboProps) {
         doc.text(`$${data.saldo_pendiente}`, 160, currentY);
 
 
+        // Historial de Pagos en PDF
+        if (data.historial_pagos && data.historial_pagos.length > 0) {
+            currentY += 15;
+            doc.setFontSize(11);
+            doc.setTextColor(41, 128, 185);
+            doc.text('Desglose de Abonos:', 20, currentY);
+            
+            currentY += 5;
+            doc.setFillColor(248, 249, 250);
+            doc.rect(20, currentY, 170, 7, 'F');
+            doc.setFontSize(9);
+            doc.setTextColor(0);
+            const headers = ['Fecha', 'Metodo', 'Notas', 'Monto'];
+            doc.text(headers[0], 22, currentY + 5);
+            doc.text(headers[1], 60, currentY + 5);
+            doc.text(headers[2], 100, currentY + 5);
+            doc.text(headers[3], 170, currentY + 5, { align: 'right' });
+
+            currentY += 7;
+            doc.setFont('helvetica', 'normal');
+            
+            data.historial_pagos.forEach((pago, index) => {
+                if (index > 0) currentY += 6;
+                const d = new Date(pago.fecha_pago).toLocaleDateString('es-MX', { timeZone: 'UTC' });
+                doc.text(d, 22, currentY + 4);
+                doc.text(pago.metodo_pago, 60, currentY + 4);
+                const maxLen = 30;
+                let nota = pago.notas || '-';
+                if (nota.length > maxLen) nota = nota.substring(0, maxLen) + '...';
+                doc.text(nota, 100, currentY + 4);
+                
+                doc.setTextColor(22, 163, 74);
+                doc.text(`$${parseFloat(pago.monto.toString()).toLocaleString('es-MX', { minimumFractionDigits: 2 })}`, 170, currentY + 4, { align: 'right' });
+                doc.setTextColor(0);
+                
+                doc.setDrawColor(230, 230, 230);
+                doc.line(20, currentY + 6, 190, currentY + 6);
+            });
+            currentY += 10;
+        }
+
         // Linea final
         doc.setDrawColor(200, 200, 200);
-        doc.line(20, currentY + 10, 190, currentY + 10);
+        doc.line(20, currentY, 190, currentY);
 
         // Pie de pagina
         doc.setFontSize(8);
         doc.setTextColor(150);
-        doc.text('Gracias por su preferencia.', 105, 140, { align: 'center' });
+        doc.text('Gracias por su preferencia.', 105, currentY + 15, { align: 'center' });
 
         doc.save(`EstadoCuenta-${data.folio}.pdf`);
     };
@@ -179,6 +229,34 @@ export default function ReciboDisplay({ data }: ReciboProps) {
                         </tr>
                     </tfoot>
                 </table>
+
+                {data.historial_pagos && data.historial_pagos.length > 0 && (
+                    <div style={{ marginBottom: '20px' }}>
+                        <h3 style={{ fontSize: '1rem', color: '#2c3e50', marginBottom: '10px' }}>Desglose de Abonos</h3>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                            <thead>
+                                <tr style={{ background: '#f8f9fa', color: '#7f8c8d' }}>
+                                    <th style={{ padding: '8px', textAlign: 'left', borderBottom: '1px solid #eee' }}>Fecha</th>
+                                    <th style={{ padding: '8px', textAlign: 'left', borderBottom: '1px solid #eee' }}>Método</th>
+                                    <th style={{ padding: '8px', textAlign: 'left', borderBottom: '1px solid #eee' }}>Notas</th>
+                                    <th style={{ padding: '8px', textAlign: 'right', borderBottom: '1px solid #eee' }}>Monto</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {data.historial_pagos.map((p, idx) => (
+                                    <tr key={idx}>
+                                        <td style={{ padding: '8px', borderBottom: '1px solid #eee', color: '#2c3e50' }}>{new Date(p.fecha_pago).toLocaleDateString('es-MX', { timeZone: 'UTC' })}</td>
+                                        <td style={{ padding: '8px', borderBottom: '1px solid #eee', color: '#7f8c8d', textTransform: 'capitalize' }}>{p.metodo_pago}</td>
+                                        <td style={{ padding: '8px', borderBottom: '1px solid #eee', color: '#7f8c8d' }}>{p.notas || '-'}</td>
+                                        <td style={{ padding: '8px', borderBottom: '1px solid #eee', textAlign: 'right', color: '#16a34a', fontWeight: 'bold' }}>
+                                            ${parseFloat(p.monto.toString()).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
 
                 <div style={{ textAlign: 'center', marginTop: '30px' }}>
                     <span style={{

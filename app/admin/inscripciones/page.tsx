@@ -41,6 +41,7 @@ export default function InscripcionesPage() {
   const [loading, setLoading] = useState(true)
   const [filtroEstado, setFiltroEstado] = useState('')
   const [filtroModulo, setFiltroModulo] = useState('')
+  const [filtroPago, setFiltroPago] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<Inscripcion | null>(null)
   const [saving, setSaving] = useState(false)
@@ -185,6 +186,11 @@ export default function InscripcionesPage() {
   const modulosDisponibles = Array.from(new Set(inscripciones.map(i => i.modulo_numero).filter(Boolean))).sort((a, b) => a - b);
   const filteredInscripciones = inscripciones.filter(i => {
     if (filtroModulo && (!i.modulo_numero || i.modulo_numero.toString() !== filtroModulo)) return false;
+    
+    const saldo = parseFloat(i.saldo_pendiente as any) || 0;
+    if (filtroPago === 'pagado' && saldo > 0) return false;
+    if (filtroPago === 'adeudo' && saldo <= 0) return false;
+
     return true;
   });
 
@@ -225,6 +231,12 @@ export default function InscripcionesPage() {
             {modulosDisponibles.map(m => (
               <option key={m} value={m}>Módulo {m}</option>
             ))}
+          </select>
+          <select value={filtroPago} onChange={(e) => setFiltroPago(e.target.value)}
+            style={{ padding: '10px 15px', borderRadius: 'var(--radius)', border: '1px solid #ddd', background: 'var(--white)', minWidth: '160px' }}>
+            <option value="">Todos (Status Pago)</option>
+            <option value="pagado">Al corriente</option>
+            <option value="adeudo">Con adeudo</option>
           </select>
         </div>
         
