@@ -141,10 +141,24 @@ export default function FinanzasPage() {
     return passMes && passRango && passMetodo
   })
 
-  // Totales
+  // Totales Generales
   const totalIngresos = pagosFiltrados.reduce((sum, p) => sum + parseFloat(String(p.monto)), 0)
   const totalEgresos = gastosFiltrados.reduce((sum, g) => sum + parseFloat(String(g.monto)), 0)
   const balance = totalIngresos - totalEgresos
+
+  // Totales Efectivo
+  const pagosEfe = pagosFiltrados.filter(p => p.metodo_pago === 'efectivo')
+  const gastosEfe = gastosFiltrados.filter(g => (g.metodo_pago || 'efectivo') === 'efectivo')
+  const totalIngresosEfe = pagosEfe.reduce((sum, p) => sum + parseFloat(String(p.monto)), 0)
+  const totalEgresosEfe = gastosEfe.reduce((sum, g) => sum + parseFloat(String(g.monto)), 0)
+  const balanceEfe = totalIngresosEfe - totalEgresosEfe
+
+  // Totales Transferencia/Tarjeta
+  const pagosTrans = pagosFiltrados.filter(p => p.metodo_pago !== 'efectivo')
+  const gastosTrans = gastosFiltrados.filter(g => (g.metodo_pago || 'efectivo') !== 'efectivo')
+  const totalIngresosTrans = pagosTrans.reduce((sum, p) => sum + parseFloat(String(p.monto)), 0)
+  const totalEgresosTrans = gastosTrans.reduce((sum, g) => sum + parseFloat(String(g.monto)), 0)
+  const balanceTrans = totalIngresosTrans - totalEgresosTrans
 
   const años = Array.from(new Set([
     ...pagos.map(p => new Date(p.fecha_pago).getUTCFullYear()),
@@ -416,6 +430,35 @@ export default function FinanzasPage() {
           </div>
           <div style={{ fontSize: '0.85rem', color: balance >= 0 ? '#1e40af' : '#92400e' }}>
             {balance >= 0 ? 'Ganancia' : 'Pérdida'}
+          </div>
+        </div>
+      </div>
+
+      {/* Saldos Desglosados */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '15px', marginBottom: '25px' }}>
+        {/* Efectivo */}
+        <div style={{ background: '#f8fafc', padding: '15px 20px', borderRadius: 'var(--radius)', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <div style={{ color: '#475569', fontWeight: 600, fontSize: '0.95rem', marginBottom: '4px' }}>Caja Chica (Efectivo)</div>
+            <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
+              <span style={{ color: '#16a34a', fontWeight: 500 }}>+${totalIngresosEfe.toLocaleString()}</span> | <span style={{ color: '#dc2626', fontWeight: 500 }}>-${totalEgresosEfe.toLocaleString()}</span>
+            </div>
+          </div>
+          <div style={{ fontSize: '1.4rem', fontWeight: 700, color: balanceEfe >= 0 ? '#0f172a' : '#dc2626' }}>
+            ${balanceEfe.toLocaleString()}
+          </div>
+        </div>
+
+        {/* Transferencia */}
+        <div style={{ background: '#f8fafc', padding: '15px 20px', borderRadius: 'var(--radius)', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <div style={{ color: '#475569', fontWeight: 600, fontSize: '0.95rem', marginBottom: '4px' }}>Bancos (Transferencia/Tarjeta)</div>
+            <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
+              <span style={{ color: '#16a34a', fontWeight: 500 }}>+${totalIngresosTrans.toLocaleString()}</span> | <span style={{ color: '#dc2626', fontWeight: 500 }}>-${totalEgresosTrans.toLocaleString()}</span>
+            </div>
+          </div>
+          <div style={{ fontSize: '1.4rem', fontWeight: 700, color: balanceTrans >= 0 ? '#0f172a' : '#dc2626' }}>
+            ${balanceTrans.toLocaleString()}
           </div>
         </div>
       </div>
