@@ -139,6 +139,32 @@ export default function FinanzasPage() {
     new Date().getFullYear()
   ])).sort((a, b) => b - a)
 
+  // Historial para Estado de Cuenta
+  const historialMovimientos = [
+    ...pagosFiltrados.map(p => ({
+      id: `p-${p.id}`,
+      tipoMovimiento: 'ingreso' as const,
+      fecha: new Date(p.fecha_pago),
+      concepto: p.usuario_nombre + ' (' + p.metodo_pago + ')',
+      monto: parseFloat(String(p.monto))
+    })),
+    ...gastosFiltrados.map(g => ({
+      id: `g-${g.id}`,
+      tipoMovimiento: 'egreso' as const,
+      fecha: new Date(g.fecha),
+      concepto: g.tipo + (g.descripcion ? ` - ${g.descripcion}` : ''),
+      monto: parseFloat(String(g.monto))
+    }))
+  ].sort((a, b) => a.fecha.getTime() - b.fecha.getTime())
+
+  // Calcular saldo progresivo
+  let saldoActual = 0;
+  const estadoDeCuenta = historialMovimientos.map(mov => {
+    if (mov.tipoMovimiento === 'ingreso') saldoActual += mov.monto;
+    else saldoActual -= mov.monto;
+    return { ...mov, saldo: saldoActual };
+  }).sort((a, b) => b.fecha.getTime() - a.fecha.getTime()); // Ordenar descendente para la tabla (más reciente primero)
+
   // Handlers de Pago
   const openPago = () => {
     setPagoForm({
@@ -472,6 +498,54 @@ export default function FinanzasPage() {
               </tfoot>
             </table>
           </div>
+        </div>
+      </div>
+
+      {/* Estado de Cuenta */}
+      <div style={{ marginTop: '30px', background: 'var(--white)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow)', overflow: 'hidden' }}>
+        <div style={{ background: '#1e3a8a', color: 'white', padding: '15px 20px', fontWeight: 700, fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <FontAwesomeIcon icon={faFilePdf} /> Estado de Cuenta (Movimientos y Saldo)
+        </div>
+        <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ background: '#f8fafc', position: 'sticky', top: 0, zIndex: 10 }}>
+                <th style={{ padding: '12px 20px', textAlign: 'left', borderBottom: '2px solid #e2e8f0', color: '#475569', fontSize: '0.9rem' }}>Fecha</th>
+                <th style={{ padding: '12px 20px', textAlign: 'left', borderBottom: '2px solid #e2e8f0', color: '#475569', fontSize: '0.9rem' }}>Concepto</th>
+                <th style={{ padding: '12px 20px', textAlign: 'right', borderBottom: '2px solid #e2e8f0', color: '#475569', fontSize: '0.9rem' }}>Ingreso (+)</th>
+                <th style={{ padding: '12px 20px', textAlign: 'right', borderBottom: '2px solid #e2e8f0', color: '#475569', fontSize: '0.9rem' }}>Egreso (-)</th>
+                <th style={{ padding: '12px 20px', textAlign: 'right', borderBottom: '2px solid #e2e8f0', color: '#475569', fontSize: '0.9rem' }}>Saldo</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr><td colSpan={5} style={{ padding: '30px', textAlign: 'center' }}>Cargando...</td></tr>
+              ) : estadoDeCuenta.length === 0 ? (
+                <tr><td colSpan={5} style={{ padding: '30px', textAlign: 'center', color: 'var(--gray)' }}>Sin movimientos</td></tr>
+              ) : estadoDeCuenta.map(mov => (
+                <tr key={mov.id} style={{ borderBottom: '1px solid #f1f5f9', background: mov.tipoMovimiento === 'ingreso' ? '#f0fdf4' : '#fef2f2' }}>
+                  <td style={{ padding: '12px 20px', fontSize: '0.9rem', color: '#334155' }}>
+                    {mov.fecha.toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' })}
+                  </td>
+                  <td style={{ padding: '12px 20px', fontSize: '0.9rem' }}>
+                    <div style={{ fontWeight: 600, color: '#1e293b' }}>{mov.concepto}</div>
+                    <div style={{ fontSize: '0.75rem', color: mov.tipoMovimiento === 'ingreso' ? '#16a34a' : '#dc2626', textTransform: 'uppercase', fontWeight: 700, marginTop: '2px' }}>
+                      {mov.tipoMovimiento}
+                    </div>
+                  </td>
+                  <td style={{ padding: '12px 20px', textAlign: 'right', fontWeight: 600, color: '#16a34a' }}>
+                    {mov.tipoMovimiento === 'ingreso' ? `+$${mov.monto.toLocaleString()}` : '-'}
+                  </td>
+                  <td style={{ padding: '12px 20px', textAlign: 'right', fontWeight: 600, color: '#dc2626' }}>
+                    {mov.tipoMovimiento === 'egreso' ? `-$${mov.monto.toLocaleString()}` : '-'}
+                  </td>
+                  <td style={{ padding: '12px 20px', textAlign: 'right', fontWeight: 700, color: mov.saldo >= 0 ? '#1e40af' : '#92400e', background: mov.saldo >= 0 ? '#eff6ff' : '#fef3c7' }}>
+                    ${mov.saldo.toLocaleString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
 
