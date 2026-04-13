@@ -95,20 +95,19 @@ export default function HorariosPage() {
     )
   }
 
+  const isUsuarioActivoHorarios = (u: Usuario) => {
+    if (u.activo === false) return false;
+    if (!u.estado) return false; // Si no tiene estado, se asume inactivo/no confirmado
+    const estadoStr = u.estado.trim().toLowerCase();
+    return ['confirmado', 'pendiente horario'].includes(estadoStr);
+  }
+
   const getUsuariosPorGrupo = (grupoId: number) => {
-    return usuarios.filter(u => 
-      u.grupo_id === grupoId && 
-      u.activo !== false && 
-      (!u.estado || !['inactivo', 'cancelado', 'baja', 'egresado'].includes(u.estado.trim().toLowerCase()))
-    )
+    return usuarios.filter(u => u.grupo_id === grupoId && isUsuarioActivoHorarios(u))
   }
 
   const getUsuariosSinGrupo = () => {
-    return usuarios.filter(u => 
-      u.grupo_id === null && 
-      u.activo !== false && 
-      (!u.estado || !['inactivo', 'cancelado', 'baja', 'egresado'].includes(u.estado.trim().toLowerCase()))
-    )
+    return usuarios.filter(u => u.grupo_id === null && isUsuarioActivoHorarios(u))
   }
 
   const agruparPorHorario = (usuariosGrupo: Usuario[]) => {
@@ -267,9 +266,7 @@ export default function HorariosPage() {
     }
   }
 
-  const totalInscritos = usuarios.filter(u => 
-    u.activo !== false && (!u.estado || !['inactivo', 'cancelado', 'baja', 'egresado'].includes(u.estado.trim().toLowerCase()))
-  ).length
+  const totalInscritos = usuarios.filter(u => isUsuarioActivoHorarios(u)).length
   const sinGrupo = getUsuariosSinGrupo()
 
   if (loading) {
