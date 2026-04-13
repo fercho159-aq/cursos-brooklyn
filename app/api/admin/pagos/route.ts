@@ -16,10 +16,12 @@ export async function GET(request: Request) {
 
     let query = `
       SELECT p.*, u.nombre as usuario_nombre, u.celular as usuario_celular,
-             r.nombre as registrado_por_nombre
+             r.nombre as registrado_por_nombre,
+             i.modulo_numero
       FROM pagos p
       LEFT JOIN usuarios u ON p.usuario_id = u.id
       LEFT JOIN usuarios r ON p.registrado_por = r.id
+      LEFT JOIN inscripciones i ON p.inscripcion_id = i.id
       WHERE 1=1
     `;
     const params: (string | number)[] = [];

@@ -17,6 +17,7 @@ interface Pago {
   fecha_pago: string
   usuario_nombre: string
   usuario_celular: string
+  modulo_numero?: number | null
 }
 
 interface Gasto {
@@ -37,6 +38,7 @@ interface Inscripcion {
   curso_nombre_ref: string
   nombre_curso_especifico: string | null
   saldo_pendiente: number
+  modulo_numero?: number | null
 }
 
 const MESES = [
@@ -147,7 +149,7 @@ export default function FinanzasPage() {
       id: `p-${p.id}`,
       tipoMovimiento: 'ingreso' as const,
       fecha: new Date(p.fecha_pago),
-      concepto: p.usuario_nombre + ' (' + p.metodo_pago + ')',
+      concepto: p.usuario_nombre + (p.modulo_numero ? ` (Módulo ${p.modulo_numero})` : '') + ' - ' + p.metodo_pago,
       monto: parseFloat(String(p.monto)),
       metodo_pago: p.metodo_pago
     })),
@@ -435,7 +437,9 @@ export default function FinanzasPage() {
                       {new Date(p.fecha_pago).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', timeZone: 'UTC' })}
                     </td>
                     <td style={{ padding: '10px' }}>
-                      <div style={{ fontWeight: 500, fontSize: '0.9rem' }}>{p.usuario_nombre}</div>
+                      <div style={{ fontWeight: 500, fontSize: '0.9rem' }}>
+                        {p.usuario_nombre} {p.modulo_numero ? `(Mod ${p.modulo_numero})` : ''}
+                      </div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--gray)' }}>{p.metodo_pago}</div>
                     </td>
                     <td style={{ padding: '10px', textAlign: 'right', fontWeight: 600, color: '#16a34a' }}>
@@ -625,7 +629,9 @@ export default function FinanzasPage() {
                   style={{ width: '100%', padding: '12px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }}>
                   <option value="">Seleccionar alumno...</option>
                   {inscripciones.map(i => (
-                    <option key={i.id} value={i.id}>{i.usuario_nombre} - Saldo: ${parseFloat(String(i.saldo_pendiente)).toLocaleString()}</option>
+                    <option key={i.id} value={i.id}>
+                      {i.usuario_nombre} {i.modulo_numero ? `(Mod ${i.modulo_numero})` : ''} - Saldo: ${parseFloat(String(i.saldo_pendiente)).toLocaleString()}
+                    </option>
                   ))}
                 </select>
               </div>

@@ -99,7 +99,7 @@ export default function HorariosPage() {
     return usuarios.filter(u => 
       u.grupo_id === grupoId && 
       u.activo !== false && 
-      (!u.estado || (u.estado.toLowerCase() !== 'inactivo' && u.estado.toLowerCase() !== 'cancelado'))
+      (!u.estado || !['inactivo', 'cancelado', 'baja', 'egresado'].includes(u.estado.trim().toLowerCase()))
     )
   }
 
@@ -107,7 +107,7 @@ export default function HorariosPage() {
     return usuarios.filter(u => 
       u.grupo_id === null && 
       u.activo !== false && 
-      (!u.estado || (u.estado.toLowerCase() !== 'inactivo' && u.estado.toLowerCase() !== 'cancelado'))
+      (!u.estado || !['inactivo', 'cancelado', 'baja', 'egresado'].includes(u.estado.trim().toLowerCase()))
     )
   }
 
@@ -267,7 +267,9 @@ export default function HorariosPage() {
     }
   }
 
-  const totalInscritos = usuarios.length
+  const totalInscritos = usuarios.filter(u => 
+    u.activo !== false && (!u.estado || !['inactivo', 'cancelado', 'baja', 'egresado'].includes(u.estado.trim().toLowerCase()))
+  ).length
   const sinGrupo = getUsuariosSinGrupo()
 
   if (loading) {
@@ -311,7 +313,7 @@ export default function HorariosPage() {
 
       {/* Acordeones por grupo */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-        {grupos.map(grupo => {
+        {grupos.filter(g => g.activo !== false).map(grupo => {
           const usuariosGrupo = getUsuariosPorGrupo(grupo.id)
           const count = usuariosGrupo.length
           const isOpen = gruposAbiertos.includes(grupo.id)
@@ -574,7 +576,7 @@ export default function HorariosPage() {
       }}>
         <h3 style={{ margin: '0 0 15px 0', fontSize: '1rem', color: 'var(--gray)' }}>Resumen</h3>
         <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-          {grupos.map(grupo => (
+          {grupos.filter(g => g.activo !== false).map(grupo => (
             <div key={grupo.id} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: grupo.color }} />
               <span>{grupo.nombre}: <strong>{getUsuariosPorGrupo(grupo.id).length}</strong></span>
