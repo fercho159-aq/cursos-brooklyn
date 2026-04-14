@@ -167,7 +167,7 @@ export default function FinanzasPage() {
   const historialFiltrado = historialMovimientos.filter(mov => {
     if (filtroEstadoCuenta === 'general') return true;
     if (filtroEstadoCuenta === 'efectivo') return mov.metodo_pago === 'efectivo';
-    if (filtroEstadoCuenta === 'transferencia') return mov.metodo_pago !== 'efectivo';
+    if (filtroEstadoCuenta === 'transferencia') return mov.metodo_pago === 'transferencia';
     return true;
   });
 
