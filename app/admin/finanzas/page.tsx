@@ -196,7 +196,7 @@ export default function FinanzasPage() {
     if (!pagoForm.inscripcion_id || !pagoForm.monto) { alert('Alumno y monto son requeridos'); return }
     setSaving(true)
     try {
-      const insc = inscripciones.find(i => i.id.toString() === pagoForm.inscripcion_id)
+      const insc = inscripciones.find(i => i.id && i.id.toString() === pagoForm.inscripcion_id)
       const res = await fetch('/api/admin/pagos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -266,7 +266,7 @@ export default function FinanzasPage() {
     } catch { alert('Error al eliminar') }
   }
 
-  const selectedInsc = inscripciones.find(i => i.id.toString() === pagoForm.inscripcion_id)
+  const selectedInsc = inscripciones.find(i => i.id && i.id.toString() === pagoForm.inscripcion_id)
 
   return (
     <div style={{ padding: '30px' }}>
@@ -628,7 +628,7 @@ export default function FinanzasPage() {
                 <select value={pagoForm.inscripcion_id} onChange={(e) => setPagoForm({ ...pagoForm, inscripcion_id: e.target.value })}
                   style={{ width: '100%', padding: '12px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }}>
                   <option value="">Seleccionar alumno...</option>
-                  {inscripciones.map(i => (
+                  {inscripciones.filter(i => i.id).map(i => (
                     <option key={i.id} value={i.id}>
                       {i.usuario_nombre} {i.modulo_numero ? `(Mod ${i.modulo_numero})` : ''} - Saldo: ${parseFloat(String(i.saldo_pendiente)).toLocaleString()}
                     </option>
