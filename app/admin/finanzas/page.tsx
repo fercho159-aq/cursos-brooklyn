@@ -66,7 +66,7 @@ export default function FinanzasPage() {
   const [saving, setSaving] = useState(false)
 
   const [pagoForm, setPagoForm] = useState({
-    inscripcion_id: '', monto: '', metodo_pago: 'efectivo', notas: '', fecha_pago: ''
+    inscripcion_id: '', monto: '', metodo_pago: 'efectivo', notas: '', fecha_pago: '', es_general: false
   })
 
   const [gastoForm, setGastoForm] = useState({
@@ -149,7 +149,7 @@ export default function FinanzasPage() {
       id: `p-${p.id}`,
       tipoMovimiento: 'ingreso' as const,
       fecha: new Date(p.fecha_pago),
-      concepto: p.usuario_nombre + (p.modulo_numero ? ` (Módulo ${p.modulo_numero})` : '') + ' - ' + p.metodo_pago,
+      concepto: (p.usuario_nombre || 'Ingreso General') + (p.modulo_numero ? ` (Módulo ${p.modulo_numero})` : '') + (p.notas && !p.usuario_nombre ? ` - ${p.notas}` : '') + ' - ' + p.metodo_pago,
       monto: parseFloat(String(p.monto)),
       metodo_pago: p.metodo_pago
     })),
@@ -187,27 +187,33 @@ export default function FinanzasPage() {
   const openPago = () => {
     setPagoForm({
       inscripcion_id: '', monto: '', metodo_pago: 'efectivo', notas: '',
-      fecha_pago: new Date().toISOString().split('T')[0]
+      fecha_pago: new Date().toISOString().split('T')[0],
+      es_general: false
     })
     setModalPago(true)
   }
 
   const savePago = async () => {
-    if (!pagoForm.inscripcion_id || !pagoForm.monto) { alert('Alumno y monto son requeridos'); return }
+    if (pagoForm.es_general) {
+      if (!pagoForm.monto || !pagoForm.notas) { alert('Monto y Concepto son requeridos para un ingreso general'); return }
+    } else {
+      if (!pagoForm.inscripcion_id || !pagoForm.monto) { alert('Alumno y monto son requeridos'); return }
+    }
     setSaving(true)
     try {
-      const insc = inscripciones.find(i => i.id && i.id.toString() === pagoForm.inscripcion_id)
+      const insc = !pagoForm.es_general ? inscripciones.find(i => i.id && i.id.toString() === pagoForm.inscripcion_id) : null
       const res = await fetch('/api/admin/pagos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
-          inscripcion_id: parseInt(pagoForm.inscripcion_id),
-          usuario_id: insc?.usuario_id,
+          inscripcion_id: pagoForm.es_general ? null : parseInt(pagoForm.inscripcion_id),
+          usuario_id: pagoForm.es_general ? null : insc?.usuario_id,
           monto: parseFloat(pagoForm.monto),
           metodo_pago: pagoForm.metodo_pago,
           notas: pagoForm.notas || null,
-          fecha_pago: pagoForm.fecha_pago
+          fecha_pago: pagoForm.fecha_pago,
+          es_general: pagoForm.es_general
         })
       })
       if (res.ok) { setModalPago(false); fetchData() }
@@ -438,9 +444,9 @@ export default function FinanzasPage() {
                     </td>
                     <td style={{ padding: '10px' }}>
                       <div style={{ fontWeight: 500, fontSize: '0.9rem' }}>
-                        {p.usuario_nombre} {p.modulo_numero ? `(Mod ${p.modulo_numero})` : ''}
+                        {p.usuario_nombre ? `${p.usuario_nombre} ${p.modulo_numero ? `(Mod ${p.modulo_numero})` : ''}` : 'Ingreso General'}
                       </div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--gray)' }}>{p.metodo_pago}</div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--gray)' }}>{p.metodo_pago} {p.notas && !p.usuario_nombre ? `- ${p.notas}` : ''}</div>
                     </td>
                     <td style={{ padding: '10px', textAlign: 'right', fontWeight: 600, color: '#16a34a' }}>
                       ${parseFloat(String(p.monto)).toLocaleString()}
@@ -623,20 +629,35 @@ export default function FinanzasPage() {
               </button>
             </div>
             <div style={{ padding: '20px' }}>
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Alumno *</label>
-                <select value={pagoForm.inscripcion_id} onChange={(e) => setPagoForm({ ...pagoForm, inscripcion_id: e.target.value })}
-                  style={{ width: '100%', padding: '12px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }}>
-                  <option value="">Seleccionar alumno...</option>
-                  {inscripciones.filter(i => i.id).map(i => (
-                    <option key={i.id} value={i.id}>
-                      {i.usuario_nombre} {i.modulo_numero ? `(Mod ${i.modulo_numero})` : ''} - Saldo: ${parseFloat(String(i.saldo_pendiente)).toLocaleString()}
-                    </option>
-                  ))}
-                </select>
+              <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+                <button
+                  onClick={() => setPagoForm({ ...pagoForm, es_general: false })}
+                  style={{ flex: 1, padding: '10px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 600,
+                    background: !pagoForm.es_general ? '#16a34a' : '#f0fdf4', color: !pagoForm.es_general ? 'white' : '#166534' }}
+                >De Alumno</button>
+                <button
+                  onClick={() => setPagoForm({ ...pagoForm, es_general: true })}
+                  style={{ flex: 1, padding: '10px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 600,
+                    background: pagoForm.es_general ? '#16a34a' : '#f0fdf4', color: pagoForm.es_general ? 'white' : '#166534' }}
+                >Ingreso General</button>
               </div>
 
-              {selectedInsc && (
+              {!pagoForm.es_general && (
+                <div style={{ marginBottom: '15px' }}>
+                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Alumno *</label>
+                  <select value={pagoForm.inscripcion_id} onChange={(e) => setPagoForm({ ...pagoForm, inscripcion_id: e.target.value })}
+                    style={{ width: '100%', padding: '12px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }}>
+                    <option value="">Seleccionar alumno...</option>
+                    {inscripciones.filter(i => i.id).map(i => (
+                      <option key={i.id} value={i.id}>
+                        {i.usuario_nombre} {i.modulo_numero ? `(Mod ${i.modulo_numero})` : ''} - Saldo: ${parseFloat(String(i.saldo_pendiente)).toLocaleString()}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {!pagoForm.es_general && selectedInsc && (
                 <div style={{ background: '#f0fdf4', padding: '12px', borderRadius: 'var(--radius)', marginBottom: '15px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <span>Saldo pendiente:</span>
@@ -676,9 +697,9 @@ export default function FinanzasPage() {
               </div>
 
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Notas</label>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>{pagoForm.es_general ? 'Concepto (Obligatorio) *' : 'Notas'}</label>
                 <input type="text" value={pagoForm.notas} onChange={(e) => setPagoForm({ ...pagoForm, notas: e.target.value })}
-                  placeholder="Opcional..." style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }} />
+                  placeholder={pagoForm.es_general ? "Ej. Venta de playera" : "Opcional..."} style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }} />
               </div>
 
               <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>

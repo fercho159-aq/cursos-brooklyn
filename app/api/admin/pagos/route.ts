@@ -63,10 +63,16 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { inscripcion_id, usuario_id, monto, metodo_pago, comprobante, notas, fecha_pago } = body;
+    const { inscripcion_id, usuario_id, monto, metodo_pago, comprobante, notas, fecha_pago, es_general } = body;
 
-    if (!inscripcion_id || !usuario_id || !monto) {
-      return NextResponse.json({ error: 'inscripcion_id, usuario_id y monto son requeridos' }, { status: 400 });
+    if (es_general) {
+      if (!monto || !notas) {
+        return NextResponse.json({ error: 'monto y notas (concepto) son requeridos para un ingreso general' }, { status: 400 });
+      }
+    } else {
+      if (!inscripcion_id || !usuario_id || !monto) {
+        return NextResponse.json({ error: 'inscripcion_id, usuario_id y monto son requeridos' }, { status: 400 });
+      }
     }
 
     const result = await pool.query(
@@ -74,16 +80,18 @@ export async function POST(request: Request) {
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
        RETURNING *`,
       [
-        inscripcion_id, usuario_id, monto, metodo_pago || 'efectivo',
+        inscripcion_id || null, usuario_id || null, monto, metodo_pago || 'efectivo',
         comprobante || null, notas || null, fecha_pago || new Date().toISOString(), usuario.id
       ]
     );
 
-    // Actualizar saldo pendiente de la inscripcion
-    await pool.query(
-      `UPDATE inscripciones SET saldo_pendiente = saldo_pendiente - $1 WHERE id = $2`,
-      [monto, inscripcion_id]
-    );
+    // Actualizar saldo pendiente de la inscripcion solo si existe
+    if (inscripcion_id) {
+      await pool.query(
+        `UPDATE inscripciones SET saldo_pendiente = saldo_pendiente - $1 WHERE id = $2`,
+        [monto, inscripcion_id]
+      );
+    }
 
     return NextResponse.json(result.rows[0], { status: 201 });
   } catch (error) {
@@ -118,11 +126,13 @@ export async function DELETE(request: Request) {
     // Eliminar el pago
     await pool.query('DELETE FROM pagos WHERE id = $1', [id]);
 
-    // Revertir el saldo pendiente
-    await pool.query(
-      `UPDATE inscripciones SET saldo_pendiente = saldo_pendiente + $1 WHERE id = $2`,
-      [pago.monto, pago.inscripcion_id]
-    );
+    // Revertir el saldo pendiente solo si es pago de alumno
+    if (pago.inscripcion_id) {
+      await pool.query(
+        `UPDATE inscripciones SET saldo_pendiente = saldo_pendiente + $1 WHERE id = $2`,
+        [pago.monto, pago.inscripcion_id]
+      );
+    }
 
     return NextResponse.json({ message: 'Pago eliminado correctamente' });
   } catch (error) {
