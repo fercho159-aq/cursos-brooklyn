@@ -5,7 +5,7 @@ import {
   faStar, faArrowRight, faPlayCircle, faLanguage, faBullhorn,
   faCheckCircle, faClock, faUsers, faLaptopHouse, faCertificate,
   faCalendarAlt, faChalkboardTeacher, faLaptopCode, faGift,
-  faBullseye, faPercent, faMapMarkerAlt, faLocationDot
+  faBullseye, faPercent, faMapMarkerAlt, faLocationDot, faFilePdf
 } from '@fortawesome/free-solid-svg-icons'
 import { faInstagram, faFacebookF, faTiktok, faWhatsapp, faGoogle } from '@fortawesome/free-brands-svg-icons'
 import { Navbar, Footer, WhatsAppButton, BackToTop } from '@/components/layout'
@@ -43,6 +43,9 @@ export default function HomePage() {
               <Link href="#cursos" className="btn btn-outline btn-lg">
                 <FontAwesomeIcon icon={faPlayCircle} /> Ver cursos
               </Link>
+              <a href="/cursos-brooklyn.pdf" target="_blank" rel="noopener noreferrer" className="btn btn-outline btn-lg" style={{ borderColor: 'var(--primary)', color: 'var(--primary)' }}>
+                <FontAwesomeIcon icon={faFilePdf} /> Descargar Temario
+              </a>
             </div>
             <div className="hero-stats">
               <div className="stat-item">
