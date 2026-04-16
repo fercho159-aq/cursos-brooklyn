@@ -17,11 +17,13 @@ export async function GET(request: Request) {
     let query = `
       SELECT i.*, u.nombre as usuario_nombre, u.celular as usuario_celular,
              u.estado as usuario_estado, u.id as usuario_id_real,
-             c.nombre as curso_nombre_ref, h.nombre as horario_nombre
+             c.nombre as curso_nombre_ref, h.nombre as horario_nombre,
+             p.nombre as profesor_nombre
       FROM usuarios u
       LEFT JOIN inscripciones i ON u.id = i.usuario_id
       LEFT JOIN cursos c ON i.curso_id = c.id
       LEFT JOIN horarios h ON i.horario_id = h.id
+      LEFT JOIN usuarios p ON i.profesor_id = p.id
       WHERE u.rol = 'alumno'
     `;
     const params: (string | number)[] = [];
@@ -67,7 +69,7 @@ export async function POST(request: Request) {
     const {
       usuario_id, curso_id, horario_id, fecha_inicio, fecha_fin,
       costo_total, saldo_pendiente, estado, notas, nombre_curso_especifico,
-      horario_otro, modulo_numero, promocion
+      horario_otro, modulo_numero, promocion, profesor_id
     } = body;
 
     if (!usuario_id || !curso_id) {
@@ -84,16 +86,20 @@ export async function POST(request: Request) {
 
     const result = await pool.query(
       `INSERT INTO inscripciones (usuario_id, curso_id, horario_id, fecha_inicio, fecha_fin,
-       costo_total, saldo_pendiente, estado, notas, nombre_curso_especifico, horario_otro, modulo_numero, promocion)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+       costo_total, saldo_pendiente, estado, notas, nombre_curso_especifico, horario_otro, modulo_numero, promocion, profesor_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
        RETURNING *`,
       [
         usuario_id, curso_id, horario_id || null, defaultFechaInicio, defaultFechaFin,
         costo_total || 1700, saldo_pendiente || costo_total || 1700, estado || 'activo',
         notas || null, nombre_curso_especifico || null, horario_otro || null,
-        modulo_numero || 1, promocion || null
+        modulo_numero || 1, promocion || null, profesor_id || null
       ]
     );
+
+    if (profesor_id) {
+       await pool.query('UPDATE usuarios SET profesor_id = $1 WHERE id = $2', [profesor_id, usuario_id]);
+    }
 
     return NextResponse.json(result.rows[0], { status: 201 });
   } catch (error) {
@@ -121,7 +127,7 @@ export async function PATCH(request: Request) {
     const allowedFields = [
       'curso_id', 'horario_id', 'fecha_inicio', 'fecha_fin', 'costo_total',
       'saldo_pendiente', 'estado', 'notas', 'nombre_curso_especifico', 'horario_otro',
-      'modulo_numero', 'promocion'
+      'modulo_numero', 'promocion', 'profesor_id'
     ];
     const updates: string[] = [];
     const values: (string | number | null)[] = [];
@@ -142,6 +148,10 @@ export async function PATCH(request: Request) {
     values.push(id);
     const query = `UPDATE inscripciones SET ${updates.join(', ')} WHERE id = $${paramIndex} RETURNING *`;
     const result = await pool.query(query, values);
+
+    if (result.rows.length > 0 && body.profesor_id !== undefined) {
+       await pool.query('UPDATE usuarios SET profesor_id = $1 WHERE id = $2', [body.profesor_id || null, result.rows[0].usuario_id]);
+    }
 
     if (result.rows.length === 0) {
       return NextResponse.json({ error: 'Inscripción no encontrada' }, { status: 404 });

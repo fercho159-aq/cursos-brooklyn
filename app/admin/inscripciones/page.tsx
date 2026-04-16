@@ -26,6 +26,8 @@ interface Inscripcion {
   usuario_id_real: number
   curso_nombre_ref: string
   horario_nombre: string | null
+  profesor_nombre?: string | null
+  profesor_id?: number | null
   created_at: string
 }
 
@@ -38,6 +40,7 @@ export default function InscripcionesPage() {
   const [usuarios, setUsuarios] = useState<Usuario[]>([])
   const [cursos, setCursos] = useState<Curso[]>([])
   const [horarios, setHorarios] = useState<Horario[]>([])
+  const [profesores, setProfesores] = useState<Usuario[]>([])
   const [loading, setLoading] = useState(true)
   const [filtroEstado, setFiltroEstado] = useState('')
   const [filtroModulo, setFiltroModulo] = useState('')
@@ -49,7 +52,7 @@ export default function InscripcionesPage() {
   const [formData, setFormData] = useState({
     usuario_id: '', curso_id: '', horario_id: '', fecha_inicio: '', fecha_fin: '',
     costo_total: '1900', saldo_pendiente: '1900', estado: 'activo', notas: '',
-    nombre_curso_especifico: '', horario_otro: '', modulo_numero: '1', promocion: ''
+    nombre_curso_especifico: '', horario_otro: '', modulo_numero: '1', promocion: '', profesor_id: ''
   })
 
   const fetchData = async () => {
@@ -58,12 +61,14 @@ export default function InscripcionesPage() {
         fetch(`/api/admin/inscripciones${filtroEstado ? `?estado=${filtroEstado}` : ''}`, { credentials: 'include' }),
         fetch('/api/admin/usuarios?rol=alumno', { credentials: 'include' }),
         fetch('/api/admin/cursos', { credentials: 'include' }),
-        fetch('/api/admin/horarios', { credentials: 'include' })
+        fetch('/api/admin/horarios', { credentials: 'include' }),
+        fetch('/api/admin/usuarios?rol=profesor', { credentials: 'include' })
       ])
       if (inscRes.ok) setInscripciones(await inscRes.json())
       if (usrRes.ok) setUsuarios(await usrRes.json())
       if (crsRes.ok) setCursos(await crsRes.json())
       if (horRes.ok) setHorarios(await horRes.json())
+      if (profsRes.ok) setProfesores(await profsRes.json())
     } catch (error) {
       console.error('Error:', error)
     } finally {
@@ -80,7 +85,7 @@ export default function InscripcionesPage() {
       usuario_id: usuarios[0]?.id?.toString() || '', curso_id: curso?.id?.toString() || '',
       horario_id: '', fecha_inicio: new Date().toISOString().split('T')[0], fecha_fin: '',
       costo_total: curso?.costo?.toString() || '1900', saldo_pendiente: curso?.costo?.toString() || '1900',
-      estado: 'activo', notas: '', nombre_curso_especifico: '', horario_otro: '', modulo_numero: '1', promocion: ''
+      estado: 'activo', notas: '', nombre_curso_especifico: '', horario_otro: '', modulo_numero: '1', promocion: '', profesor_id: ''
     })
     setModalOpen(true)
   }
@@ -93,7 +98,7 @@ export default function InscripcionesPage() {
       fecha_fin: i.fecha_fin?.split('T')[0] || '', costo_total: i.costo_total?.toString() || '',
       saldo_pendiente: i.saldo_pendiente?.toString() || '', estado: i.estado || 'activo', notas: i.notas || '',
       nombre_curso_especifico: i.nombre_curso_especifico || '', horario_otro: i.horario_otro || '',
-      modulo_numero: i.modulo_numero?.toString() || '1', promocion: i.promocion || ''
+      modulo_numero: i.modulo_numero?.toString() || '1', promocion: i.promocion || '', profesor_id: i.profesor_id?.toString() || ''
     })
     setModalOpen(true)
   }
@@ -110,7 +115,7 @@ export default function InscripcionesPage() {
         estado: formData.estado, notas: formData.notas || null,
         nombre_curso_especifico: formData.nombre_curso_especifico || null,
         horario_otro: formData.horario_otro || null, modulo_numero: parseInt(formData.modulo_numero),
-        promocion: formData.promocion || null
+        promocion: formData.promocion || null, profesor_id: formData.profesor_id ? parseInt(formData.profesor_id) : null
       }
       const url = editing ? `/api/admin/inscripciones?id=${editing.id}` : '/api/admin/inscripciones'
       const res = await fetch(url, {
@@ -283,7 +288,10 @@ export default function InscripcionesPage() {
                     <br /><span style={{ fontSize: '0.8rem', color: 'var(--gray)' }}>{i.usuario_celular}</span>
                   </td>
                   <td style={{ padding: '12px 15px' }}>{i.nombre_curso_especifico || i.curso_nombre_ref || <span style={{color: '#999'}}>Sin curso</span>}</td>
-                  <td style={{ padding: '12px 15px' }}>{i.horario_nombre || i.horario_otro || '-'}</td>
+                  <td style={{ padding: '12px 15px' }}>
+                    {i.horario_nombre || i.horario_otro || '-'}
+                    <br /><span style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: 500 }}>{i.profesor_nombre ? `Prof. ${i.profesor_nombre}` : ''}</span>
+                  </td>
                   <td style={{ padding: '12px 15px', textAlign: 'center' }}>{i.modulo_numero || '-'}</td>
                   <td style={{ padding: '12px 15px', textAlign: 'right' }}>{i.costo_total ? '$'+parseFloat(i.costo_total as any).toLocaleString() : '-'}</td>
                   <td style={{ padding: '12px 15px', textAlign: 'right', color: (i.saldo_pendiente || 0) > 0 ? '#dc2626' : '#16a34a', fontWeight: 600 }}>
@@ -354,6 +362,14 @@ export default function InscripcionesPage() {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
                 <div>
+                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Profesor *</label>
+                  <select value={formData.profesor_id} onChange={(e) => setFormData({ ...formData, profesor_id: e.target.value })}
+                    style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }}>
+                    <option value="">Seleccionar profesor...</option>
+                    {profesores.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+                  </select>
+                </div>
+                <div>
                   <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Horario</label>
                   <select value={formData.horario_id} onChange={(e) => setFormData({ ...formData, horario_id: e.target.value })}
                     style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }}>
@@ -361,6 +377,9 @@ export default function InscripcionesPage() {
                     {horarios.map(h => <option key={h.id} value={h.id}>{h.nombre}</option>)}
                   </select>
                 </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
                 <div>
                   <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Módulo</label>
                   <input type="number" min="1" value={formData.modulo_numero} onChange={(e) => setFormData({ ...formData, modulo_numero: e.target.value })}

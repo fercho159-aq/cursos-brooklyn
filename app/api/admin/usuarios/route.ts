@@ -159,13 +159,13 @@ export async function PATCH(request: Request) {
     const allowedFields = [
       'nombre', 'celular', 'email', 'edad', 'fecha_cumpleanos', 'rol', 'activo',
       'genero', 'tipo_curso', 'turno', 'dia', 'abono', 'total', 'estado_pago', 'estado',
-      'lunes', 'martes', 'miercoles', 'jueves', 'sabado', 'horario', 'grupo_id'
+      'lunes', 'martes', 'miercoles', 'jueves', 'sabado', 'horario', 'grupo_id', 'profesor_id'
     ];
     const updates: string[] = [];
     const values: (string | number | boolean | null)[] = [];
     let paramIndex = 1;
 
-    const numericFields = ['edad', 'abono', 'total', 'grupo_id'];
+    const numericFields = ['edad', 'abono', 'total', 'grupo_id', 'profesor_id'];
     const dateFields = ['fecha_cumpleanos'];
 
     for (const field of allowedFields) {
