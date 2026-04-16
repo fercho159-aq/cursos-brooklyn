@@ -16,6 +16,8 @@ interface Usuario {
   estado: string | null
   grupo_id: number | null
   activo?: boolean
+  profesor_id?: number | null
+  modulo_numero?: number | null
 }
 
 interface Grupo {
@@ -36,6 +38,7 @@ export default function HorariosPage() {
   const [grupos, setGrupos] = useState<Grupo[]>([])
   const [loading, setLoading] = useState(true)
   const [gruposAbiertos, setGruposAbiertos] = useState<number[]>([])
+  const [filtroProfesor, setFiltroProfesor] = useState('')
 
   const [profesores, setProfesores] = useState<Usuario[]>([])
   
@@ -97,17 +100,26 @@ export default function HorariosPage() {
 
   const isUsuarioActivoHorarios = (u: Usuario) => {
     if (u.activo === false) return false;
-    if (!u.estado) return false; // Si no tiene estado, se asume inactivo/no confirmado
+    if (!u.estado) return false;
+    if (!u.modulo_numero) return false; // Solo inscritos activos
     const estadoStr = u.estado.trim().toLowerCase();
     return ['confirmado', 'pendiente horario'].includes(estadoStr);
   }
 
   const getUsuariosPorGrupo = (grupoId: number) => {
-    return usuarios.filter(u => u.grupo_id === grupoId && isUsuarioActivoHorarios(u))
+    return usuarios.filter(u => 
+      u.grupo_id === grupoId && 
+      isUsuarioActivoHorarios(u) &&
+      (filtroProfesor ? u.profesor_id?.toString() === filtroProfesor : true)
+    )
   }
 
   const getUsuariosSinGrupo = () => {
-    return usuarios.filter(u => u.grupo_id === null && isUsuarioActivoHorarios(u))
+    return usuarios.filter(u => 
+      u.grupo_id === null && 
+      isUsuarioActivoHorarios(u) &&
+      (filtroProfesor ? u.profesor_id?.toString() === filtroProfesor : true)
+    )
   }
 
   const agruparPorHorario = (usuariosGrupo: Usuario[]) => {
@@ -308,6 +320,14 @@ export default function HorariosPage() {
         </button>
       </div>
 
+      <div style={{ display: 'flex', gap: '15px', marginBottom: '20px', flexWrap: 'wrap', alignItems: 'center' }}>
+        <select value={filtroProfesor} onChange={(e) => setFiltroProfesor(e.target.value)}
+          style={{ padding: '10px 15px', borderRadius: 'var(--radius)', border: '1px solid #ddd', background: 'var(--white)', minWidth: '220px' }}>
+          <option value="">Todos los profesores</option>
+          {profesores.map(p => <option key={p.id} value={p.id.toString()}>{p.nombre}</option>)}
+        </select>
+      </div>
+
       {/* Acordeones por grupo */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
         {grupos.filter(g => g.activo !== false).map(grupo => {
@@ -444,6 +464,9 @@ export default function HorariosPage() {
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                                   <span style={{ color: 'var(--gray)', fontSize: '0.9rem' }}>{u.celular}</span>
+                                  <span style={{ color: 'var(--primary)', fontWeight: 600, fontSize: '0.85rem' }}>
+                                    Módulo {u.modulo_numero || 1}
+                                  </span>
                                   {u.estado && (
                                     <span style={{
                                       padding: '3px 10px',
@@ -522,6 +545,9 @@ export default function HorariosPage() {
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                       <span style={{ color: 'var(--gray)', fontSize: '0.9rem' }}>{u.celular}</span>
+                      <span style={{ color: 'var(--primary)', fontWeight: 600, fontSize: '0.85rem' }}>
+                        Módulo {u.modulo_numero || 1}
+                      </span>
                       {u.estado && (
                         <span style={{
                           padding: '3px 10px',

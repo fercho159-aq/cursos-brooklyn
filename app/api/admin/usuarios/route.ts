@@ -18,7 +18,8 @@ export async function GET(request: Request) {
     let query = `
       SELECT u.id, u.nombre, u.celular, u.email, u.edad, u.fecha_cumpleanos, u.rol, u.activo, u.created_at,
              u.genero, u.tipo_curso, u.turno, u.dia, u.abono, u.total, u.estado_pago, u.estado,
-             u.lunes, u.martes, u.miercoles, u.jueves, u.sabado, u.horario, u.grupo_id,
+             u.lunes, u.martes, u.miercoles, u.jueves, u.sabado, u.horario, u.grupo_id, u.profesor_id,
+             (SELECT modulo_numero FROM inscripciones i WHERE i.usuario_id = u.id AND i.estado = 'activo' ORDER BY i.created_at DESC LIMIT 1) as modulo_numero,
              g.nombre as grupo_nombre, g.color as grupo_color
       FROM usuarios u
       LEFT JOIN grupos g ON u.grupo_id = g.id
