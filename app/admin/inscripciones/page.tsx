@@ -57,7 +57,7 @@ export default function InscripcionesPage() {
 
   const fetchData = async () => {
     try {
-      const [inscRes, usrRes, crsRes, horRes] = await Promise.all([
+      const [inscRes, usrRes, crsRes, horRes, profsRes] = await Promise.all([
         fetch(`/api/admin/inscripciones${filtroEstado ? `?estado=${filtroEstado}` : ''}`, { credentials: 'include' }),
         fetch('/api/admin/usuarios?rol=alumno', { credentials: 'include' }),
         fetch('/api/admin/cursos', { credentials: 'include' }),
