@@ -31,6 +31,8 @@ interface Usuario {
   grupo_id: number | null
   grupo_nombre: string | null
   grupo_color: string | null
+  profesor_id: number | null
+  profesor_nombre: string | null
 }
 
 interface Grupo {
@@ -46,6 +48,7 @@ interface Grupo {
 export default function UsuariosPage() {
   const [usuarios, setUsuarios] = useState<Usuario[]>([])
   const [grupos, setGrupos] = useState<Grupo[]>([])
+  const [profesores, setProfesores] = useState<Usuario[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [filtroRol, setFiltroRol] = useState('')
@@ -74,7 +77,8 @@ export default function UsuariosPage() {
     jueves: false,
     sabado: false,
     horario: '',
-    grupo_id: ''
+    grupo_id: '',
+    profesor_id: ''
   })
 
   const fetchUsuarios = async () => {
@@ -95,21 +99,28 @@ export default function UsuariosPage() {
     }
   }
 
-  const fetchGrupos = async () => {
+  const fetchGruposDocs = async () => {
     try {
-      const res = await fetch('/api/admin/grupos', { credentials: 'include' })
-      if (res.ok) {
-        const data = await res.json()
+      const [resGrupos, resProf] = await Promise.all([
+        fetch('/api/admin/grupos', { credentials: 'include' }),
+        fetch('/api/admin/usuarios?rol=profesor', { credentials: 'include' })
+      ])
+      if (resGrupos.ok) {
+        const data = await resGrupos.json()
         setGrupos(data)
       }
+      if (resProf.ok) {
+        const dataProf = await resProf.json()
+        setProfesores(dataProf)
+      }
     } catch (error) {
-      console.error('Error al cargar grupos:', error)
+      console.error('Error al cargar grupos/profesores:', error)
     }
   }
 
   useEffect(() => {
     fetchUsuarios()
-    fetchGrupos()
+    fetchGruposDocs()
   }, [filtroRol])
 
   const handleSearch = (e: React.FormEvent) => {
@@ -149,7 +160,7 @@ export default function UsuariosPage() {
       password: '', rol: '', activo: true,
       genero: '', tipo_curso: '', turno: '', dia: '',
       estado_pago: '', estado: '', lunes: false, martes: false, miercoles: false,
-      jueves: false, sabado: false, horario: '', grupo_id: ''
+      jueves: false, sabado: false, horario: '', grupo_id: '', profesor_id: ''
     })
     setModalOpen(true)
   }
@@ -178,7 +189,8 @@ export default function UsuariosPage() {
       jueves: u.jueves || false,
       sabado: u.sabado || false,
       horario: u.horario || '',
-      grupo_id: u.grupo_id?.toString() || ''
+      grupo_id: u.grupo_id?.toString() || '',
+      profesor_id: u.profesor_id?.toString() || ''
     })
     setModalOpen(true)
   }
@@ -240,7 +252,8 @@ export default function UsuariosPage() {
         jueves: formData.jueves,
         sabado: formData.sabado,
         horario: cleanString(formData.horario),
-        grupo_id: cleanInt(formData.grupo_id)
+        grupo_id: cleanInt(formData.grupo_id),
+        profesor_id: cleanInt(formData.profesor_id)
       }
 
       if (formData.password) {
@@ -531,15 +544,29 @@ export default function UsuariosPage() {
               {formData.rol === 'alumno' && (
                 <>
                   <h3 style={{ margin: '0 0 15px 0', fontSize: '1rem', color: 'var(--gray)' }}>Curso y Horarios</h3>
-                  <div style={{ marginBottom: '15px' }}>
-                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Grupo</label>
-                    <select value={formData.grupo_id} onChange={(e) => setFormData({ ...formData, grupo_id: e.target.value, turno: '', horario: '' })}
-                      style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }}>
-                      <option value="">Sin grupo asignado</option>
-                      {grupos.filter(g => g.activo).map(g => (
-                        <option key={g.id} value={g.id}>{g.nombre}</option>
-                      ))}
-                    </select>
+                  
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Profesor Asignado</label>
+                      <select value={formData.profesor_id} onChange={(e) => setFormData({ ...formData, profesor_id: e.target.value })}
+                        style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }}>
+                        <option value="">Sin profesor asignado</option>
+                        {profesores.filter(p => p.activo).map(p => (
+                          <option key={p.id} value={p.id}>{p.nombre}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '5px', fontWeight: 500 }}>Grupo</label>
+                      <select value={formData.grupo_id} onChange={(e) => setFormData({ ...formData, grupo_id: e.target.value, turno: '', horario: '' })}
+                        style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius)', border: '1px solid #ddd' }}>
+                        <option value="">Sin grupo asignado</option>
+                        {grupos.filter(g => g.activo).map(g => (
+                          <option key={g.id} value={g.id}>{g.nombre}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
 
                   {formData.grupo_id && horariosDisponibles.length > 0 ? (
