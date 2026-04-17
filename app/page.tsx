@@ -120,7 +120,7 @@ export default function HomePage() {
                 <span className="price-label">Desde</span>
                 <span className="price-amount">$1,800<small>/mes</small></span>
               </div>
-              <Link href="#contacto" className="btn btn-primary btn-block">
+              <Link href="/cursos/ingles" className="btn btn-primary btn-block">
                 Mas informacion <FontAwesomeIcon icon={faArrowRight} />
               </Link>
             </div>
@@ -143,7 +143,7 @@ export default function HomePage() {
                 <span className="price-label">Planes</span>
                 <span className="price-amount flexible">Flexibles</span>
               </div>
-              <Link href="#contacto" className="btn btn-secondary btn-block">
+              <Link href="/cursos/marketing" className="btn btn-secondary btn-block">
                 Mas informacion <FontAwesomeIcon icon={faArrowRight} />
               </Link>
             </div>
