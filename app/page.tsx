@@ -118,7 +118,7 @@ export default function HomePage() {
               </div>
               <div className="course-pricing">
                 <span className="price-label">Desde</span>
-                <span className="price-amount">$1,500<small>/mes</small></span>
+                <span className="price-amount">$1,800<small>/mes</small></span>
               </div>
               <Link href="#contacto" className="btn btn-primary btn-block">
                 Mas informacion <FontAwesomeIcon icon={faArrowRight} />

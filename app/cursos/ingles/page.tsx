@@ -79,8 +79,8 @@ export default function CursoInglesPage() {
                 <div className="course-emoji">🇬🇧</div>
                 <h3>Curso de Ingles</h3>
                 <div className="course-price">
-                  <span className="price-from">Inversión</span>
-                  <span className="price-value flexible" style={{ fontSize: '1.5rem', marginTop: '5px' }}>Pago Mensual</span>
+                  <span className="price-from">Costo Mensual</span>
+                  <span className="price-value">$1,800<small> MXN</small></span>
                 </div>
                 <ul className="course-specs">
                   <li><FontAwesomeIcon icon={faClock} /> Duracion: 2 años completos</li>
