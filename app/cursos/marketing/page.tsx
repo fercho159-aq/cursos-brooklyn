@@ -158,6 +158,39 @@ export default function CursoMarketingPage() {
         </div>
       </section>
 
+      {/* Promociones Section */}
+      <section className="promotions-section" style={{ padding: '6rem 0', backgroundColor: '#fdfbfa' }}>
+        <div className="container">
+          <div className="section-header" style={{ textAlign: 'center', marginBottom: '3rem' }}>
+            <span className="section-badge" style={{ backgroundColor: '#ffeaa7', color: '#d35400' }}>¡Ofertas Especiales!</span>
+            <h2 className="section-title">Aprovecha nuestras <span className="gradient-text">Promociones</span></h2>
+          </div>
+          <div className="modules-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+            <div className="module-card" style={{ borderTop: '4px solid #f39c12', position: 'relative', display: 'flex', flexDirection: 'column', height: '100%' }}>
+              <div className="module-icon" style={{ backgroundColor: '#fff3e0', color: '#f39c12', marginBottom: '1.5rem', width: '60px', height: '60px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>
+                <FontAwesomeIcon icon={faGift} />
+              </div>
+              <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: '#2c3e50' }}>50% de Descuento</h3>
+              <p style={{ color: '#555', lineHeight: '1.6', flexGrow: 1 }}>Inscribe tu segundo curso con un increíble <strong>50% de descuento</strong>. No pierdas la oportunidad de expandir tus conocimientos en Inglés y otras áreas.</p>
+            </div>
+            
+            <div className="module-card" style={{ borderTop: '4px solid #e74c3c', position: 'relative', display: 'flex', flexDirection: 'column', height: '100%' }}>
+              <div style={{ position: 'absolute', top: '-16px', right: '20px', background: '#e74c3c', color: 'white', padding: '6px 16px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold', boxShadow: '0 4px 6px rgba(231, 76, 60, 0.2)' }}>
+                PAQUETE ESTELAR
+              </div>
+              <div className="module-icon" style={{ backgroundColor: '#fdecea', color: '#e74c3c', marginBottom: '1.5rem', width: '60px', height: '60px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>
+                <FontAwesomeIcon icon={faLaptopHouse} />
+              </div>
+              <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: '#2c3e50' }}>Inglés + Marketing Digital</h3>
+              <p style={{ color: '#555', lineHeight: '1.6', marginBottom: '1.5rem', flexGrow: 1 }}>El combo definitivo para potenciar tu currículum y carrera profesional por un precio exclusivo e inigualable.</p>
+              <div style={{ marginTop: 'auto', fontSize: '2.5rem', fontWeight: '800', color: '#2c3e50', background: '#f8f9fa', padding: '1rem', borderRadius: '10px', textAlign: 'center' }}>
+                $2,500 <small style={{ fontSize: '1rem', fontWeight: '500', color: '#7f8c8d' }}>MXN</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="cta-section">
         <div className="container">
