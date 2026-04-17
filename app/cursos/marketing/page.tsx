@@ -83,10 +83,18 @@ export default function CursoMarketingPage() {
                   <span className="price-value flexible">Flexibles</span>
                 </div>
                 <ul className="course-specs">
-                  <li><FontAwesomeIcon icon={faClock} /> Modulos de 2 meses</li>
-                  <li><FontAwesomeIcon icon={faLaptopHouse} /> Presencial u Online</li>
-                  <li><FontAwesomeIcon icon={faPenNib} /> Proyectos reales</li>
-                  <li><FontAwesomeIcon icon={faCalendarAlt} /> Horarios flexibles</li>
+                  <li style={{ padding: '0.5rem 0' }}>
+                    <FontAwesomeIcon icon={faClock} style={{ color: '#f39c12' }} /> <strong>1 Módulo por mes</strong>
+                  </li>
+                  <li style={{ padding: '0.5rem 0' }}>
+                    <FontAwesomeIcon icon={faCalendarAlt} style={{ color: '#e74c3c' }} /> <strong style={{ color: '#e74c3c', fontSize: '1.1rem', borderBottom: '2px solid #e74c3c' }}>Horarios Flexibles</strong>
+                  </li>
+                  <li style={{ padding: '0.5rem 0' }}>
+                    <FontAwesomeIcon icon={faLaptopHouse} /> Presencial u Online
+                  </li>
+                  <li style={{ padding: '0.5rem 0' }}>
+                    <FontAwesomeIcon icon={faPenNib} /> Proyectos reales
+                  </li>
                 </ul>
                 <div className="course-modules">
                   <h4><FontAwesomeIcon icon={faCalendarAlt} /> Modulos Disponibles</h4>
@@ -183,8 +191,8 @@ export default function CursoMarketingPage() {
               </div>
               <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: '#2c3e50' }}>Inglés + Marketing Digital</h3>
               <p style={{ color: '#555', lineHeight: '1.6', marginBottom: '1.5rem', flexGrow: 1 }}>El combo definitivo para potenciar tu currículum y carrera profesional por un precio exclusivo e inigualable.</p>
-              <div style={{ marginTop: 'auto', fontSize: '2.5rem', fontWeight: '800', color: '#2c3e50', background: '#f8f9fa', padding: '1rem', borderRadius: '10px', textAlign: 'center' }}>
-                $2,500 <small style={{ fontSize: '1rem', fontWeight: '500', color: '#7f8c8d' }}>MXN</small>
+              <div style={{ marginTop: 'auto', fontSize: '1.6rem', fontWeight: '800', color: '#e74c3c', background: '#fdf0ed', padding: '1rem', borderRadius: '10px', textAlign: 'center', border: '2px dashed #e74c3c' }}>
+                ¡Oferta Especial!
               </div>
             </div>
           </div>

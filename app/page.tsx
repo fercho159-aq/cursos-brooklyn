@@ -75,6 +75,24 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Mega Promo Banner */}
+      <section className="mega-promo" style={{ background: 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)', padding: '3rem 1rem', color: 'white', textAlign: 'center', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
+        <div className="container">
+          <div style={{ display: 'inline-block', background: 'rgba(255,255,255,0.2)', padding: '0.5rem 1.5rem', borderRadius: '30px', fontWeight: 'bold', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '0.9rem' }}>
+            <FontAwesomeIcon icon={faStar} style={{ color: '#f1c40f' }} /> Promoción Exclusiva <FontAwesomeIcon icon={faStar} style={{ color: '#f1c40f' }} />
+          </div>
+          <h2 style={{ fontSize: '2.5rem', fontWeight: '900', marginBottom: '1rem' }}>
+            Paquete Estelar: <span style={{ color: '#f1c40f' }}>Marketing Digital + Inglés</span>
+          </h2>
+          <p style={{ fontSize: '1.2rem', marginBottom: '2rem', opacity: '0.9', maxWidth: '800px', margin: '0 auto 2rem auto', lineHeight: '1.6' }}>
+            Multiplica tus oportunidades laborales dominando el idioma de los negocios y las herramientas digitales más potentes. ¡El combo definitivo para tu éxito profesional!
+          </p>
+          <a href="https://wa.me/5215625813428?text=Hola,%20me%20interesa%20la%20promoci%C3%B3n%20del%20Paquete%20Estelar%20de%20Marketing%20+%20Ingl%C3%A9s" target="_blank" rel="noopener noreferrer" className="btn btn-light btn-lg" style={{ color: '#c0392b', fontWeight: '800', fontSize: '1.1rem', padding: '1rem 2.5rem', borderRadius: '50px', boxShadow: '0 10px 20px rgba(0,0,0,0.15)', textTransform: 'uppercase', letterSpacing: '1px' }}>
+            <FontAwesomeIcon icon={faWhatsapp} style={{ marginRight: '10px', fontSize: '1.3rem' }} /> Solicitar Información
+          </a>
+        </div>
+      </section>
+
       {/* Courses Section */}
       <section className="courses" id="cursos">
         <div className="container">
