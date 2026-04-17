@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faCertificate, faGlobe, faUserGraduate, faClock, faUsers,
-  faBook, faCalendarAlt, faCheckCircle, faArrowRight, faGift
+  faBook, faCalendarAlt, faCheckCircle, faArrowRight, faGift, faLanguage
 } from '@fortawesome/free-solid-svg-icons'
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons'
 import { Navbar, Footer, WhatsAppButton, BackToTop } from '@/components/layout'
@@ -76,7 +76,7 @@ export default function CursoInglesPage() {
 
             <div className="course-detail-sidebar">
               <div className="course-info-card">
-                <div className="course-emoji">🇬🇧</div>
+                <div className="course-emoji"><FontAwesomeIcon icon={faLanguage} /></div>
                 <h3>Curso de Ingles</h3>
                 <div className="course-price">
                   <span className="price-from">Costo Mensual</span>
