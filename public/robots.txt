@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /alumno/
+Disallow: /profesor/
+Disallow: /login
+Disallow: /recibo/
+Disallow: /api/
+
+Sitemap: https://cursosbrooklyn.com/sitemap.xml

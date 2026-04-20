@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import { Poppins } from 'next/font/google'
 import './globals.css'
 
@@ -37,6 +38,9 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  verification: {
+    google: 'vl6aLuOzfdm0Tit04g75UlzN8u3Ii6NmRlWBkWLjfyg',
+  },
 }
 
 export default function RootLayout({
@@ -46,6 +50,24 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
+      <head>
+        {/* Google Analytics */}
+        <Script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-K2DF0DHD60"
+        />
+        <Script
+          id="google-analytics"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-K2DF0DHD60');
+            `,
+          }}
+        />
+      </head>
       <body className={poppins.variable}>
         {children}
       </body>

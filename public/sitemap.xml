@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Página Principal -->
+  <url>
+    <loc>https://cursosbrooklyn.com/</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Página ¿Por qué Brooklyn? -->
+  <url>
+    <loc>https://cursosbrooklyn.com/porque-brooklyn</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Cursos -->
+  <url>
+    <loc>https://cursosbrooklyn.com/cursos</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Curso de Inglés -->
+  <url>
+    <loc>https://cursosbrooklyn.com/cursos/ingles</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Curso de Marketing Digital -->
+  <url>
+    <loc>https://cursosbrooklyn.com/cursos/marketing</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Inscripción -->
+  <url>
+    <loc>https://cursosbrooklyn.com/inscripcion</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Lecciones -->
+  <url>
+    <loc>https://cursosbrooklyn.com/lecciones</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Lecciones Headway Beginner -->
+  <url>
+    <loc>https://cursosbrooklyn.com/lecciones/headway-beginner</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Lecciones Headway Elementary -->
+  <url>
+    <loc>https://cursosbrooklyn.com/lecciones/headway-elementary</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Lecciones Headway Pre-Intermediate -->
+  <url>
+    <loc>https://cursosbrooklyn.com/lecciones/headway-pre-intermediate</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Lecciones Pre-Básico -->
+  <url>
+    <loc>https://cursosbrooklyn.com/lecciones/pre-basico</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Customer Stories -->
+  <url>
+    <loc>https://cursosbrooklyn.com/lecciones/customer-stories</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- Registro Clase Muestra -->
+  <url>
+    <loc>https://cursosbrooklyn.com/registro-clase-muestra</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+</urlset>
